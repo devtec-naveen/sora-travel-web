@@ -1,0 +1,103 @@
+table.dataTable th.dt-type-numeric, table.dataTable th.dt-type-date, table.dataTable td.dt-type-numeric, table.dataTable td.dt-type-date{
+  text-align: left;
+}
+div.dt-container .dt-paging .dt-paging-button.current, div.dt-container .dt-paging .dt-paging-button.current:hover{
+  
+  background-color: #6259ca;
+  border-color: #6259ca;color: #fff !important;
+}
+div.dt-layout-row .dt-paging.paging_full_numbers button {
+    border: 1px solid #e8e8f7 !important;
+    margin: 0px;
+    border-left: 0px !important;
+}
+
+div.dt-layout-row .dt-paging.paging_full_numbers button:first-child{
+  border-left: 1px solid #e8e8f7 !important;
+}
+div.dt-container .dt-paging .dt-paging-button:hover{
+  background: #f0f0ff !important;
+  color: #000 !important;
+}
+
+.form-control {
+  color: #424040;
+}
+
+.main-footer {
+  position: fixed;
+  width: 100%;
+  bottom: 0px;
+}
+
+.avatar {
+  position:relative;
+  display:inline-block;
+  width:2.625rem;
+  height:2.625rem;
+  border-radius:.5rem
+}
+.avatar.avatar-xxxs { width: 24px;height: 24px;border-radius: 24px; } 
+.avatar.avatar-xxs { width: 32px;height: 32px;border-radius: 32px; } 
+.avatar.avatar-xs { width: 40px;height: 40px;border-radius: 40px; } 
+.avatar.avatar-sm { width: 48px;height: 48px;border-radius: 48px; } 
+.avatar.avatar-md { width: 64px;height: 64px;border-radius: 64px; } 
+.avatar.avatar-xl { width: 96px;height: 96px;border-radius: 96px; } 
+
+table.dataTable th.dt-type-numeric {
+  text-align: left !important;
+}
+table.dataTable td.dt-type-numeric {
+  text-align: left !important;
+}
+
+div.dt-container div.dt-layout-cell.dt-start{padding-top: 0px;}
+div.dt-container div.dt-layout-cell.dt-end{padding-top: 0px;}
+tr td{overflow: hidden;}
+.show-password{position: absolute;
+  right: 10px;
+  top: 9px;
+  cursor: pointer;
+}
+
+.custom-checkbox {
+  display: block;
+    position: relative;
+    padding-left: 0px;
+    margin-bottom: 0;
+    cursor: pointer;
+    font-size: 22px;
+    user-select: none;
+    margin-top: 10px;
+}
+
+.custom-checkbox input {
+  position: absolute;
+    cursor: pointer;
+    height: 15px;
+    width: 15px;
+    margin-top: 3px;
+}
+
+.custom-checkbox p {
+  font-size: 15px;
+    color: #1d212f;
+    padding-left: 24px;
+}
+
+.forget-password {
+  color: #6259ca;
+  text-decoration: none;
+}
+
+.table thead th {
+  vertical-align: bottom;
+  border-bottom: 1px solid #e8e8f7 !important;
+}
+div.dt-container.dt-empty-footer tbody > tr:last-child > *{border-bottom: 1px solid #e8e8f7 !important;}
+div.dt-container .dt-search input{border: 1px solid #e8e8f7 !important;}
+div.dt-container .dt-input{border: 1px solid #e8e8f7 !important;}
+.ck-editor__editable_inline {
+  height: 200px; /* Adjust the height as needed */
+}
+.line-height-24{line-height: 24px;}
