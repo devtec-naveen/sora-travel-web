@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Form;
+namespace App\View\Components\Backend\Form;
 
 use Illuminate\View\Component;
 
@@ -23,6 +23,6 @@ class Input extends Component
 
     public function render()
     {
-        return view('components.form.input');
+        return view('components.backend.form.input');
     }
 }

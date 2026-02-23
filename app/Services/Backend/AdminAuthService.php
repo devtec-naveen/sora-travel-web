@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Backend;
 
-use App\Repositories\AdminAuthRepository;
+use App\Repositories\Backend\AdminAuthRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 

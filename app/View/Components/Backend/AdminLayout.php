@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components;
+namespace App\View\Components\Backend;
 
 use Closure;
 use Illuminate\Contracts\View\View;
@@ -11,9 +11,8 @@ class AdminLayout extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct(public $pageTitle , public $breadcrumb)
+    public function __construct(public $breadcrumb)
     {
-        $this->pageTitle = $pageTitle;
         $this->breadcrumb = $breadcrumb;
     }
 
@@ -22,6 +21,6 @@ class AdminLayout extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.admin-layout');
+        return view('components.backend.admin-layout');
     }
 }

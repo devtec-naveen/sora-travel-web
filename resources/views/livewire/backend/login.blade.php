@@ -1,8 +1,8 @@
 <div>
    <form wire:submit="login" method="POST">
       @csrf
-      <x-form.input type="text" name="email" label="Email Address" placeholder="Enter email"/>
-      <x-form.input type="password" name="password" label="Password" placeholder="Enter Password"/>
+      <x-backend.form.input type="text" name="email" label="Email Address" placeholder="Enter email"/>
+      <x-backend.form.input type="password" name="password" label="Password" placeholder="Enter Password"/>
       <div class="terms-box d-flex align-items-center justify-content-between mt-3">         
          <label class="custom-checkbox">
             <input type="checkbox" name="remember">

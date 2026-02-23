@@ -15,5 +15,24 @@
 <script src="{{asset('admin/js/function.js')}}"></script>
 <script src="https://unpkg.com/nextjs-toast-notify@1.47.0/dist/nextjs-toast-notify.js"></script>
 @include('include.flash-message')
+
+<script>
+    document.addEventListener('livewire:init', () => {
+        Livewire.hook('request', ({ fail, respond }) => {
+            fail(({ status, preventDefault }) => {
+                if (status === 500) {
+                    preventDefault(); // Stop Livewire's default 419 behavior
+
+                    // Use your toast library here to show a message
+                    // Example with a generic alert, replace with your toast code:
+                    alert('Your session has expired. Please refresh the page.');
+
+                    // Optional: automatically refresh the page for the user
+                    // window.location.reload(); 
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

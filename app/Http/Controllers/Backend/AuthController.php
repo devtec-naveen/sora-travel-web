@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
-use App\Services\AdminAuthService;
+use App\Services\Backend\AdminAuthService;
 use Illuminate\Http\Request;
 use App\Traits\Toast;
 
 class AuthController extends Controller
 {
     use Toast;
+    
     protected $service;
 
     public function __construct(AdminAuthService $service)

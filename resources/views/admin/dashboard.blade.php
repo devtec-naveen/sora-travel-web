@@ -1,4 +1,4 @@
-<x-admin-layout pageTitle="Dashboard" :breadcrumb="false">    
+<x-backend.admin-layout pageTitle="Dashboard" :breadcrumb="false">    
     <div class="row row-sm">
         <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
             <a href="https://suchgor.com/admin/customers">
@@ -59,4 +59,4 @@
             </a>
         </div>
     </div>
-</x-admin-layout>
+</x-backend.admin-layout>
