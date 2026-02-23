@@ -8,7 +8,7 @@
   <meta name="author" content="{{ __('app.name') }}">
   <meta name="keywords" content="{{ __('app.name') }}">
   <meta name="csrf-token" id="csrf-token" content="{{ csrf_token() }}">
-  <link rel="icon" type="image/x-icon" href="#">
+  <link rel="icon" type="image/x-icon" href="{{asset('assets/images/logo/favicon.png')}}">
   @livewireStyles
   <link href="{{ asset('admin/plugins/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet" />
   <link href="{{ asset('admin/plugins/web-fonts/icons.css')}}" rel="stylesheet" />
