@@ -45,5 +45,10 @@ return [
         'secret' => env('HOTELBEDS_SECRET'),
         'base_url' => env('HOTELBEDS_BASE_URL', 'https://api.test.hotelbeds.com'),
     ],
+    'amadeus' => [
+        'client_id' => env('AMADEUS_CLIENT_ID'),
+        'client_secret' => env('AMADEUS_CLIENT_SECRET'),
+        'base_url' => env('AMADEUS_BASE_URL'),
+    ],
 
 ];

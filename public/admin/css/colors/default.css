@@ -95,8 +95,8 @@ body {
 
 .btn-primary {
     color: #fff;
-    background-color: #6259ca;
-    border-color: #6259ca;
+    background-color: #0F3869;
+    border-color: #0F3869;
 }
 
 .btn-primary:hover {
@@ -161,8 +161,8 @@ body {
 .btn-main-primary.disabled,
 .btn-main-primary:disabled {
     color: #fff;
-    background-color: #6259ca;
-    border-color: #6259ca;
+    background-color: #1e497d;
+    border-color: #1e497d;
 }
 
 .btn-main-primary:not(:disabled):not(.disabled):active,
