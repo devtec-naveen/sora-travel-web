@@ -7,6 +7,8 @@ use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\ProfileController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
+use Symfony\Component\Process\Process;
+
 
 //==================================================== Front-End Routes ======================================= 
 
@@ -25,18 +27,22 @@ Route::get('/clear-all', function () {
     return "All caches cleared successfully!";
 });
 
-Route::get('/run-migration', function() {
-    // Start output buffering
-    ob_start();
+Route::get('/run-migration', function () {
+    $process = new Process(['php', 'artisan', 'migrate', '--force']);
+    $process->setTimeout(null);
+    $process->start();
 
-    $exitCode = Artisan::call('migrate', ['--force' => true]);
-
-    // Get everything that was "echoed" during execution
-    $output = ob_get_clean();
-
-    return nl2br($output . "\nExit code: $exitCode");
+    return response()->stream(function () use ($process) {
+        foreach ($process as $type => $data) {
+            echo nl2br($data);
+            flush();
+        }
+    }, 200, [
+        "Content-Type" => "text/html",
+        "Cache-Control" => "no-cache",
+        "X-Accel-Buffering" => "no" // nginx ke liye
+    ]);
 });
-
 // Route::get('/flight-test', function () {
 
 //     $baseUrl = config('services.amadeus.base_url');
