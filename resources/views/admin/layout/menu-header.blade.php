@@ -40,10 +40,10 @@
                         </h6>
                         <p class="main-notification-text"></p>
                     </div>
-                    <a class="dropdown-item border-top" href="">
+                    <a class="dropdown-item border-top" href="{{route('admin.changePassword')}}" wire:navigate>
                         <i class="fe fe-user"></i> Change Password
                     </a>
-                    <a class="dropdown-item border-top" href="">
+                    <a class="dropdown-item border-top" href="{{route('admin.profile')}}" wire:navigate>
                         <i class="fe fe-user"></i> Edit Profile
                     </a>
                     <a href="javascript:void(0)" onclick="return logout(event)" class="dropdown-item"><i class="fe fe-power"></i>Log Out</a>

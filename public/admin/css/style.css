@@ -10727,6 +10727,7 @@ div.dataTables_wrapper div.dataTables_length select {
     align-items: center;
     color: rgba(255, 255, 255, 0.4);
     font-size: 13px;
+    font-weight:600 !important;
 }
 
 .main-sidebar-body .nav-sub-link.with-sub {

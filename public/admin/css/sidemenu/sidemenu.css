@@ -13,6 +13,7 @@
 
 .sidemenu-label {
     transition: margin-left 0.45s ease;
+    font-weight:600 !important;
 }
 
 .side-menu .nav-link:hover {
