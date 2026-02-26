@@ -1,7 +1,8 @@
 @php
     $breadcrumbs = [
         ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
-        ['label' => 'Email Template', 'url' => null],
+        ['label' => 'Email Template', 'url' => route('admin.emailTemplate')],
+        ['label' => 'View', 'url' => null],
     ];
 @endphp
 <x-backend.admin-layout :breadcrumb="$breadcrumbs">

@@ -51,13 +51,13 @@
                     </li> --}}
                 </ul>
             </li>
-            <li class="nav-item">
+            {{-- <li class="nav-item">
                 <a class="nav-link" wire:navigate href="{{ route('admin.emailTemplate') }}">
                     <span class="shape1"></span>
                     <span class="shape2"></span><i class="ti-settings sidemenu-icon"></i>
                     <span class="sidemenu-label">Global Settings</span>
                 </a>
-            </li>
+            </li> --}}
         </ul>
     </div>
 </div>
