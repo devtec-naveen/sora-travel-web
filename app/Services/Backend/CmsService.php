@@ -4,6 +4,7 @@ namespace App\Services\Backend;
 
 use App\Models\FaqCategoryModel;
 use App\Models\FaqModel;
+use App\Models\EmailTemplateModel;
 use App\Repositories\Backend\CmsRepository;
 
 class CmsService
@@ -21,6 +22,11 @@ class CmsService
     {
         $emailTemplateList = $this->repo->emailTemplateList($request);
         return $emailTemplateList;
+    }
+
+    public function getEmailTemplateById(int $id): EmailTemplateModel
+    {
+        return EmailTemplateModel::findOrFail($id);
     }
 
     //=============================== Faq Category List ============================== 

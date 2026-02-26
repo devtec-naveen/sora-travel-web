@@ -382,7 +382,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/change-password', [ProfileController::class, 'changePassword'])->name('changePassword');
         
 
-        Route::get('/email-template', [CmsController::class, 'emailTemplate'])->name('emailTemplate'); 
+        Route::get('/email-template', [CmsController::class, 'emailTemplate'])->name('emailTemplate');
+        Route::get('/email-template/view/{id}', [CmsController::class, 'viewEmailTemplate'])->name('emailTemplateView');
+
 
         Route::get('/faq-category', [CmsController::class, 'faqCategoryList'])->name('faqCategoryList');
         Route::get('/faq-category/add', [CmsController::class, 'faqCategoryAdd'])->name('faqCategoryAdd');

@@ -14,6 +14,11 @@ class CmsController extends Controller
         return view('admin.email-template.index');
     }
 
+    public function viewEmailTemplate(string $id)
+    {
+       return view('admin.email-template.view',['id' => $id]);
+    }
+
     //===================== Faq Category ===============================     
 
     public function faqCategoryList(Request $request)

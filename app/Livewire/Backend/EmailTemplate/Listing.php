@@ -4,14 +4,22 @@ namespace App\Livewire\Backend\EmailTemplate;
 
 use App\Livewire\Backend\DataTable;
 use App\Services\Backend\CmsService;
+use App\Services\Common\ChangeStatusService;
+use App\Traits\Toast;
 
 class Listing extends DataTable
 {
-    protected CmsService $service;
+    use Toast;
 
-    public function boot(CmsService $service)
+    protected $listeners = ['changeStatus'];
+
+    protected CmsService $service;
+    protected ChangeStatusService $statusService;
+
+    public function boot(CmsService $service,ChangeStatusService $statusService)
     {
         $this->service = $service;
+        $this->statusService = $statusService;
     }
 
     public function render()
@@ -29,5 +37,12 @@ class Listing extends DataTable
         return view('livewire.backend.email-template.listing', [
             'emailTemplateList' => $emailTemplateList
         ]);
+    }
+
+    public function changeStatus($id)
+    {
+        $this->statusService->toggleStatus(\App\Models\EmailTemplateModel::class,$id);
+        $this->SessionToast('success', 'Status updated successfully!');
+        $this->redirect(route('admin.emailTemplate'),navigate:true);
     }
 }

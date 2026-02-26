@@ -64,9 +64,9 @@
                         </td>
                         <td>
                             @if ($template->status === 'active')
-                                <span class="badge badge-success">Active</span>
+                                <span onclick="confirmStatusChange({{ $template->id }})" class="badge badge-success statusClass">Active</span>
                             @else
-                                <span class="badge badge-danger">Inactive</span>
+                                <span onclick="confirmStatusChange({{ $template->id }})" class="badge badge-danger statusClass">Inactive</span>
                             @endif
                         </td>
                         <td>
@@ -74,8 +74,8 @@
                         </td>
                         <td>
                             <div class="d-flex">
-                                <button class="btn btn-sm btn-success">View</button>
-                                <button class="btn btn-sm btn-primary ml-1">Edit</button>
+                                <a wire:navigate href="{{route('admin.emailTemplateView',$template->id)}}" class="btn btn-sm btn-success">View</a>
+                                {{-- <button class="btn btn-sm btn-primary ml-1">Edit</button> --}}
                             </div>
                         </td>
                     </tr>
