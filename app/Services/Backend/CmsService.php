@@ -2,6 +2,7 @@
 
 namespace App\Services\Backend;
 
+use App\Models\FaqModel;
 use App\Repositories\Backend\CmsRepository;
 
 class CmsService
@@ -13,7 +14,17 @@ class CmsService
         $this->repo = $repo;
     }
 
-    public function getfaqCategoryList($request)
+    //=============================== Email Template ============================== 
+
+    public function getemailTemplateList($request)
+    {
+        $emailTemplateList = $this->repo->emailTemplateList($request);
+        return $emailTemplateList;
+    }
+
+    //=============================== Faq Category List ============================== 
+
+    public function getfaqCategoryList($request = null)
     {
         $emailTemplateList = $this->repo->faqCategoryList($request);
         return $emailTemplateList;
@@ -29,11 +40,8 @@ class CmsService
             return false;
         }
     }
-    public function getemailTemplateList($request)
-    {
-        $emailTemplateList = $this->repo->emailTemplateList($request);
-        return $emailTemplateList;
-    }
+
+     //=============================== Faq List ============================== 
 
     public function getfaqList($request)
     {
@@ -50,4 +58,16 @@ class CmsService
             return false;
         }
     }
+
+    public function getFaqById(int $id): FaqModel
+    {
+        return FaqModel::with('faqCategory')->findOrFail($id);
+    }
+
+    public function updateFaq(int $id, array $data): bool
+    {
+        return $this->repo->updateFaq($id, $data);
+    }
+
+
 }

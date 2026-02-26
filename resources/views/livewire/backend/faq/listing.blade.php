@@ -12,56 +12,60 @@
             <a href="{{ route('admin.faqAdd') }}" wire:navigate class="btn ripple btn-main-primary signbtn">Add Faq</a>
         </div>
     </div>
+
     <div class="table-responsive">
         <table class="table table-bordered border-t0 text-nowrap w-100">
             <thead>
                 <tr>
-                    <th width="5%" wire:click="sortBy('id')">Sr. No.
-                        @if ($sortField === 'id')
-                            {{ $sortDirection === 'asc' ? '↑' : '↓' }}
-                        @endif
-                    </th>
-                    <th class="cursor-pointer">Question</th>
+                    <th width="5%">Sr. No.</th>
+                    <th>Question</th>
                     <th>Answer</th>
                     <th width="5%">Status</th>
-                    <th width="12%" wire:click="sortBy('created_at')" class="cursor-pointer">
-                        Created Date
-                        @if ($sortField === 'created_at')
-                            {{ $sortDirection === 'asc' ? '↑' : '↓' }}
-                        @endif
-                    </th>
+                    <th width="12%">Created Date</th>
                     <th width="12%">Actions</th>
                 </tr>
             </thead>
             <tbody>
+                @php
+                    $groupedFaqs = $faqList->getCollection()->groupBy(function ($faq) {
+                        return $faq->faqCategory->name ?? 'Uncategorized';
+                    });
+                    $serial = 1;
+                @endphp
                 <x-table-loader :rows="10" :columns="6" />
-                @forelse($faqList as $faq)
-                    <tr wire:loading.class.add="d-none">
-                        <td>
-                            {{ ($faqList->currentPage() - 1) * $faqList->perPage() + $loop->iteration }}
-                        </td>
-                        <td>{{ Str::limit($faq->question, 50, '...') }}</td>
-                        <td>{{ Str::limit(strip_tags($faq->answer), 50, '...') }}</td>
-                        <td>
-                            @if ($faq->status === 'active')
-                                <span class="badge badge-success">Active</span>
-                            @else
-                                <span class="badge badge-danger">Inactive</span>
-                            @endif
-                        </td>
-                        <td>
-                            {{ optional($faq->created_at)->format('F d, Y') }}
-                        </td>
-                        <td>
-                            <div class="d-flex">
-                                <button class="btn btn-sm btn-success">View</button>
-                                <button class="btn btn-sm btn-primary ml-1">Edit</button>
-                                <button class="btn btn-sm btn-danger ml-1">Delete</button>
-                            </div>
-                        </td>
+                @forelse($groupedFaqs as $categoryName => $faqs)
+                    <tr class="table-secondary" wire:loading.class.add="d-none">
+                        <th colspan="6">{{ $categoryName }}</th>
                     </tr>
+                    @foreach ($faqs as $faq)
+                        <tr wire:loading.class.add="d-none">
+                            <td>{{ $serial++ }}</td>
+                            <td>{{ $faq->question }}</td>
+                            <td>{{ Str::limit(strip_tags($faq->answer), 50, '...') }}</td>
+                            <td>
+                                @if ($faq->status === 'active')
+                                    <span onclick="confirmStatusChange({{ $faq->id }})"
+                                        class="badge badge-success statusClass">Active</span>
+                                @else
+                                    <span onclick="confirmStatusChange({{ $faq->id }})"
+                                        class="badge badge-danger statusClass">Inactive</span>
+                                @endif
+                            </td>
+                            <td>{{ optional($faq->created_at)->format('F d, Y') }}</td>
+                            <td>
+                                <div class="d-flex">
+                                    <a wire:navigate href="{{route('admin.faqView',$faq->id)}}" class="btn btn-sm btn-success"><i class="si si-eye" aria-hidden="true" title="View"></i></a>
+                                    <a wire:navigate href="{{route('admin.faqEdit',$faq->id)}}" class="btn btn-sm btn-primary ml-1"><i class="si si-pencil" aria-hidden="true" data-original-title="Edit" title="Edit"></i></a>
+                                    <button onclick="confirmDelete({{ $faq->id }})"
+                                        class="btn btn-sm btn-danger ml-1">
+                                        <i class="si si-trash" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
                 @empty
-                    <tr wire:loading.remove>
+                    <tr>
                         <td colspan="6" class="text-center">No records found.</td>
                     </tr>
                 @endforelse

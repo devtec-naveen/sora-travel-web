@@ -31,4 +31,16 @@ class CmsController extends Controller
     {
         return view('admin.faq.add');
     }
+
+    public function viewFaq(string $id)
+    {
+        return view('admin.faq.view',['id' => $id]);
+    }
+
+    public function editFaq(string $id)
+    {
+        return view('admin.faq.edit',['id' => $id]);
+       
+    }
+
 }

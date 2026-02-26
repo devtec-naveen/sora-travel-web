@@ -390,6 +390,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/faq', [CmsController::class, 'faqList'])->name('faqList');
         Route::get('/faq/add', [CmsController::class, 'addFaq'])->name('faqAdd');
+        Route::get('/faq/view/{id}', [CmsController::class, 'viewFaq'])->name('faqView');
+        Route::get('/faq/edit/{id}', [CmsController::class, 'editFaq'])->name('faqEdit');
 
 
     });

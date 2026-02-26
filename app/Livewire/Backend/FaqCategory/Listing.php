@@ -44,14 +44,14 @@ class Listing extends DataTable
 
     public function deleteConfirmed($id)
     {
-        $this->deleteService->deleteRecord(\App\Models\FaqCategory::class,$id);
+        $this->deleteService->deleteRecord(\App\Models\FaqCategoryModel::class,$id);
         $this->SessionToast('success', 'FAQ Category deleted successfully!');
         $this->redirect(route('admin.faqCategoryList'),navigate:true);
     }
 
     public function changeStatus($id)
     {
-        $this->statusService->toggleStatus(\App\Models\FaqCategory::class,$id);
+        $this->statusService->toggleStatus(\App\Models\FaqCategoryModel::class,$id);
         $this->SessionToast('success', 'Status updated successfully!');
         $this->redirect(route('admin.faqCategoryList'),navigate:true);
     }

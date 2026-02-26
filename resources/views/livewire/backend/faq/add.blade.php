@@ -3,37 +3,53 @@
     <form wire:submit.prevent="saveFaqs" method="POST">
         @csrf
         <div class="row row-sm">
-            @foreach($faqs as $index => $faq)
-            <div class="col-md-12 mb-3 border rounded p-3">
-                <div class="form-group">
-                    <label>Question <span class="requirestar">*</span></label>
-                    <input type="text" wire:model="faqs.{{$index}}.question" class="form-control"
-                        placeholder="Enter Question">
-                    @error("faqs.$index.question")
-                        <span class="text-danger form-error">Question is required</span>
-                    @enderror
+            @foreach ($faqs as $index => $faq)
+                <div class="col-md-12 mb-3 border rounded p-3">
+                    <div class="form-group">
+                        <label>FAQ Category <span class="requirestar">*</span></label>
+                        <select wire:model="faqs.{{ $index }}.faq_category_id" class="form-control">
+                            <option value="">Select Category</option>
+
+                            @foreach ($faqCategoryList as $category)
+                                <option value="{{ $category->id }}">
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error("faqs.$index.faq_category_id")
+                            <span class="text-danger form-error">Category is required</span>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label>Question <span class="requirestar">*</span></label>
+                        <input type="text" wire:model="faqs.{{ $index }}.question" class="form-control"
+                            placeholder="Enter Question">
+                        @error("faqs.$index.question")
+                            <span class="text-danger form-error">Question is required</span>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label>Answer <span class="requirestar">*</span></label>
+                        <textarea wire:model="faqs.{{ $index }}.answer" class="form-control" rows="3" placeholder="Enter Answer"></textarea>
+                        @error("faqs.$index.answer")
+                            <span class="text-danger form-error">Answer is required</span>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select wire:model="faqs.{{ $index }}.status" class="form-control">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    @if (count($faqs) > 1)
+                        <button type="button" wire:click="removeFaq({{ $index }})"
+                            class="btn btn-danger btn-sm mt-2">
+                            Remove
+                        </button>
+                    @endif
                 </div>
-                <div class="form-group">
-                    <label>Answer <span class="requirestar">*</span></label>
-                    <textarea wire:model="faqs.{{$index}}.answer" class="form-control" rows="3"
-                        placeholder="Enter Answer"></textarea>
-                    @error("faqs.$index.answer")
-                        <span class="text-danger form-error">Answer is required</span>
-                    @enderror
-                </div>
-                <div class="form-group">
-                    <label>Status</label>
-                    <select wire:model="faqs.{{$index}}.status" class="form-control">
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-                @if(count($faqs) > 1)
-                <button type="button" wire:click="removeFaq({{$index}})" class="btn btn-danger btn-sm mt-2">
-                    Remove
-                </button>
-                @endif
-            </div>
             @endforeach
             <div class="col-md-12 mb-3">
                 <button type="button" wire:click="addFaq" class="btn btn-primary">

@@ -13,6 +13,7 @@ class Add extends DataTable
     protected CmsService $service;
 
     public $faqs = [];
+    public $faqCategoryList = [];
 
     public function boot(CmsService $service)
     {
@@ -21,6 +22,7 @@ class Add extends DataTable
 
     public function mount()
     {
+        $this->faqCategoryList = $this->service->getfaqCategoryList();
         $this->faqs = [
             ['question' => '', 'answer' => '', 'status' => 'active']
         ];
@@ -50,9 +52,12 @@ class Add extends DataTable
         $messages = [];
 
         foreach ($this->faqs as $i => $faq) {
+
+            $rules["faqs.$i.faq_category_id"] = 'required';
             $rules["faqs.$i.question"] = 'required|string|max:100';
             $rules["faqs.$i.answer"]   = 'required|string|max:200';
 
+            $messages["faqs.$i.faq_category_id.required"] = "Category Id field is required" . ($i + 1);
             $messages["faqs.$i.question.required"] = "Question field is required for row " . ($i + 1);
             $messages["faqs.$i.question.max"]      = "Question cannot exceed 100 characters for row " . ($i + 1);
 
@@ -75,6 +80,8 @@ class Add extends DataTable
 
     public function render()
     {
-        return view('livewire.backend.faq.add');
+        return view('livewire.backend.faq.add', [
+            'faqCategoryList' => $this->faqCategoryList
+        ]);
     }
 }
