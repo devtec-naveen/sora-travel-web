@@ -15,41 +15,41 @@
             </li>
             <li class="nav-item {{ Route::currentRouteName() == 'admin.users' ? 'active' : '' }}">
                 <a class="nav-link" wire:navigate href="{{ route('admin.users') }}"><span class="shape1"></span>
-                    <span class="shape2"></span><i class="ti-dashboard sidemenu-icon"></i>
+                    <span class="shape2"></span><i class="ti-user sidemenu-icon"></i>
                     <span class="sidemenu-label">Users</span>
                 </a>
             </li>
-
-
-
-            {{-- <li class="nav-item">
+            <li class="nav-item {{ Route::currentRouteName() == 'admin.emailTemplate' ? 'active' : '' }}">
+                <a class="nav-link" wire:navigate href="{{ route('admin.emailTemplate') }}"><span class="shape1"></span>
+                    <span class="shape2"></span><i class="ti-file sidemenu-icon"></i>
+                    <span class="sidemenu-label">Email Template</span>
+                </a>
+            </li>
+            <li class="nav-item {{ Str::contains(Request::url(), ['faq','faq-category']) ? 'active show' : '' }}">
                 <a class="nav-link with-sub" href="#"><span class="shape2"></span><span class="shape21"></span>
                     <i class="ti-id-badge sidemenu-icon"></i><span class="sidemenu-label">CMS </span>
                     <i class="angle fe fe-chevron-right"></i></a>
                 <ul class="nav-sub">
-                    <li class="nav-sub-item ">
+                    {{-- <li class="nav-sub-item ">
                         <a class="nav-sub-link" href="">Page</a>
                     </li>
                     <li class="nav-sub-item">
                         <a class="nav-sub-link" href="">Web Banners</a>
-                    </li>
-                    <li class="nav-sub-item">
+                    </li> --}}
+                    {{-- <li class="nav-sub-item">
                         <a class="nav-sub-link" href="">FAQ Categories</a>
+                    </li> --}}
+                    <li class="nav-sub-item">
+                        <a class="nav-sub-link" href="{{ route('admin.faqCategoryList') }}" wire:navigate>FAQ Category</a>
                     </li>
                     <li class="nav-sub-item">
-                        <a class="nav-sub-link" href="">FAQ</a>
+                        <a class="nav-sub-link" href="{{ route('admin.faqList') }}" wire:navigate>FAQ</a>
                     </li>
-                    <li class="nav-sub-item">
-                        <a class="nav-sub-link" href="">Email Templates</a>
-                    </li>
-                    <li class="nav-sub-item  ">
+                    {{-- <li class="nav-sub-item  ">
                         <a class="nav-sub-link" href="">Testimonials</a>
-                    </li>
-                    <li class="nav-sub-item ">
-                        <a class="nav-sub-link" href="">Global Setting</a>
-                    </li>
+                    </li> --}}
                 </ul>
-            </li> --}}
+            </li>
         </ul>
     </div>
 </div>

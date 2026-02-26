@@ -8499,6 +8499,8 @@ modal-backdrop {
 
 .table tbody tr {
     background-color: rgba(255, 255, 255, 0.5);
+    font-size:13px;
+    font-weight:500;
 }
 
 .table tbody tr th {

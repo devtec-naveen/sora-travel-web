@@ -66,7 +66,7 @@
                             {{-- ================= SUBMIT ================= --}}
                             <div class="form-actions row mt-3">
                                 <div class="col-md-8 offset-md-2">
-                                    <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
+                                    <button type="submit" class="btn-sm btn-primary" wire:loading.attr="disabled">
                                         <span wire:loading.remove>
                                             Submit
                                         </span>

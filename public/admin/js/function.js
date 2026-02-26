@@ -31,3 +31,31 @@ function logout(event) {
     });
     return false;
 }
+
+function confirmDelete(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Livewire.dispatch('deleteConfirmed', { id:id });
+        }
+    });
+}
+
+function confirmStatusChange(id) {
+    Swal.fire({
+        title: 'Change status?',
+        text: "Status will be updated.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, update it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Livewire.dispatch('changeStatus', { id: id });
+        }
+    });
+}

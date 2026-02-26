@@ -1,23 +1,16 @@
 <div>
-    <!-- Header: Title + Search + Buttons -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h6 class="main-content-label">Users</h6>
         <div class="d-flex align-items-center">
-            <!-- Search -->
             <div class="form-group mb-0 mr-2">
                 <input type="search" wire:model.live.debounce.700ms="search" class="form-control"
                     placeholder="Search Users">
             </div>
-
-            <!-- Reset Filter -->
             <button type="button" wire:click="resetFilters" class="btn btn-warning mr-2">Reset filter</button>
-
             <!-- Add User -->
             {{-- <button type="button" class="btn ripple btn-main-primary signbtn">Add User</button> --}}
         </div>
     </div>
-
-    <!-- Table -->
     <div class="table-responsive">
         <table class="table table-bordered border-t0 key-buttons text-nowrap w-100">
             <thead>
@@ -52,26 +45,11 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Loader row -->
-                @if ($loading)
-                    <h1>Hello</h1>
-                    <tr class="border-0">
-                        <td colspan="7" class="text-center border-0">
-                            <div class="d-flex justify-content-center align-items-center w-100" style="height: 100px;">
-                                <div class="spinner-border text-primary" role="status"
-                                    style="width: 3rem; height: 3rem;">
-                                    <span class="sr-only">Loading...</span>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                @endif
-
-                <!-- Users rows -->
+                <x-table-loader :rows="10" :columns="6" />
                 @forelse($users as $user)
-                    <tr wire:loading.remove>
-                        <td>{{ $user->id }}</td>
-                        <td>{{ $user->name ?? 'N/A' }}</td>
+                    <tr wire:loading.class.add="d-none">
+                        <td>{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
+                        <td>{{ Str::title($user->name) ?? 'N/A' }}</td>
                         <td>{{ $user->email ?? 'N/A' }}</td>
                         <td>{{ $user->phone ?? 'N/A' }}</td>
                         <td>{{ $user->created_at->format('F d, Y') }}</td>
@@ -82,7 +60,7 @@
                         </td> --}}
                         <td>
                             <div class="d-flex">
-                                <button class="btn ripple btn-success signbtn">View</button>
+                                <button class="btn-sm ripple btn-success signbtn">View</button>
                                 {{-- <button class="btn ripple btn-success ml-1">Edit</button>
                                 <button class="btn ripple btn-secondary ml-1"
                                     wire:click="openModal('delete', {{ $user->id }})">Delete</button>
@@ -91,21 +69,12 @@
                         </td>
                     </tr>
                 @empty
-                    <tr>
+                    <tr wire:loading.remove>
                         <td colspan="7" class="text-center">No records found.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
-
-    <!-- Pagination -->
-    <div class="d-flex justify-content-between align-items-center mt-3">
-        <div>
-            <b>Total records:</b> {{ $users->total() }}
-        </div>
-        <div>
-            {{ $users->links() }}
-        </div>
-    </div>
+    <x-admin-tabe-pagination :paginator="$users" />
 </div>

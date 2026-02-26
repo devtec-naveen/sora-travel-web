@@ -12,9 +12,9 @@
                             <div class="breadcrumb flat ps-0 pt-0">
                                 @foreach ($breadcrumb as $item)
                                     @if ($loop->last)
-                                        <a class="active disableclick" href="{{ $item['url'] ?? '#' }}">{{ $item['label'] }}</a>
+                                        <a wire:navigate class="active disableclick" href="{{ $item['url'] ?? '#' }}">{{ $item['label'] }}</a>
                                     @else
-                                        <a href="{{ $item['url'] }}">{{ $item['label'] }}</a>
+                                        <a wire:navigate href="{{ $item['url'] }}">{{ $item['label'] }}</a>
                                     @endif
                                 @endforeach
                             </div>

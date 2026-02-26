@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\AuthController;
+use App\Http\Controllers\Backend\CmsController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\ProfileController;
@@ -374,12 +375,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AuthController::class, 'index'])->name('login');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-
-
     Route::middleware('auth.admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/users', [UserController::class, 'index'])->name('users');
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::get('/change-password', [ProfileController::class, 'changePassword'])->name('changePassword');
+        
+
+        Route::get('/email-template', [CmsController::class, 'emailTemplate'])->name('emailTemplate'); 
+
+        Route::get('/faq-category', [CmsController::class, 'faqCategoryList'])->name('faqCategoryList');
+        Route::get('/faq-category/add', [CmsController::class, 'faqCategoryAdd'])->name('faqCategoryAdd');
+
+
+        Route::get('/faq', [CmsController::class, 'faqList'])->name('faqList');
+        Route::get('/faq/add', [CmsController::class, 'addFaq'])->name('faqAdd');
+
+
     });
 });

@@ -361,8 +361,8 @@ a:hover {
 }
 
 .page-item.active .page-link {
-    background-color: #6259ca;
-    border-color: #6259ca;
+    background-color: #0F3869;
+    border-color: #0F3869;
 }
 
 table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>td:first-child:before,

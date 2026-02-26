@@ -93,6 +93,8 @@ tr td{overflow: hidden;}
 .table thead th {
   vertical-align: bottom;
   border-bottom: 1px solid #e8e8f7 !important;
+  font-weight:600;
+  font-size:11px;
 }
 div.dt-container.dt-empty-footer tbody > tr:last-child > *{border-bottom: 1px solid #e8e8f7 !important;}
 div.dt-container .dt-search input{border: 1px solid #e8e8f7 !important;}
@@ -101,3 +103,19 @@ div.dt-container .dt-input{border: 1px solid #e8e8f7 !important;}
   height: 200px; /* Adjust the height as needed */
 }
 .line-height-24{line-height: 24px;}
+
+    .skeleton {
+        background: linear-gradient(90deg, #eeeeee 25%, #dddddd 50%, #eeeeee 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+        height: 18px;
+        width: 100%;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    .statusClass{cursor:pointer;}

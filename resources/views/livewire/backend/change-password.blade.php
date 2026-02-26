@@ -36,7 +36,7 @@
         <div class="form-group row mt-3">
             <label class="col-md-2"></label>
             <div class="col-md-5">
-                <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
+                <button type="submit" class="btn-sm btn-primary" wire:loading.attr="disabled">
                     <span wire:loading>Updating...</span>
                     <span wire:loading.remove>Update Password</span>
                 </button>
