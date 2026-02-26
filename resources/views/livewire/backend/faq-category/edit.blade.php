@@ -12,7 +12,7 @@
             <span wire:loading.remove>Submit</span>
             <span wire:loading>Loading...</span>
         </button>
-        <button type="button" wire:click="resetForm" class="btn btn-secondary">
+        <button type="button" wire:click="cancelEdit" class="btn btn-secondary">
             Cancel
         </button>
     </form>
