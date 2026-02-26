@@ -25,7 +25,7 @@
                     <span class="sidemenu-label">Email Template</span>
                 </a>
             </li>
-            <li class="nav-item {{ Str::contains(Request::url(), ['faq','faq-category']) ? 'active show' : '' }}">
+            <li class="nav-item {{ Str::contains(Request::url(), ['faq', 'faq-category']) ? 'active show' : '' }}">
                 <a class="nav-link with-sub" href="#"><span class="shape2"></span><span class="shape21"></span>
                     <i class="ti-id-badge sidemenu-icon"></i><span class="sidemenu-label">CMS </span>
                     <i class="angle fe fe-chevron-right"></i></a>
@@ -40,7 +40,8 @@
                         <a class="nav-sub-link" href="">FAQ Categories</a>
                     </li> --}}
                     <li class="nav-sub-item">
-                        <a class="nav-sub-link" href="{{ route('admin.faqCategoryList') }}" wire:navigate>FAQ Category</a>
+                        <a class="nav-sub-link" href="{{ route('admin.faqCategoryList') }}" wire:navigate>FAQ
+                            Category</a>
                     </li>
                     <li class="nav-sub-item">
                         <a class="nav-sub-link" href="{{ route('admin.faqList') }}" wire:navigate>FAQ</a>
@@ -49,6 +50,13 @@
                         <a class="nav-sub-link" href="">Testimonials</a>
                     </li> --}}
                 </ul>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" wire:navigate href="{{ route('admin.emailTemplate') }}">
+                    <span class="shape1"></span>
+                    <span class="shape2"></span><i class="ti-settings sidemenu-icon"></i>
+                    <span class="sidemenu-label">Global Settings</span>
+                </a>
             </li>
         </ul>
     </div>

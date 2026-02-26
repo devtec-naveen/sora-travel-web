@@ -7,10 +7,14 @@ use Illuminate\Http\Request;
 
 class CmsController extends Controller
 {
+    //===================== Email Template =============================== 
+
     public function emailTemplate(Request $request)
     {
         return view('admin.email-template.index');
     }
+
+    //===================== Faq Category ===============================     
 
     public function faqCategoryList(Request $request)
     {
@@ -21,6 +25,18 @@ class CmsController extends Controller
     {
         return view('admin.faq-category.add');
     }
+
+    public function faqCategoryView(string $id)
+    {
+       return view('admin.faq-category.view',['id' => $id]);
+    }
+
+    public function faqCategoryEdit(string $id)
+    {
+       return view('admin.faq-category.edit',['id' => $id]);
+    }
+
+    //===================== Faq =============================== 
     
     public function faqList(Request $request)
     {

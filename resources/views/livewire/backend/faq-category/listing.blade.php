@@ -52,13 +52,13 @@
                         </td>
                         <td>
                             <div class="d-flex">
-                                <button class="btn btn-sm btn-success"><i class="si si-eye" aria-hidden="true" title="View"></i></button>
-                                <button class="btn btn-sm btn-primary ml-1"><i class="si si-pencil" aria-hidden="true" data-original-title="Edit" title="Edit"></i></button>
-                                <button 
+                                <a wire:navigate href="{{route('admin.faqCategoryView',$faqCategory->id)}}" class="btn btn-sm btn-success"><i class="si si-eye" aria-hidden="true" title="View"></i></a>
+                                <a wire:navigate href="{{route('admin.faqCategoryEdit',$faqCategory->id)}}" class="btn btn-sm btn-primary ml-1"><i class="si si-pencil" aria-hidden="true" data-original-title="Edit" title="Edit"></i></a>
+                                {{-- <button 
                                     onclick="confirmDelete({{ $faqCategory->id }})"
                                     class="btn btn-sm btn-danger ml-1">
                                     <i class="si si-trash" aria-hidden="true"></i>
-                                </button>
+                                </button> --}}
                             </div>
                         </td>
                     </tr>

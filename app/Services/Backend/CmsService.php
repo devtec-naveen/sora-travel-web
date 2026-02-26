@@ -2,6 +2,7 @@
 
 namespace App\Services\Backend;
 
+use App\Models\FaqCategoryModel;
 use App\Models\FaqModel;
 use App\Repositories\Backend\CmsRepository;
 
@@ -41,7 +42,18 @@ class CmsService
         }
     }
 
-     //=============================== Faq List ============================== 
+
+    public function getFaqCategoryById(int $id): FaqCategoryModel
+    {
+        return FaqCategoryModel::findOrFail($id);
+    }
+
+    public function updateFaqCategory(int $id, array $data): bool
+    {
+        return $this->repo->updateFaqCategory($id, $data);
+    }
+
+    //=============================== Faq List ============================== 
 
     public function getfaqList($request)
     {
@@ -68,6 +80,4 @@ class CmsService
     {
         return $this->repo->updateFaq($id, $data);
     }
-
-
 }

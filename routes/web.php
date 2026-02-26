@@ -386,6 +386,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/faq-category', [CmsController::class, 'faqCategoryList'])->name('faqCategoryList');
         Route::get('/faq-category/add', [CmsController::class, 'faqCategoryAdd'])->name('faqCategoryAdd');
+        Route::get('/faq-category/view/{id}', [CmsController::class, 'faqCategoryView'])->name('faqCategoryView');
+        Route::get('/faq-category/edit/{id}', [CmsController::class, 'faqCategoryEdit'])->name('faqCategoryEdit');
+
 
 
         Route::get('/faq', [CmsController::class, 'faqList'])->name('faqList');

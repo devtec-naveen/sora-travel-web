@@ -61,6 +61,12 @@ class CmsRepository
         return FaqCategoryModel::create($data);
     }
 
+    public function updateFaqCategory(int $id, array $data): bool
+    {
+        $category = FaqCategoryModel::findOrFail($id);
+        return $category->update($data);
+    }
+
     //=================================================== Faq ====================================
 
     public function faqList($filters = [])
