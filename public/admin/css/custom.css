@@ -119,3 +119,10 @@ div.dt-container .dt-input{border: 1px solid #e8e8f7 !important;}
     }
 
     .statusClass{cursor:pointer;}
+        .dropify-wrapper .file-icon p{
+            font-size: 16px !important;
+            display: block;
+            margin: 0 auto;
+            white-space: normal;
+            text-align: center;
+        }

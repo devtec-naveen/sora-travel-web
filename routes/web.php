@@ -6,6 +6,7 @@ use App\Http\Controllers\Backend\CmsController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\ProfileController;
+use App\Http\Controllers\Backend\SpecialOffersController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\Process\Process;
@@ -376,33 +377,41 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::middleware('auth.admin')->group(function () {
+
+
+        /*========== Auth Profile Users and Dashboard ============*/ 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/users', [UserController::class, 'index'])->name('users');
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::get('/change-password', [ProfileController::class, 'changePassword'])->name('changePassword');
-        
 
+
+        /*========== CMS ============*/ 
         Route::get('/email-template', [CmsController::class, 'emailTemplate'])->name('emailTemplate');
         Route::get('/email-template/view/{id}', [CmsController::class, 'viewEmailTemplate'])->name('emailTemplateView');
-
-
         Route::get('/faq-category', [CmsController::class, 'faqCategoryList'])->name('faqCategoryList');
         Route::get('/faq-category/add', [CmsController::class, 'faqCategoryAdd'])->name('faqCategoryAdd');
         Route::get('/faq-category/view/{id}', [CmsController::class, 'faqCategoryView'])->name('faqCategoryView');
         Route::get('/faq-category/edit/{id}', [CmsController::class, 'faqCategoryEdit'])->name('faqCategoryEdit');
-
-
-
         Route::get('/faq', [CmsController::class, 'faqList'])->name('faqList');
         Route::get('/faq/add', [CmsController::class, 'addFaq'])->name('faqAdd');
         Route::get('/faq/view/{id}', [CmsController::class, 'viewFaq'])->name('faqView');
         Route::get('/faq/edit/{id}', [CmsController::class, 'editFaq'])->name('faqEdit');
-
-
-
         Route::get('/pages', [CmsController::class, 'pagesList'])->name('pagesList');
         Route::get('/pages/view/{id}', [CmsController::class, 'viewPages'])->name('pagesView');
         Route::get('/pages/edit/{id}', [CmsController::class, 'editPages'])->name('pagesEdit');
+
+
+        /*========== Special Offers ============*/ 
+        Route::get('special-offers/add', [SpecialOffersController::class, 'create'])->name('offersAdd');
+        Route::resource('special-offers', SpecialOffersController::class)->names([
+            'index' => 'offersList',
+            'store' => 'offersStore',
+            'edit' => 'offersEdit',
+            'update' => 'offers.update',
+            'destroy' => 'offers.delete',
+        ]);
+
 
 
     });

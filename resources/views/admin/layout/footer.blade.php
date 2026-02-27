@@ -15,6 +15,7 @@
 <script src="{{asset('admin/js/function.js')}}"></script>
 <script src="https://unpkg.com/nextjs-toast-notify@1.47.0/dist/nextjs-toast-notify.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dropify/dist/js/dropify.min.js"></script>
 @include('include.flash-message')
 @stack('scripts')
 <script>
