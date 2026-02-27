@@ -13,13 +13,7 @@
                         height: 300,
                         callbacks: {
                             onChange: function(contents) {
-
-                                let componentEl = editor.closest('[wire\\:id]');
-                                if (!componentEl) return;
-
-                                let componentId = componentEl.getAttribute('wire:id');
-
-                                Livewire.find(componentId).set(modelName, contents);
+                                @this.set(modelName,contents);
                             }
                         }
                     });

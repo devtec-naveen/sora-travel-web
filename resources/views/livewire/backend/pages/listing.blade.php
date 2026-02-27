@@ -1,23 +1,19 @@
 <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h6 class="main-content-label">Pages</h6>
-
         <div class="d-flex align-items-center">
             <div class="form-group mb-0 mr-2">
                 <input type="search" wire:model.live.debounce.700ms="search" class="form-control"
                     placeholder="Search Pages">
             </div>
-
             <button type="button" wire:click="resetFilters" class="btn btn-warning mr-2">
                 Reset Filter
             </button>
-
-            <a href="" wire:navigate class="btn ripple btn-main-primary signbtn">
+            {{-- <a href="" wire:navigate class="btn ripple btn-main-primary signbtn">
                 Add Page
-            </a>
+            </a> --}}
         </div>
     </div>
-
     <div class="table-responsive">
         <table class="table table-bordered border-t0 text-nowrap w-100">
             <thead>
