@@ -2,7 +2,7 @@
     <div class="row row-sm">
 
         <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
-            <a href="{{route('admin.users')}}">
+            <a wire:navigate href="{{route('admin.users')}}">
                 <div class="card custom-card">
                     <div class="card-body">
                         <div class="card-order">

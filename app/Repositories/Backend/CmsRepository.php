@@ -5,6 +5,7 @@ namespace App\Repositories\Backend;
 use App\Models\EmailTemplateModel;
 use App\Models\FaqModel;
 use App\Models\FaqCategoryModel;
+use App\Models\PagesModel;
 
 class CmsRepository
 {
@@ -50,8 +51,8 @@ class CmsRepository
             $query->orderBy('id', 'desc');
         }
 
-        if(empty($filters)){
-           return $query->get();
+        if (empty($filters)) {
+            return $query->get();
         }
         return $query->paginate($filters['perPage'] ?? 10);
     }
@@ -108,5 +109,41 @@ class CmsRepository
             unset($data['faq_category_id']);
         }
         return $faq->update($data);
+    }
+
+    //=================================================== Pages ====================================
+
+    public function pageList($filters = [])
+    {
+        $query = PagesModel::query();
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('page_title', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%")
+                    ->orWhere('meta_title', 'like', "%{$search}%")
+                    ->orWhere('meta_keywords', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%");
+            });
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['sortField'])) {
+            $query->orderBy(
+                $filters['sortField'],
+                $filters['sortDirection'] ?? 'asc'
+            );
+        }
+
+        return $query->paginate($filters['perPage'] ?? 10);
+    }
+
+    public function updatePages($id, array $data)
+    {
+        return PagesModel::where('id', $id)->update($data);
     }
 }

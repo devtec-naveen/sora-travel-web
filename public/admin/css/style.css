@@ -348,6 +348,8 @@ th {
 label {
     display: inline-block;
     margin-bottom: 0.5rem;
+    font-size:12px;
+    font-weight:600;
 }
 
 button {
@@ -3539,7 +3541,7 @@ a.badge-dark.focus {
 .btn,
 .sp-container button {
     display: inline-block;
-    font-weight: 400;
+    font-weight: 500;
     color: #8f9cc0;
     text-align: center;
     vertical-align: middle;
@@ -6059,6 +6061,8 @@ textarea.form-control {
 .form-control {
     height: 38px;
     border-radius: 5px;
+    font-size:13px;
+    font-weight:500;
 }
 
 .form-control:focus {

@@ -46,6 +46,9 @@
                     <li class="nav-sub-item">
                         <a class="nav-sub-link" href="{{ route('admin.faqList') }}" wire:navigate>FAQ</a>
                     </li>
+                    <li class="nav-sub-item">
+                        <a class="nav-sub-link" href="{{ route('admin.pagesList') }}" wire:navigate>Pages</a>
+                    </li>
                     {{-- <li class="nav-sub-item  ">
                         <a class="nav-sub-link" href="">Testimonials</a>
                     </li> --}}

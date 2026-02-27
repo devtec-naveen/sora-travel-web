@@ -24,6 +24,7 @@
   <script src="https://cdn.ckeditor.com/ckeditor5/35.0.1/classic/ckeditor.js"></script>
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" />
   <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs4.min.css" rel="stylesheet">
   @stack("styles")
 </head>
 <body class="main-body leftmenu">

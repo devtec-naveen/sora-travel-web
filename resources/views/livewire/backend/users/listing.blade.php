@@ -60,7 +60,7 @@
                         </td> --}}
                         <td>
                             <div class="d-flex">
-                                <button class="btn-sm ripple btn-success signbtn">View</button>
+                                <button class="btn btn-sm btn-success">View</button>
                                 {{-- <button class="btn ripple btn-success ml-1">Edit</button>
                                 <button class="btn ripple btn-secondary ml-1"
                                     wire:click="openModal('delete', {{ $user->id }})">Delete</button>

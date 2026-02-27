@@ -47,12 +47,12 @@ class Edit extends Component
         ]);
 
         $this->SessionToast('success', 'FAQ Category updated successfully!');
-        return redirect()->route('admin.faqCategoryList');
+        $this->redirect(route('admin.faqCategoryList'),navigate:true);
     }
 
     public function cancelEdit()
     {
-        return redirect()->route('admin.faqCategoryList');
+        $this->redirect(route('admin.faqCategoryList'),navigate:true);
     }
 
     public function render()

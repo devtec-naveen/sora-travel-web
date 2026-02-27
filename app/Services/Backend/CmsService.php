@@ -5,6 +5,7 @@ namespace App\Services\Backend;
 use App\Models\FaqCategoryModel;
 use App\Models\FaqModel;
 use App\Models\EmailTemplateModel;
+use App\Models\PagesModel;
 use App\Repositories\Backend\CmsRepository;
 
 class CmsService
@@ -86,4 +87,23 @@ class CmsService
     {
         return $this->repo->updateFaq($id, $data);
     }
+
+    //=============================== Pages ==============================
+
+    public function getpageList($request = null)
+    {
+        $emailTemplateList = $this->repo->pageList($request);
+        return $emailTemplateList;
+    }
+
+    public function getPagesById(int $id): PagesModel
+    {
+        return PagesModel::findOrFail($id);
+    }
+
+    public function updatePage($id, array $data)
+    {
+        return $this->repo->updatePages($id, $data);
+    }
+    
 }
