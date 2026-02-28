@@ -51,7 +51,7 @@ class SpecialOffersService
         if ($request->hasFile('image')) {
 
             if ($offer->image) {
-                $this->fileService->remove($offer->image);
+                $this->fileService->remove('special_offer/'.$offer->image);
             }
 
             $imagePath = $this->fileService->upload(

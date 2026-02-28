@@ -11,12 +11,16 @@ class ImageUpload extends Component
     public $previewId;
     public $maxWidth;
     public $maxHeight;
+    public $currentImage;
+    public $folderPath;
 
-    public function __construct($previewId = 'imageUploadPreview', $maxWidth = 1000, $maxHeight = 500)
+    public function __construct($previewId = 'imageUploadPreview', $maxWidth = 1000, $maxHeight = 500,$currentImage = null,$folderPath = null)
     {
         $this->previewId = $previewId;
         $this->maxWidth = $maxWidth;
         $this->maxHeight = $maxHeight;
+        $this->currentImage = $currentImage;
+        $this->folderPath = $folderPath;
     }
 
     /**

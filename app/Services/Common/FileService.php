@@ -58,7 +58,7 @@ class FileService
     public function remove(string $filePath): bool
     {
         try {
-            $fullPath = public_path($filePath);
+            $fullPath = public_path('uploads/'.$filePath);
             if (File::exists($fullPath)) {
                 return File::delete($fullPath);
             }

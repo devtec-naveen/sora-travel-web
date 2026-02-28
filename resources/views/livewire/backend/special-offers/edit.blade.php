@@ -1,0 +1,67 @@
+<div>
+    <h6 class="main-content-label mb-3">Edit Special Offer</h6>
+    <form wire:submit.prevent="updateOffer" enctype="multipart/form-data">
+        <div class="form-group mb-3">
+            <label>Title *</label>
+            <input type="text" wire:model="title" class="form-control">
+            @error('title')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+        <div class="form-group mb-3">
+            <label>Start Date *</label>
+            <input type="text" wire:model="start_date" id="start_date" class="form-control" readonly>
+            @error('start_date_time')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+        <div class="form-group mb-3">
+            <label>End Date *</label>
+            <input type="text" wire:model="end_date" id="end_date" class="form-control" readonly>
+            @error('end_date_time')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+        <div class="form-group mb-3">
+            <label>Change Image</label>
+            <x-backend.image-upload previewId="specialOfferPreview" :currentImage="$oldImage" folderPath="special_offer"/>   
+        </div>
+        <button type="submit" class="btn btn-success" wire:loading.attr="disabled">
+            <span wire:loading.remove>Update</span>
+            <span wire:loading>Updating...</span>
+        </button>
+        <button type="button" wire:click="cancelEdit" class="btn btn-secondary">
+            Cancel
+        </button>
+    </form>
+</div>
+@push('scripts')
+    <script>
+        document.addEventListener("livewire:navigated", function() {
+            let startPicker = flatpickr("#start_date", {
+                enableTime: false,
+                dateFormat: "Y-m-d",
+                defaultDate: @this.start_date,
+                onChange: function(selectedDates, dateStr) {
+                    @this.set('start_date', dateStr);
+
+                    if (selectedDates.length > 0) {
+                        let nextDay = new Date(selectedDates[0]);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        endPicker.set('minDate', nextDay);
+                    }
+                }
+            });
+
+            let endPicker = flatpickr("#end_date", {
+                enableTime: false,
+                dateFormat: "Y-m-d",
+                defaultDate: @this.end_date,
+                onChange: function(selectedDates, dateStr) {
+                    @this.set('end_date', dateStr);
+                }
+            });
+
+        });
+    </script>
+@endpush

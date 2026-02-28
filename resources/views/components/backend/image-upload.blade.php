@@ -1,6 +1,8 @@
 <div wire:ignore>
-    <input type="file" id="drop-{{ $previewId }}" wire:model="image" class="dropify" data-height="200"
-        data-max-file-size="1M" />
+    <input type="file" id="drop-{{ $previewId }}" wire:model="image" class="dropify" data-height="200" data-max-file-size="1M"
+        @if($currentImage && $folderPath)
+            data-default-file="{{ asset('uploads/' . $folderPath . '/' . $currentImage) }}"
+        @endif/>
     @error('image')
         <span class="text-danger">{{ $message }}</span>
     @enderror

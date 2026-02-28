@@ -44,7 +44,7 @@ class SpecialOffersController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        return view('admin.special-offers.edit',['id'=>$id]);        
     }
 
     /**
