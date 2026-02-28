@@ -54,6 +54,7 @@
                     </li> --}}
                 </ul>
             </li>
+            @if(app()->environment('local'))
             <li class="nav-item">
                 <a class="nav-link" wire:navigate href="{{ route('admin.offersList') }}">
                     <span class="shape1"></span>
@@ -61,6 +62,7 @@
                     <span class="sidemenu-label">Special Offers</span>
                 </a>
             </li>
+            @endif
             {{-- <li class="nav-item">
                 <a class="nav-link" wire:navigate href="{{ route('admin.emailTemplate') }}">
                     <span class="shape1"></span>
