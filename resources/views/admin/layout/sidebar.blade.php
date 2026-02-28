@@ -25,7 +25,8 @@
                     <span class="sidemenu-label">Email Template</span>
                 </a>
             </li>
-            <li class="nav-item {{ Str::contains(Request::url(), ['faq', 'faq-category','pages']) ? 'active show' : '' }}">
+            <li
+                class="nav-item {{ Str::contains(Request::url(), ['faq', 'faq-category', 'pages']) ? 'active show' : '' }}">
                 <a class="nav-link with-sub" href="#"><span class="shape2"></span><span class="shape21"></span>
                     <i class="ti-id-badge sidemenu-icon"></i><span class="sidemenu-label">CMS </span>
                     <i class="angle fe fe-chevron-right"></i></a>
@@ -54,14 +55,21 @@
                     </li> --}}
                 </ul>
             </li>
-            @if(app()->environment('local'))
-            <li class="nav-item">
-                <a class="nav-link" wire:navigate href="{{ route('admin.offersList') }}">
-                    <span class="shape1"></span>
-                    <span class="shape2"></span><i class="ti-gift sidemenu-icon"></i>
-                    <span class="sidemenu-label">Special Offers</span>
-                </a>
-            </li>
+            @if (app()->environment('local'))
+                <li class="nav-item">
+                    <a class="nav-link" wire:navigate href="{{ route('admin.offersList') }}">
+                        <span class="shape1"></span>
+                        <span class="shape2"></span><i class="ti-gift sidemenu-icon"></i>
+                        <span class="sidemenu-label">Special Offers</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" wire:navigate href="{{ route('admin.destinationsList') }}">
+                        <span class="shape1"></span>
+                        <span class="shape2"></span><i class="ti-location-pin sidemenu-icon"></i>
+                        <span class="sidemenu-label">Popular Destinations</span>
+                    </a>
+                </li>
             @endif
             {{-- <li class="nav-item">
                 <a class="nav-link" wire:navigate href="{{ route('admin.emailTemplate') }}">

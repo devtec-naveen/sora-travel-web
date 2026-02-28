@@ -40,25 +40,32 @@
 </div>
 @push('scripts')
     <script>
-        let startPicker = flatpickr("#start_date", {
-            enableTime: false,
-            dateFormat: "Y-m-d",
-            onChange: function(selectedDates, dateStr) {
-                @this.set('start_date', dateStr);
-                if (selectedDates.length > 0) {
-                    let nextDay = new Date(selectedDates[0]);
-                    nextDay.setDate(nextDay.getDate() + 1);
-                    endPicker.set('minDate', nextDay);
+        function initDatePickers() {
+            let startPicker = flatpickr("#start_date", {
+                enableTime: false,
+                dateFormat: "Y-m-d",
+                defaultDate: @this.start_date ?? null,
+                onChange: function(selectedDates, dateStr) {
+                    @this.set('start_date', dateStr);
+
+                    if (selectedDates.length > 0) {
+                        let nextDay = new Date(selectedDates[0]);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        endPicker.set('minDate', nextDay);
+                    }
                 }
-            }
-        });
-        let endPicker = flatpickr("#end_date", {
-            enableTime: false,
-            dateFormat: "Y-m-d",
-            minDate: new Date().fp_incr(1),
-            onChange: function(selectedDates, dateStr) {
-                @this.set('end_date', dateStr);
-            }
-        });
+            });
+            let endPicker = flatpickr("#end_date", {
+                enableTime: false,
+                dateFormat: "Y-m-d",
+                defaultDate: @this.end_date ?? null,
+                minDate: new Date().fp_incr(1),
+                onChange: function(selectedDates, dateStr) {
+                    @this.set('end_date', dateStr);
+                }
+            });
+        }
+        document.addEventListener('livewire:init', initDatePickers);
+        document.addEventListener('livewire:navigated', initDatePickers);
     </script>
 @endpush

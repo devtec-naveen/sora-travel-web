@@ -45,22 +45,17 @@ class DeleteService
     {
         try {
             DB::beginTransaction();
-
             if (!class_exists($modelClass)) {
                 throw new \Exception("Model class not found.");
             }
-
             $model = $modelClass::find($id);
-
             if (!$model) {
                 throw new \Exception("Record not found.");
             }
-
             if (!empty($model->$fileColumn)) {
-                $filePath = 'uploads/'. $folder . '/' . $model->$fileColumn;
+                $filePath = $folder . '/' . $model->$fileColumn;
                 $this->fileService->remove($filePath);
             }
-
             $model->delete();
             DB::commit();
             return [
@@ -70,7 +65,6 @@ class DeleteService
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Delete With File Error: ' . $e->getMessage());
-
             return [
                 'status' => false,
                 'message' => $e->getMessage()

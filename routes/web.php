@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\AuthController;
 use App\Http\Controllers\Backend\CmsController;
 use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\PopularDestinationController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\SpecialOffersController;
@@ -378,15 +379,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware('auth.admin')->group(function () {
 
-
-        /*========== Auth Profile Users and Dashboard ============*/ 
+        /*========== Auth Profile Users and Dashboard ============*/
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/users', [UserController::class, 'index'])->name('users');
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::get('/change-password', [ProfileController::class, 'changePassword'])->name('changePassword');
 
-
-        /*========== CMS ============*/ 
+        /*========== CMS ============*/
         Route::get('/email-template', [CmsController::class, 'emailTemplate'])->name('emailTemplate');
         Route::get('/email-template/view/{id}', [CmsController::class, 'viewEmailTemplate'])->name('emailTemplateView');
         Route::get('/faq-category', [CmsController::class, 'faqCategoryList'])->name('faqCategoryList');
@@ -401,19 +400,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/pages/view/{id}', [CmsController::class, 'viewPages'])->name('pagesView');
         Route::get('/pages/edit/{id}', [CmsController::class, 'editPages'])->name('pagesEdit');
 
-
-        /*========== Special Offers ============*/ 
-        Route::get('special-offers/add', [SpecialOffersController::class, 'create'])->name('offersAdd');
+        /*========== Special Offers ============*/
         Route::resource('special-offers', SpecialOffersController::class)->names([
             'index' => 'offersList',
+            'create' => 'offersAdd',
             'store' => 'offersStore',
             'edit' => 'offersEdit',
             'show' => 'offersView',
-            'update' => 'offers.update',
-            'destroy' => 'offers.delete',
         ]);
 
+        /*========== Popular Destinations ============*/
+        Route::resource('popular-destinations', PopularDestinationController::class)->names([
+            'index'   => 'destinationsList',
+            'create'  => 'destinationsAdd',
+            'store'   => 'destinationsStore',
+            'edit'    => 'destinationsEdit',
+            'show'    => 'destinationsView',
+        ]);
 
-
+        
     });
 });
