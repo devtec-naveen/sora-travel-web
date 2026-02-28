@@ -10,8 +10,8 @@ class SpecialOffersModel extends Model
     protected $fillable = [
         'title',
         'image',
-        'start_date_time',
-        'end_date_time',
+        'start_date',
+        'end_date',
         'status',
     ];
 }

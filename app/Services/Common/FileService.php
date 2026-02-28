@@ -17,29 +17,34 @@ class FileService
      * @param string|null $prefix // optional prefix for file name
      * @return string|false       // Returns relative file path or false on failure
      */
-    public function upload(UploadedFile $file, string $folderName, ?string $prefix = null): string|false
+    public function upload(\Illuminate\Http\UploadedFile $file, string $folderName, ?string $prefix = null): string|false
     {
         try {
-            // Ensure folder exists inside public
-            $destinationPath = public_path($folderName);
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
+            $destinationPath = public_path('uploads/' . $folderName);
+            if (!is_dir($destinationPath) && !mkdir($destinationPath, 0755, true) && !is_dir($destinationPath)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $destinationPath));
             }
 
-            // Generate unique file name: [prefix_]YmdHis_random.ext
-            $timeStamp = now()->format('YmdHis'); // e.g. 20260226153045
-            $randomStr = Str::random(5);           // random string for uniqueness
+            // Unique filename
+            $timeStamp = now()->format('YmdHis');
+            $randomStr = \Illuminate\Support\Str::random(5);
             $prefixPart = $prefix ? $prefix . '_' : '';
             $extension = $file->getClientOriginalExtension();
             $fileName = $prefixPart . $timeStamp . '_' . $randomStr . '.' . $extension;
 
-            // Move file to public folder
-            $file->move($destinationPath, $fileName);
+            // Use copy + unlink instead of move() for Livewire temp files
+            $fileTempPath = $file->getRealPath();
+            $finalPath = $destinationPath . '/' . $fileName;
+            if (!copy($fileTempPath, $finalPath)) {
+                throw new \RuntimeException('Failed to copy file to destination');
+            }
 
-            // Return relative path
-            return $folderName . '/' . $fileName;
+            // Optionally delete temp file (Livewire cleans it automatically)
+            // unlink($fileTempPath);
+
+            return $fileName;
         } catch (\Exception $e) {
-            Log::error('File Upload Error: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('File Upload Error: ' . $e->getMessage());
             return false;
         }
     }

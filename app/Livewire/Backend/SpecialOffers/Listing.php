@@ -47,15 +47,15 @@ class Listing extends DataTable
 
     public function deleteConfirmed($id)
     {
-        $this->deleteService->deleteRecord(\App\Models\SpecialOffersModel::class, $id);
+        $this->deleteService->deleteRecordWithFile(\App\Models\SpecialOffersModel::class, $id,'image','special_offer');
         $this->SessionToast('success', 'Special Offer deleted successfully!');
-        $this->redirect(route('admin.specialOfferList'), navigate: true);
+        $this->redirect(route('admin.offersList'), navigate: true);
     }
 
     public function changeStatus($id)
     {
         $this->statusService->toggleStatus(\App\Models\SpecialOffersModel::class, $id);
         $this->SessionToast('success', 'Special Offer status updated successfully!');
-        $this->redirect(route('admin.specialOfferList'), navigate: true);
+        $this->redirect(route('admin.offersList'), navigate: true);
     }
 }

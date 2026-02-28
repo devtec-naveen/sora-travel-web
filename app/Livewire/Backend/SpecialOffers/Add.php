@@ -14,9 +14,8 @@ class Add extends Component
     protected SpecialOffersService $service;
 
     public $title;
-    public $start_date_time;
-    public $end_date_time;
-    public $status;
+    public $start_date;
+    public $end_date;
     public $image;
 
     public function boot(SpecialOffersService $service)
@@ -28,8 +27,8 @@ class Add extends Component
     {
         $this->reset([
             'title',
-            'start_date_time',
-            'end_date_time',
+            'start_date',
+            'end_date',
             'image'
         ]);
     }
@@ -38,17 +37,22 @@ class Add extends Component
     {
         $this->validate([
             'title' => 'required|string|max:255',
-            'start_date_time' => 'required|date',
-            'end_date_time' => 'required|date|after:start_date_time',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
             'image' => 'required|image|max:2048',
-            'status' => 'required|boolean'
         ]);
+            
+        $data = [
+            'title' => $this->title,
+            'start_date' => $this->start_date,
+            'end_date' => $this->end_date,
+            'image' => $this->image,
+        ];
 
-        $saved = $this->service->create(request());
-
+        $saved = $this->service->create($data);
         if ($saved) {
             $this->SessionToast('success', 'Special Offer added successfully!');
-            $this->redirect(route('admin.specialOfferList'), navigate: true);
+            $this->redirect(route('admin.offersList'), navigate: true);
         } else {
             $this->Toast('error', 'Something went wrong while saving Special Offer!');
         }

@@ -22,22 +22,14 @@ class SpecialOffersService
         return $this->repo->getList($filters);
     }
 
-    public function create(Request $request)
+    public function create(array $data)
     {
-        $data = $request->only([
-            'title',
-            'start_date_time',
-            'end_date_time',
-            'status'
-        ]);
-
-        if ($request->hasFile('image')) {
-            $imagePath = $this->fileService->upload($request->file('image'), 'special_offer', 'offer');
+        if (isset($data['image']) && $data['image']) {
+            $imagePath = $this->fileService->upload($data['image'], 'special_offer', 'offer');
             if ($imagePath) {
                 $data['image'] = $imagePath;
             }
         }
-
         return $this->repo->create($data);
     }
 

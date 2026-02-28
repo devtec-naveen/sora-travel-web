@@ -28,7 +28,7 @@ class SpecialOffersController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //       
     }
 
     /**
@@ -36,7 +36,7 @@ class SpecialOffersController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return view('admin.special-offers.view',['id'=>$id]);
     }
 
     /**

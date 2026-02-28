@@ -55,61 +55,51 @@
             </thead>
             <tbody>
                 <x-table-loader :rows="10" :columns="8" />
-
                 @forelse($offerList as $offer)
                     <tr wire:loading.class.add="d-none">
+                        <td>{{ ($offerList->currentPage() - 1) * $offerList->perPage() + $loop->iteration }}</td>
+                        <td>{{ \Illuminate\Support\Str::limit($offer->title, 40, '...') }}</td>
                         <td>
-                            {{ ($offerList->currentPage() - 1) * $offerList->perPage() + $loop->iteration }}
+                            <button type="button" class="btn btn-sm btn-info"
+                                onclick="showImagePreview('{{ asset('uploads/special_offer/' . $offer->image) }}')">
+                                Preview Image
+                            </button>
                         </td>
-
-                        <td>
-                            {{ \Illuminate\Support\Str::limit($offer->title, 40, '...') }}
-                        </td>
-
-                        <td>
-                            @if ($offer->image)
-                                <img src="{{ asset('storage/' . $offer->image) }}" width="80" class="img-thumbnail">
-                            @else
-                                -
-                            @endif
-                        </td>
-
-                        <td>
-                            {{ optional($offer->start_date_time)->format('d M Y, h:i A') }}
-                        </td>
-
-                        <td>
-                            {{ optional($offer->end_date_time)->format('d M Y, h:i A') }}
-                        </td>
-
+                        <td>{{ $offer->start_date }}</td>
+                        <td>{{ $offer->end_date }}</td>
                         <td>
                             @if ($offer->status === 'active')
-                                <span onclick="confirmStatusChange({{ $offer->id }})" class="badge badge-success"
-                                    style="cursor:pointer;">
+                                <span onclick="confirmStatusChange({{ $offer->id }})"
+                                    class="badge badge-success statusClass">
                                     Active
                                 </span>
                             @else
-                                <span onclick="confirmStatusChange({{ $offer->id }})" class="badge badge-danger"
-                                    style="cursor:pointer;">
+                                <span onclick="confirmStatusChange({{ $offer->id }})"
+                                    class="badge badge-danger statusClass">
                                     Inactive
                                 </span>
                             @endif
                         </td>
-
                         <td>
                             {{ optional($offer->created_at)->format('F d, Y') }}
                         </td>
-
                         <td>
                             <div class="d-flex">
-                                <a wire:navigate href="{{ route('admin.special-offers.edit', $offer->id) }}"
-                                    class="btn btn-sm btn-primary">
+                                <a wire:navigate href="{{ route('admin.offersView', $offer->id) }}"
+                                    class="btn btn-sm btn-success">
+                                    <i class="si si-eye" title="View"></i>
+                                </a>
+                                <a wire:navigate href="{{ route('admin.offersEdit', $offer->id) }}"
+                                    class="btn btn-sm btn-primary ml-1">
                                     <i class="si si-pencil" title="Edit"></i>
                                 </a>
+                                <button onclick="confirmDelete({{ $offer->id }})"
+                                    class="btn btn-sm btn-danger ml-1">
+                                    <i class="si si-trash"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
-
                 @empty
                     <tr wire:loading.remove>
                         <td colspan="8" class="text-center">
@@ -120,6 +110,28 @@
             </tbody>
         </table>
     </div>
-
     <x-admin-tabe-pagination :paginator="$offerList" />
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Image Preview</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="previewImage" src="" class="img-fluid rounded shadow">
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+@push('scripts')
+    <script>
+        function showImagePreview(imagePath) {
+            document.getElementById('previewImage').src = imagePath;
+            $('#imagePreviewModal').modal('show');
+        }
+    </script>
+@endpush

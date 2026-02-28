@@ -408,6 +408,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             'index' => 'offersList',
             'store' => 'offersStore',
             'edit' => 'offersEdit',
+            'show' => 'offersView',
             'update' => 'offers.update',
             'destroy' => 'offers.delete',
         ]);
