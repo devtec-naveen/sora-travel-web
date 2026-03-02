@@ -36,7 +36,7 @@ class PopularDestinationController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return view('admin.popular-destination.view',['id'=>$id]);               
     }
 
     /**
@@ -44,7 +44,7 @@ class PopularDestinationController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        return view('admin.popular-destination.edit',['id'=>$id]);    
     }
 
     /**

@@ -9,7 +9,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-
 class PopularDestinationService
 {
     protected PopularDestinationRepository $repo;
@@ -59,13 +58,18 @@ class PopularDestinationService
         if (!$destination) {
             return false;
         }
-        $data = $request->only(['title', 'status']);
+        $data = $request->only(['title']);
         if ($request->hasFile('image')) {
             if ($destination->image) {
-                $this->fileService->remove($destination->image, $this->folder);
+                $this->fileService->remove($this->folder.'/'.$destination->image);
             }
             $data['image'] = $this->fileService->upload($request->file('image'), $this->folder);
         }
         return $this->repo->update($id, $data);
+    }
+
+    public function getDestinationById($id)
+    {
+        return $this->repo->findById($id);
     }
 }

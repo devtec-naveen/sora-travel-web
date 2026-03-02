@@ -56,14 +56,14 @@
                 </ul>
             </li>
             @if (app()->environment('local'))
-                <li class="nav-item {{ Route::currentRouteName() == 'admin.offersList' ? 'active' : '' }}">
+                <li class="nav-item {{ request()->routeIs('admin.offers*') ? 'active' : '' }}">
                     <a class="nav-link" wire:navigate href="{{ route('admin.offersList') }}">
                         <span class="shape1"></span>
                         <span class="shape2"></span><i class="ti-gift sidemenu-icon"></i>
                         <span class="sidemenu-label">Special Offers</span>
                     </a>
                 </li>
-                <li class="nav-item {{ Route::currentRouteName() == 'admin.destinationsList' ? 'active' : '' }}">
+                <li class="nav-item {{ request()->routeIs('admin.destinations*') ? 'active' : '' }}">
                     <a class="nav-link" wire:navigate href="{{ route('admin.destinationsList') }}">
                         <span class="shape1"></span>
                         <span class="shape2"></span><i class="ti-location-pin sidemenu-icon"></i>

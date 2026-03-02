@@ -28,7 +28,7 @@ class PopularDestinationRepository
 
     public function findById(int $id): ?PopularDestinationModel
     {
-        return PopularDestinationModel::find($id);
+        return PopularDestinationModel::findOrFail($id);
     }
 
     public function create(array $data): PopularDestinationModel

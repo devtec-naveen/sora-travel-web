@@ -10,6 +10,7 @@ class SpecialOffersService
 {
     protected $repo;
     protected $fileService;
+    protected string $folder = 'special_offer';
 
     public function __construct(SpecialOffersRepository $repo, FileService $fileService)
     {
@@ -25,7 +26,7 @@ class SpecialOffersService
     public function create(array $data)
     {
         if (isset($data['image']) && $data['image']) {
-            $imagePath = $this->fileService->upload($data['image'], 'special_offer', 'offer');
+            $imagePath = $this->fileService->upload($data['image'],$this->folder, 'offer');
             if ($imagePath) {
                 $data['image'] = $imagePath;
             }
@@ -48,17 +49,13 @@ class SpecialOffersService
             'status'
         ]);
 
-        if ($request->hasFile('image')) {
-
+        if ($request->hasFile('image')) 
+        {
             if ($offer->image) {
-                $this->fileService->remove('special_offer/'.$offer->image);
+                $this->fileService->remove($this->folder.'/'.$offer->image);
             }
 
-            $imagePath = $this->fileService->upload(
-                $request->file('image'),
-                'special_offer',
-                'offer'
-            );
+            $imagePath = $this->fileService->upload($request->file('image'),$this->folder,'offer');
 
             if ($imagePath) {
                 $data['image'] = $imagePath;
