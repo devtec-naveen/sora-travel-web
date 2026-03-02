@@ -3,9 +3,6 @@
         @if($currentImage && $folderPath)
             data-default-file="{{ asset('uploads/' . $folderPath . '/' . $currentImage) }}"
         @endif/>
-    @error('image')
-        <span class="text-danger">{{ $message }}</span>
-    @enderror
 </div>
 @push('scripts')
     <script>

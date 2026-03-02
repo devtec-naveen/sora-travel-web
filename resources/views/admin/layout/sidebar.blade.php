@@ -56,14 +56,14 @@
                 </ul>
             </li>
             @if (app()->environment('local'))
-                <li class="nav-item">
+                <li class="nav-item {{ Route::currentRouteName() == 'admin.offersList' ? 'active' : '' }}">
                     <a class="nav-link" wire:navigate href="{{ route('admin.offersList') }}">
                         <span class="shape1"></span>
                         <span class="shape2"></span><i class="ti-gift sidemenu-icon"></i>
                         <span class="sidemenu-label">Special Offers</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {{ Route::currentRouteName() == 'admin.destinationsList' ? 'active' : '' }}">
                     <a class="nav-link" wire:navigate href="{{ route('admin.destinationsList') }}">
                         <span class="shape1"></span>
                         <span class="shape2"></span><i class="ti-location-pin sidemenu-icon"></i>
@@ -71,13 +71,13 @@
                     </a>
                 </li>
             @endif
-            {{-- <li class="nav-item">
-                <a class="nav-link" wire:navigate href="{{ route('admin.emailTemplate') }}">
+            <li class="nav-item {{ Route::currentRouteName() == 'admin.globalSettingList' ? 'active' : '' }}">
+                <a class="nav-link" wire:navigate href="{{ route('admin.globalSettingList') }}">
                     <span class="shape1"></span>
                     <span class="shape2"></span><i class="ti-settings sidemenu-icon"></i>
                     <span class="sidemenu-label">Global Settings</span>
                 </a>
-            </li> --}}
+            </li>
         </ul>
     </div>
 </div>

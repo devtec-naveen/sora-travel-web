@@ -399,6 +399,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/pages', [CmsController::class, 'pagesList'])->name('pagesList');
         Route::get('/pages/view/{id}', [CmsController::class, 'viewPages'])->name('pagesView');
         Route::get('/pages/edit/{id}', [CmsController::class, 'editPages'])->name('pagesEdit');
+        Route::get('/global-settings', [CmsController::class, 'globalSettingList'])->name('globalSettingList');
 
         /*========== Special Offers ============*/
         Route::resource('special-offers', SpecialOffersController::class)->names([

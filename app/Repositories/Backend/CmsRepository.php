@@ -5,6 +5,7 @@ namespace App\Repositories\Backend;
 use App\Models\EmailTemplateModel;
 use App\Models\FaqModel;
 use App\Models\FaqCategoryModel;
+use App\Models\GlobalSettingModel;
 use App\Models\PagesModel;
 
 class CmsRepository
@@ -145,5 +146,23 @@ class CmsRepository
     public function updatePages($id, array $data)
     {
         return PagesModel::where('id', $id)->update($data);
+    }
+
+    //=================================================== Global Settings ====================================
+
+    public function getAllGrouped()
+    {
+        return GlobalSettingModel::all()->groupBy('group');
+    }
+
+    public function getAllValues()
+    {
+        return GlobalSettingModel::pluck('value', 'id')->toArray();
+    }
+
+    public function updateValue($id, $value)
+    {
+        return GlobalSettingModel::where('id', $id)
+            ->update(['value' => $value]);
     }
 }

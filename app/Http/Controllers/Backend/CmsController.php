@@ -78,7 +78,14 @@ class CmsController extends Controller
     public function EditPages(string $id)
     {
         return view('admin.pages.edit',['id' => $id]);
-    }   
+    }  
+    
+    
+    public function globalSettingList()
+    {
+        return view('admin.global-settings.index');
+
+    }
 
 
 

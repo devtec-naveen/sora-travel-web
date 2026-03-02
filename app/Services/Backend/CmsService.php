@@ -105,5 +105,31 @@ class CmsService
     {
         return $this->repo->updatePages($id, $data);
     }
-    
+
+    //=============================== Global Settings ==============================
+
+
+    public function getGroupedSettings()
+    {
+        return $this->repo->getAllGrouped();
+    }
+
+    public function getValues()
+    {
+        return $this->repo->getAllValues();
+    }
+
+    public function updateChangedSettings($values, $originalValues)
+    {
+        foreach ($values as $id => $value) {
+
+            if (!array_key_exists($id, $originalValues)) {
+                continue;
+            }
+
+            if ($originalValues[$id] != $value) {
+                $this->repo->updateValue($id, $value);
+            }
+        }
+    }
 }

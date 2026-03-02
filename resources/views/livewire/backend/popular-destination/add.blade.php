@@ -10,7 +10,10 @@
         </div>
         <div class="form-group mb-3">
             <label>Destination Image <span class="requirestar">*</span></label>
-            <x-backend.image-upload previewId="popularDestinationPreview" model="image" />
+            <x-backend.image-upload previewId="popularDestinationPreview" />
+            @error('image')
+                <span class="text-danger form-error">{{ $message }}</span>
+            @enderror
         </div>
         <button type="submit" class="btn btn-success" wire:loading.attr="disabled">
             <span wire:loading.remove>Submit</span>

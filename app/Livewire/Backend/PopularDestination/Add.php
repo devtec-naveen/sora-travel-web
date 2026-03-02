@@ -33,7 +33,7 @@ class Add extends Component
     {
         $this->validate([
             'title'  => 'required|string|max:255',
-            'image'  => 'required|image|max:1024',
+            'image'  => 'required|max:1024',
         ]);
 
         $data = [
