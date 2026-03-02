@@ -60,7 +60,7 @@
                         </td> --}}
                         <td>
                             <div class="d-flex">
-                                <button class="btn btn-sm btn-success">View</button>
+                                <a wire:navigate href="{{route('admin.userView',$user->id)}}" class="btn btn-sm btn-success">View</a>
                                 {{-- <button class="btn ripple btn-success ml-1">Edit</button>
                                 <button class="btn ripple btn-secondary ml-1"
                                     wire:click="openModal('delete', {{ $user->id }})">Delete</button>

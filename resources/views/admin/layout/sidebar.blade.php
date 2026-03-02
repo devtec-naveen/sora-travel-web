@@ -13,13 +13,13 @@
                     <span class="sidemenu-label">Dashboard</span>
                 </a>
             </li>
-            <li class="nav-item {{ Route::currentRouteName() == 'admin.users' ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('admin.user*') ? 'active' : '' }}">
                 <a class="nav-link" wire:navigate href="{{ route('admin.users') }}"><span class="shape1"></span>
                     <span class="shape2"></span><i class="ti-user sidemenu-icon"></i>
                     <span class="sidemenu-label">Users</span>
                 </a>
             </li>
-            <li class="nav-item {{ Route::currentRouteName() == 'admin.emailTemplate' ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('admin.emailTemplate*') ? 'active' : '' }}">
                 <a class="nav-link" wire:navigate href="{{ route('admin.emailTemplate') }}"><span class="shape1"></span>
                     <span class="shape2"></span><i class="ti-file sidemenu-icon"></i>
                     <span class="sidemenu-label">Email Template</span>

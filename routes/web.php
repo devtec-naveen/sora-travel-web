@@ -382,6 +382,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         /*========== Auth Profile Users and Dashboard ============*/
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/users', [UserController::class, 'index'])->name('users');
+        Route::get('/users/view/{id}', [UserController::class, 'view'])->name('userView');
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::get('/change-password', [ProfileController::class, 'changePassword'])->name('changePassword');
 

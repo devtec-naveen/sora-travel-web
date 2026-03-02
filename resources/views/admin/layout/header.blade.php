@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Admin Panel - Travel</title>
+    <title>Sorah Travel - Admin Panel</title>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
     <meta name="description" content="{{ __('app.name') }}">

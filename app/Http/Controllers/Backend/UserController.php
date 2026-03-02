@@ -9,5 +9,10 @@ class UserController extends Controller
 {
     public function index(){
         return view('admin.users.index');
-    }    
+    } 
+    
+    public function view(string $id)
+    {
+        return view('admin.users.view',['id'=>$id]);
+    }
 }
