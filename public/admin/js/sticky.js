@@ -8,18 +8,20 @@ $(document).ready(function(){
   
 
   ///Create a negative margin to prevent content 'jumps':
-  stickyElement.after('<div class="jumps-prevent"></div>');
-  function jumpsPrevent() {
-    stickyHeight = stickyElement.innerHeight();
-    stickyElement.css({"margin-bottom":"-" + stickyHeight + "px"});
-    stickyElement.next().css({"padding-top": + stickyHeight + "px"}); 
-  };
-  jumpsPrevent(); //Run.
+//  if (!stickyElement.next().hasClass('jumps-prevent')) {
+//     stickyElement.after('<div class="jumps-prevent"></div>');
+// }
+//   function jumpsPrevent() {
+//     stickyHeight = stickyElement.innerHeight();
+//     stickyElement.css({"margin-bottom":"-" + stickyHeight + "px"});
+//     stickyElement.next().css({"padding-top": + stickyHeight + "px"}); 
+//   };
+//   jumpsPrevent(); //Run.
 
-  //Function trigger:
-  $(window).resize(function(){
-    jumpsPrevent();
-  });
+//   //Function trigger:
+//   $(window).resize(function(){
+//     jumpsPrevent();
+//   });
 
   //Sticker function:
   function stickerFn() {

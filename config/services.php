@@ -50,5 +50,11 @@ return [
         'client_secret' => env('AMADEUS_CLIENT_SECRET'),
         'base_url' => env('AMADEUS_BASE_URL'),
     ],
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+    ],
 
+    'firebase' => [
+        'project_id' => env('FIREBASE_PROJECT_ID'),
+    ],
 ];

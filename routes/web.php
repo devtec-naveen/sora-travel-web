@@ -11,6 +11,7 @@ use App\Http\Controllers\Backend\SpecialOffersController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\Process\Process;
+use App\Models\User;
 
 
 //==================================================== Front-End Routes ======================================= 
@@ -419,7 +420,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             'edit'    => 'destinationsEdit',
             'show'    => 'destinationsView',
         ]);
-
         
     });
 });

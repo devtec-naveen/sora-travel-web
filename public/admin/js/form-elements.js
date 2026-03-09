@@ -50,36 +50,36 @@ $(function() {
 	});
 	
 	// Rangeslider1
-	$('.rangeslider1').ionRangeSlider();
+	// $('.rangeslider1').ionRangeSlider();
 	
-	// Rangeslider2
-	$('.rangeslider2').ionRangeSlider({
-		min: 100,
-		max: 1000,
-		from: 550
-	});
+	// // Rangeslider2
+	// $('.rangeslider2').ionRangeSlider({
+	// 	min: 100,
+	// 	max: 1000,
+	// 	from: 550
+	// });
 	
-	// Rangeslider3
-	$('.rangeslider3').ionRangeSlider({
-		type: 'double',
-		grid: true,
-		min: 0,
-		max: 1000,
-		from: 200,
-		to: 800,
-		prefix: '$'
-	});
+	// // Rangeslider3
+	// $('.rangeslider3').ionRangeSlider({
+	// 	type: 'double',
+	// 	grid: true,
+	// 	min: 0,
+	// 	max: 1000,
+	// 	from: 200,
+	// 	to: 800,
+	// 	prefix: '$'
+	// });
 	
-	// Rangeslider4
-	$('.rangeslider4').ionRangeSlider({
-		type: 'double',
-		grid: true,
-		min: -1000,
-		max: 1000,
-		from: -500,
-		to: 500,
-		step: 250
-	});
+	// // Rangeslider4
+	// $('.rangeslider4').ionRangeSlider({
+	// 	type: 'double',
+	// 	grid: true,
+	// 	min: -1000,
+	// 	max: 1000,
+	// 	from: -500,
+	// 	to: 500,
+	// 	step: 250
+	// });
 	
 	// Filebrowser
 	$(document).on('change', ':file', function() {

@@ -15,6 +15,13 @@ class AdminAuthService
         $this->repo = $repo;
     }
 
+    public function alredyLogin()
+    {
+        if (Auth::guard('admin')->check()) {
+            return redirect()->route('admin.dashboard');
+        }
+    }
+
     public function login($email, $password)
     {
         $admin = $this->repo->findByEmail($email);

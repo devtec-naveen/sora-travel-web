@@ -3,7 +3,7 @@
 ])
 @extends('admin.layout.main-layout')
 @section('content')
-    <div class="main-content side-content pt-0">
+    <div class="main-content side-content">
         <div class="container-fluid">
             <div class="inner-body">
                 <div class="page-header d-block" style="{{ $breadcrumb === false ? 'min-height:0px' : '' }}">                    

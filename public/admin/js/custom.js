@@ -178,11 +178,11 @@ $(function() {
 	
 	
 	// ______________Select2-Search
-	$('.select2-no-search').select2({
-		minimumResultsForSearch: Infinity,
-		placeholder: 'All categories',
-		 width: '100%'
-	});
+	// $('.select2-no-search').select2({
+	// 	minimumResultsForSearch: Infinity,
+	// 	placeholder: 'All categories',
+	// 	 width: '100%'
+	// });
 	
 	// ______________Horizontal-menu Active Class
 	function addActiveClass(element) {

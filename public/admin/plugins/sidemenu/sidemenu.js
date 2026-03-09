@@ -61,7 +61,7 @@ $(function() {
     }
 	$('.main-sidebar .nav li a').each(function() {
 		var $this = $(this);
-		addActiveClass($this);
+		// addActiveClass($this);
 	});
 
 	/*---Scroling ---*/

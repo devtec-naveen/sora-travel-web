@@ -1,17 +1,17 @@
-  function showPassword() {
-    const passwordField = document.getElementById('password');
-    const icon = document.querySelector('.show-password i');
+function showPassword() {
+    const passwordField = document.getElementById("password");
+    const icon = document.querySelector(".show-password i");
 
     if (passwordField.type === "password") {
-      passwordField.type = "text";
-      icon.classList.remove('fa-eye-slash');
-      icon.classList.add('fa-eye');
+        passwordField.type = "text";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
     } else {
-      passwordField.type = "password";
-      icon.classList.remove('fa-eye');
-      icon.classList.add('fa-eye-slash');
+        passwordField.type = "password";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
     }
-  }
+}
 
 function logout(event) {
     event.preventDefault();
@@ -22,11 +22,10 @@ function logout(event) {
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, Logout!"
+        confirmButtonText: "Yes, Logout!",
     }).then((result) => {
         if (result.isConfirmed) {
-            document.getElementById('logout-form').submit();
-
+            document.getElementById("logout-form").submit();
         }
     });
     return false;
@@ -34,29 +33,33 @@ function logout(event) {
 
 function confirmDelete(id) {
     Swal.fire({
-        title: 'Are you sure?',
+        title: "Are you sure?",
         text: "You won't be able to revert this!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonText: "Yes, delete it!",
     }).then((result) => {
         if (result.isConfirmed) {
-            Livewire.dispatch('deleteConfirmed', { id:id });
+            Livewire.dispatch("deleteConfirmed", { id: id });
         }
     });
 }
 
 function confirmStatusChange(id) {
     Swal.fire({
-        title: 'Change status?',
+        title: "Change status?",
         text: "Status will be updated.",
-        icon: 'question',
+        icon: "question",
         showCancelButton: true,
-        confirmButtonText: 'Yes, update it!'
+        confirmButtonText: "Yes, update it!",
     }).then((result) => {
         if (result.isConfirmed) {
-            Livewire.dispatch('changeStatus', { id: id });
+            Livewire.dispatch("changeStatus", { id: id });
         }
     });
 }
 
+function showImagePreview(imagePath) {
+    document.getElementById("previewImage").src = imagePath;
+    $("#imagePreviewModal").modal("show");
+}
