@@ -1,12 +1,14 @@
 FROM php:8.3-fpm
 
-# Install nginx + dependencies
+# Install nginx + dependencies + nodejs
 RUN apt-get update && apt-get install -y \
     nginx \
     git \
     curl \
     unzip \
     zip \
+    nodejs \
+    npm \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
@@ -36,6 +38,11 @@ WORKDIR /var/www
 
 # Copy project files
 COPY . /var/www
+
+# Install dependencies during build (BEST PRACTICE)
+RUN composer install --no-dev --optimize-autoloader
+RUN npm install
+RUN npm run build
 
 # Copy nginx config
 COPY docker/nginx.conf /etc/nginx/sites-available/default
