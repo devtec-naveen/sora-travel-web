@@ -1,6 +1,6 @@
 FROM php:8.3-fpm
 
-# Install nginx + dependencies + nodejs
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     nginx \
     git \
@@ -36,20 +36,18 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Copy project files
-COPY . /var/www
+# Copy entire project
+COPY --chown=www-data:www-data . .
 
-# Install dependencies during build (BEST PRACTICE)
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
+
+# Install node dependencies and build assets
 RUN npm install
 RUN npm run build
 
 # Copy nginx config
 COPY docker/nginx.conf /etc/nginx/sites-available/default
-
-# Fix permissions
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www
 
 EXPOSE 80
 

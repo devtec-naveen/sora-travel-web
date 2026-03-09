@@ -1,0 +1,51 @@
+# Git
+.git
+.gitignore
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Docker
+docker-compose.yml
+docker-compose.override.yml
+Dockerfile
+.dockerignore
+
+# Laravel storage (runtime files)
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/testing/*
+storage/framework/views/*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE / Editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tests
+tests
+
+# Docs
+README.md
+
+# Build artifacts
+public/hot
+public/storage
+
+# Misc
+*.log
+*.tmp
+*.cache
