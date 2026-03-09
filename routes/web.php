@@ -8,6 +8,7 @@ use App\Http\Controllers\Backend\PopularDestinationController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\SpecialOffersController;
+use App\Http\Controllers\Frontend\FlightController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\Process\Process;
@@ -19,6 +20,16 @@ use App\Models\User;
 Route::get('/', function () {
     return view('index');
 })->name('home');
+
+
+Route::get('/flight-search',[FlightController::class,'index'])->name('front.flightSearch');
+
+
+
+
+
+
+
 
 Route::get('/clear-all', function () {
 

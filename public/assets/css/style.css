@@ -1,0 +1,36 @@
+* {
+    font-family: var(--font-family);
+}
+
+html {
+    background: #fff;
+}
+
+body {
+    font-family: var(--font-family);
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+    background: var(--background);
+    box-sizing: border-box;
+    color: var(--foreground);
+}
+
+.container {
+    max-width: 1374px !important;
+    margin: 0 auto;
+    padding: 0px 15px;
+}
+
+.container-fluid {
+    max-width: 100%;
+    margin: 0px 30px;
+}
+
+a {
+    transition: all 0.3s ease-in-out;
+    text-decoration: none;
+}
+.swiper-button-lock {
+    display: none !important;
+}

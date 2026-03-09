@@ -1,11 +1,239 @@
-@import 'tailwindcss';
+@config "../../tailwind.config.js";
+@import "tailwindcss";
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+/* sources */
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+@source "../../storage/framework/views/*.php";
+@source "../**/*.blade.php";
+@source "../**/*.js";
+
+
+@layer components {
+
+.btn {
+  @apply flex items-center justify-center gap-1.5 rounded-lg px-5 py-3 text-sm font-medium shadow-none cursor-pointer select-none;
 }
+
+  .btn-sm{
+    @apply h-10 px-4 py-2 text-sm font-medium bg-primary-950 rounded-lg inline-flex items-center justify-center gap-1.5 shadow-none [text-shadow:none];
+  }
+
+  /* button primary */
+  .btn-primary {
+    @apply bg-primary-950 text-white hover:bg-primary-900 ;
+  }
+
+  /* button secondary */
+  .btn-secondary {
+    @apply bg-secondary-400 hover:bg-secondary-500 text-black;
+  }
+
+  /* button red */
+  .btn-red {
+    @apply bg-red-600 hover:bg-red-700 text-white;
+  }
+
+  /* button white */
+  .btn-white {
+    @apply bg-white text-black hover:bg-gray-100;
+  }
+
+  /* button disabled */
+  .btn-disabled {
+    @apply bg-slate-200 text-slate-500 cursor-not-allowed pointer-events-auto;
+  }
+
+  /* button border */
+  .btn-border{
+    @apply border border-slate-300 bg-white hover:bg-slate-900 hover:text-white hover:border-slate-900;
+  }
+
+  /* button border blue */
+  .btn-border-blue{
+    @apply border border-blue-700 bg-white text-blue-700 hover:bg-blue-700 hover:text-white;
+  }
+
+  /* icon size */
+  i svg {
+    @apply !w-full !h-full;
+  }
+
+  /* ------------------- header tabs start ------------------- */
+
+  .tabs-border{
+    @apply md:text-base h-auto text-xs px-2 md:px-5 py-2 rounded-full border border-white text-white inline-flex justify-start items-center gap-1 md:gap-2.5 hover:bg-white/20 justify-center cursor-pointer;
+  }
+
+  .tabs-border.active{
+    @apply bg-blue-700 text-white border-blue-700;
+  }
+
+  .tabs-border-inner{
+    @apply md:text-base h-auto text-xs px-2 md:px-5 py-2 rounded-full border border-slate-200 text-slate-600 !bg-white hover:border-primary-600 hover:text-primary-600 inline-flex justify-start items-center gap-1 md:gap-2.5 cursor-pointer transition-all before:content-none;
+  }
+
+  .tabs-border-inner input[type="radio"] {
+    @apply hidden;
+  }
+
+  .tabs-border-inner.active,
+  .tabs-border-inner:has(input:checked),
+  .peer:checked + .tabs-border-inner {
+    @apply !bg-primary-600 text-white border-primary-600;
+  }
+
+  /* ------------------- tabs start ------------------- */
+
+  .tabs{
+    @apply flex justify-center items-center gap-2.5 bg-slate-200 px-4 py-2.5 rounded-xl font-medium text-sm cursor-pointer;
+  }
+
+  .tabs.active{
+    @apply bg-secondary-400 text-black ;
+  }
+
+  .tabs.tab.active,
+  .tabs.tab:has(input:checked),
+  .peer:checked + .tabs.tab {
+    @apply !bg-secondary-400 text-black border-secondary-400;
+  }
+
+  /* ------------------- form start ------------------- */
+
+  .form-control{
+    @apply flex flex-col gap-2;
+  }
+
+  .form-label {
+    @apply font-semibold text-sm text-slate-950;
+  }
+
+  .form-input {
+    @apply w-full h-10 text-sm gap-2.5 self-stretch bg-white p-2.5 rounded-md border border-slate-200 shadow-sm font-normal focus:outline-none focus:ring-0;
+  }
+
+  /* checkbox custom start */
+
+  .checkbox {
+    @apply w-5 h-5 rounded-md border-2 shadow-none border-slate-200 bg-white checked:bg-secondary-400 checked:border-secondary-400 focus:outline-none transition-all duration-200 cursor-pointer [--chkbg:theme(colors.secondary.400)] [--chkfg:white];
+    background-image: none;
+  }
+
+  .checkbox:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 7 10 17 5 12'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-size: 65% !important;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+}
+
+/* ------------------- card start ------------------- */
+
+.card{
+  @apply bg-white rounded-xl border border-slate-200 shadow-sm;
+}
+
+/* ------------------- card end ------------------- */
+
+/* tags */
+
+.tag{
+  @apply inline-flex justify-center items-center gap-2 px-2 py-1 rounded-lg text-xs md:text-sm;
+}
+
+.tag i{
+  @apply w-4 h-4;
+}
+
+.tag-gray{
+  @apply bg-slate-100 text-slate-500;
+}
+
+.tag-green{
+  @apply bg-green-100 text-green-800;
+}
+
+.tag-blue{
+  @apply bg-blue-100 text-blue-600;
+}
+
+.tag-red{
+  @apply bg-red-100 text-red-600;
+}
+
+.tag-orange{
+  @apply bg-orange-100 text-orange-500;
+}
+
+button{
+  cursor: pointer;
+}
+
+  .dtp-drop {
+    animation: dtpIn 0.18s ease-out;
+  }
+
+  @keyframes dtpIn {
+    from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  }
+
+  /* Calendar day cells */
+  .dtp-day {
+    @apply w-8 h-8 flex items-center justify-center rounded-full text-xs cursor-pointer transition-all;
+  }
+  .dtp-day:hover:not(.disabled):not(.selected) {
+    @apply bg-primary-50 text-primary-950;
+  }
+  .dtp-day.selected {
+    @apply bg-primary-950 text-white font-bold;
+  }
+  .dtp-day.today:not(.selected) {
+    @apply border border-primary-950 text-primary-950 font-semibold;
+  }
+  .dtp-day.in-range:not(.selected) {
+    @apply bg-primary-50 rounded-none;
+  }
+  .dtp-day.range-start {
+    border-radius: 50% 0 0 50% !important;
+    @apply bg-primary-950 text-white font-bold;
+  }
+  .dtp-day.range-end {
+    border-radius: 0 50% 50% 0 !important;
+    @apply bg-primary-950 text-white font-bold;
+  }
+  .dtp-day.disabled {
+    @apply text-slate-300 cursor-not-allowed pointer-events-none;
+  }
+
+  /* Time scroll drums */
+  .dtp-drum {
+    height: 7rem;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+  }
+  .dtp-drum::-webkit-scrollbar {
+    display: none;
+  }
+  .dtp-drum-item {
+    height: 2.33rem;
+    scroll-snap-align: center;
+    @apply flex items-center justify-center text-sm cursor-pointer transition-all rounded-md;
+  }
+  .dtp-drum-item:hover {
+    @apply bg-primary-50 text-primary-950;
+  }
+  .dtp-drum-item.active {
+    @apply text-primary-950 font-bold text-base;
+  }
+
+  /* Date/Time tab toggle */
+  .dtp-tab {
+    @apply px-4 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all text-slate-500;
+  }
+  .dtp-tab.active {
+    @apply bg-primary-950 text-white;
+  }
