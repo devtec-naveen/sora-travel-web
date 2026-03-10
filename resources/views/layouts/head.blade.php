@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,16 +18,18 @@
     <link rel="icon" type="image/png" sizes="32x32" href="images/fav-icon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="images/fav-icon/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="images/fav-icon/favicon-16x16.png">
-    <link rel="manifest" href="images/fav-icon/manifest.json">
+    {{-- <link rel="manifest" href="images/fav-icon/manifest.json"> --}}
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="images/fav-icon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />    
     <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
+
 <body class="min-h-screen light-mode">
     <div class="site-wraper">

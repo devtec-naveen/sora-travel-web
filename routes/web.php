@@ -8,11 +8,11 @@ use App\Http\Controllers\Backend\PopularDestinationController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\SpecialOffersController;
-use App\Http\Controllers\Frontend\FlightController;
+use App\Http\Controllers\Frontend\AirportController;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Http;
 use Symfony\Component\Process\Process;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 
 
 //==================================================== Front-End Routes ======================================= 
@@ -22,7 +22,8 @@ Route::get('/', function () {
 })->name('home');
 
 
-Route::get('/flight-search',[FlightController::class,'index'])->name('front.flightSearch');
+Route::get('/flight-search',[AirportController::class,'index'])->name('front.flightSearch');
+Route::get('/airport-search',[AirportController::class, 'search'])->name('airport.search');
 
 
 

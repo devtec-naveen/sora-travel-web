@@ -365,323 +365,125 @@
                         </div>
                     </div>
 
-                    <div class="flex-1 space-y-5">
-                        <div class="headings">
-                            <h4 class="font-semibold text-lg sm:text-xl leading-7 sm:leading-8 text-slate-950">25
-                                flights found
-                            </h4>
-                        </div>
+<div class="flex-1 space-y-5">
+    <div class="headings">
+        <h4 class="font-semibold text-lg sm:text-xl leading-7 sm:leading-8 text-slate-950">
+            {{ $total }} flights found
+        </h4>
+    </div>
 
-                        <div class="space-y-3.5">
-                            <!-- Flight Result Card 1 -->
-                            <div class="card p-4 transition-all hover:shadow-md">
-                                <div class="flex flex-col lg:flex-row gap-3 md:gap-6">
-                                    <!-- Left Section: Flight Details -->
-                                    <div class="flex-1 flex flex-col gap-3">
-                                        <!-- Airline Info -->
-                                        <div class="flex items-center gap-4">
-                                            <div
-                                                class="w-11 h-11 rounded-xl bg-slate-50 overflow-hidden border border-slate-100">
-                                                <img src="images/air-india.png" alt="Air India"
-                                                    class="w-full h-full object-cover">
-                                            </div>
-                                            <div class="flex flex-col">
-                                                <span class="font-semibold text-base text-slate-950">Air India</span>
-                                                <span class="font-normal text-sm text-slate-500">LH1234</span>
-                                            </div>
-                                        </div>
+    <div class="space-y-3.5">
+        @foreach($flights as $flight)
+            @php
+                $itinerary = $flight['itineraries'][0];
+                $segment = $itinerary['segments'][0];
+                $price = $flight['price']['grandTotal'] ?? $flight['price']['total'];
+                $airlineCode = $segment['carrierCode'];
+                $flightNumber = $segment['number'];
+                $departure = $segment['departure'];
+                $arrival = $segment['arrival'];
+                $duration = $itinerary['duration'];
+                $aircraft = $segment['aircraft']['code'];
+                $bags = $flight['travelerPricings'][0]['fareDetailsBySegment'][0]['includedCheckedBags'] ?? [];
+            @endphp
 
-                                        <!-- Time & Route -->
-                                        <div class="flex flex-row items-center justify-between gap-6 sm:gap-4">
-                                            <!-- Departure -->
-                                            <div class="flex flex-col items-start">
-                                                <span
-                                                    class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">1:30
-                                                    PM</span>
-                                                <span class="font-normal text-sm text-slate-500">Brussels (BRU)</span>
-                                            </div>
-
-                                            <!-- Duration & Path -->
-                                            <div
-                                                class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
-                                                <span class="font-normal text-xs text-slate-500">5h 15m</span>
-                                                <div class="relative w-full flex items-center justify-center h-4">
-                                                    <div class="absolute w-full h-px bg-slate-200"></div>
-                                                    <div class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200">
-                                                    </div>
-                                                    <div
-                                                        class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200">
-                                                    </div>
-                                                    <div class="relative z-10 bg-white px-2 leading-none">
-                                                        <i data-tabler="plane" class="text-slate-400"
-                                                            data-size="18"></i>
-                                                    </div>
-                                                </div>
-                                                <span class="font-normal text-xs text-slate-500">1 stop</span>
-                                            </div>
-
-                                            <!-- Arrival -->
-                                            <div class="flex flex-col items-end">
-                                                <span
-                                                    class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">2:30
-                                                    PM</span>
-                                                <span class="font-normal text-sm text-slate-500 text-right">Antalya
-                                                    (AYT)</span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Amenities Tags -->
-                                        <div class="flex flex-wrap gap-2.5">
-                                            <div class="tag tag-gray">
-                                                <i data-tabler="briefcase"></i>
-                                                <span>23kg</span>
-                                            </div>
-                                            <div class="tag tag-gray">
-                                                <span>Airbus A321</span>
-                                            </div>
-                                            <div class="tag tag-green">
-                                                <i data-tabler="circle-check"></i>
-                                                <span>Refundable</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Divider -->
-                                    <div class="hidden lg:block w-px bg-slate-200 h-auto self-stretch"></div>
-                                    <div class="lg:hidden h-px bg-slate-100 w-full"></div>
-
-                                    <!-- Right Section: Pricing & Action -->
-                                    <div
-                                        class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between lg:min-w-[153px] gap-4">
-                                        <div class="flex flex-col lg:items-end">
-                                            <span class="font-normal text-sm text-slate-500">From</span>
-                                            <span
-                                                class="font-semibold text-[24px] leading-[36px] text-blue-600">€175</span>
-                                            <span class="font-normal text-sm text-slate-500">per person</span>
-                                        </div>
-                                        <button onclick="flight_details_modal.showModal()"
-                                            class="btn btn-primary whitespace-nowrap btn-sm">
-                                            Select Flight
-                                        </button>
-                                    </div>
-                                </div>
+            <div class="card p-4 transition-all hover:shadow-md">
+                <div class="flex flex-col lg:flex-row gap-3 md:gap-6">
+                    <div class="flex-1 flex flex-col gap-3">
+                        <!-- Airline -->
+                        <div class="flex items-center gap-4">
+                            <div class="w-11 h-11 rounded-xl bg-slate-50 overflow-hidden border border-slate-100">
+                                <img src="{{ asset('images/airline/'.$airlineCode.'.png') }}" alt="{{ $airlineCode }}" class="w-full h-full object-cover">
                             </div>
-
-                            <!-- Flight Result Card 2 (With Seats Warning) -->
-                            <div class="card p-4 transition-all hover:shadow-md">
-                                <div class="flex flex-col lg:flex-row gap-3 md:gap-6">
-                                    <div class="flex-1 flex flex-col gap-3">
-                                        <div class="flex items-center gap-4">
-                                            <div
-                                                class="w-11 h-11 rounded-xl bg-slate-50 overflow-hidden border border-slate-100">
-                                                <img src="images/air-india.png" alt="Air India"
-                                                    class="w-full h-full object-cover">
-                                            </div>
-                                            <div class="flex flex-col">
-                                                <span class="font-semibold text-base text-slate-950">Air India</span>
-                                                <span class="font-normal text-sm text-slate-500">LH1234</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex flex-row items-center justify-between gap-6 sm:gap-4">
-                                            <div class="flex flex-col items-start">
-                                                <span
-                                                    class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">1:30
-                                                    PM</span>
-                                                <span class="font-normal text-sm text-slate-500">Brussels (BRU)</span>
-                                            </div>
-
-                                            <div
-                                                class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
-                                                <span class="font-normal text-xs text-slate-500">5h 15m</span>
-                                                <div class="relative w-full flex items-center justify-center h-4">
-                                                    <div class="absolute w-full h-px bg-slate-200"></div>
-                                                    <div class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200">
-                                                    </div>
-                                                    <div
-                                                        class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200">
-                                                    </div>
-                                                    <div class="relative z-10 bg-white px-2 leading-none">
-                                                        <i data-tabler="plane" class="text-slate-400"
-                                                            data-size="18"></i>
-                                                    </div>
-                                                </div>
-                                                <span class="font-normal text-xs text-slate-500">1 stop</span>
-                                            </div>
-
-                                            <div class="flex flex-col items-end">
-                                                <span
-                                                    class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">2:30
-                                                    PM</span>
-                                                <span class="font-normal text-sm text-slate-500 text-right">Antalya
-                                                    (AYT)</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex flex-wrap gap-2.5">
-                                            <div class="tag tag-gray">
-                                                <i data-tabler="briefcase"></i>
-                                                <span>23kg</span>
-                                            </div>
-                                            <div class="tag tag-gray">
-                                                <span>Airbus A321</span>
-                                            </div>
-                                            <div class="tag tag-green">
-                                                <i data-tabler="circle-check"></i>
-                                                <span>Refundable</span>
-                                            </div>
-                                            <div class="tag tag-orange">
-                                                <i data-tabler="alert-circle"></i>
-                                                <span>Only 8 seats left</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="hidden lg:block w-px bg-slate-200 h-auto self-stretch"></div>
-                                    <div class="lg:hidden h-px bg-slate-100 w-full"></div>
-
-                                    <div
-                                        class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between lg:min-w-[153px] gap-4">
-                                        <div class="flex flex-col lg:items-end">
-                                            <span class="font-normal text-sm text-slate-500">From</span>
-                                            <span
-                                                class="font-semibold text-[24px] leading-[36px] text-blue-600">€175</span>
-                                            <span class="font-normal text-sm text-slate-500">per person</span>
-                                        </div>
-                                        <button onclick="flight_details_modal.showModal()"
-                                            class="btn btn-primary whitespace-nowrap btn-sm">
-                                            Select Flight
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Flight Result Card 3 (Repeat Normal) -->
-                            <div class="card p-4 transition-all hover:shadow-md">
-                                <div class="flex flex-col lg:flex-row gap-3 md:gap-6">
-                                    <div class="flex-1 flex flex-col gap-3">
-                                        <div class="flex items-center gap-4">
-                                            <div
-                                                class="w-11 h-11 rounded-xl bg-slate-50 overflow-hidden border border-slate-100">
-                                                <img src="images/air-india.png" alt="Air India"
-                                                    class="w-full h-full object-cover">
-                                            </div>
-                                            <div class="flex flex-col">
-                                                <span class="font-semibold text-base text-slate-950">Air India</span>
-                                                <span class="font-normal text-sm text-slate-500">LH1234</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex flex-row items-center justify-between gap-6 sm:gap-4">
-                                            <div class="flex flex-col items-start">
-                                                <span
-                                                    class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">1:30
-                                                    PM</span>
-                                                <span class="font-normal text-sm text-slate-500">Brussels (BRU)</span>
-                                            </div>
-
-                                            <div
-                                                class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
-                                                <span class="font-normal text-xs text-slate-500">5h 15m</span>
-                                                <div class="relative w-full flex items-center justify-center h-4">
-                                                    <div class="absolute w-full h-px bg-slate-200"></div>
-                                                    <div class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200">
-                                                    </div>
-                                                    <div
-                                                        class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200">
-                                                    </div>
-                                                    <div class="relative z-10 bg-white px-2 leading-none">
-                                                        <i data-tabler="plane" class="text-slate-400"
-                                                            data-size="18"></i>
-                                                    </div>
-                                                </div>
-                                                <span class="font-normal text-xs text-slate-500">1 stop</span>
-                                            </div>
-
-                                            <div class="flex flex-col items-end">
-                                                <span
-                                                    class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">2:30
-                                                    PM</span>
-                                                <span class="font-normal text-sm text-slate-500 text-right">Antalya
-                                                    (AYT)</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex flex-wrap gap-2.5">
-                                            <div class="tag tag-gray">
-                                                <i data-tabler="briefcase"></i>
-                                                <span>23kg</span>
-                                            </div>
-                                            <div class="tag tag-gray">
-                                                <span>Airbus A321</span>
-                                            </div>
-                                            <div class="tag tag-green">
-                                                <i data-tabler="circle-check"></i>
-                                                <span>Refundable</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="hidden lg:block w-px bg-slate-200 h-auto self-stretch"></div>
-                                    <div class="lg:hidden h-px bg-slate-100 w-full"></div>
-
-                                    <div
-                                        class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between lg:min-w-[153px] gap-4">
-                                        <div class="flex flex-col lg:items-end">
-                                            <span class="font-normal text-sm text-slate-500">From</span>
-                                            <span
-                                                class="font-semibold text-[24px] leading-[36px] text-blue-600">€175</span>
-                                            <span class="font-normal text-sm text-slate-500">per person</span>
-                                        </div>
-                                        <button onclick="flight_details_modal.showModal()"
-                                            class="btn btn-primary whitespace-nowrap btn-sm">
-                                            Select Flight
-                                        </button>
-                                    </div>
-                                </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-base text-slate-950">{{ $airlineCode }}</span>
+                                <span class="font-normal text-sm text-slate-500">{{ $flightNumber }}</span>
                             </div>
                         </div>
-                        <!-- Pagination -->
-                        <div
-                            class="mt-8 flex flex-col md:flex-row flex-col-reverse justify-between items-center gap-6 self-stretch">
-                            <span class="font-normal text-sm text-slate-600 order-2 md:order-1">100 results
-                                displayed</span>
-                            <div
-                                class="flex items-center gap-2 md:gap-2.5 order-1 md:order-2 flex-wrap justify-center">
-                                <!-- Back Button -->
-                                <button
-                                    class="flex items-center gap-1.5 transition-all text-slate-950 px-3 py-2 bg-white rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                    <i data-tabler="chevron-left" data-size="16"></i>
-                                    <span class="font-normal text-sm">Back</span>
-                                </button>
 
-                                <!-- Page Numbers -->
-                                <button
-                                    class="w-9 h-9 flex justify-center items-center font-normal text-sm text-white bg-[#f3b515] p-2 rounded-lg transition-transform hover:scale-105">1</button>
-                                <button
-                                    class="w-9 h-9 flex justify-center items-center font-normal text-sm text-slate-950 bg-white p-2 rounded-lg border border-slate-100 hover:bg-slate-50 transition-all">2</button>
-                                <button
-                                    class="w-9 h-9 flex justify-center items-center font-normal text-sm text-slate-950 bg-white p-2 rounded-lg border border-slate-100 hover:bg-slate-50 transition-all">3</button>
+                        <!-- Time & Route -->
+                        <div class="flex flex-row items-center justify-between gap-6 sm:gap-4">
+                            <div class="flex flex-col items-start">
+                                <span class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
+                                    {{ \Carbon\Carbon::parse($departure['at'])->format('h:i A') }}
+                                </span>
+                                <span class="font-normal text-sm text-slate-500">{{ $departure['iataCode'] }}</span>
+                            </div>
 
-                                <span
-                                    class="w-9 h-9 flex justify-center items-center font-normal text-sm text-slate-400">...</span>
+                            <div class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
+                                <span class="font-normal text-xs text-slate-500">{{ \Carbon\CarbonInterval::make($duration)->cascade()->forHumans() }}</span>
+                                <div class="relative w-full flex items-center justify-center h-4">
+                                    <div class="absolute w-full h-px bg-slate-200"></div>
+                                    <div class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200"></div>
+                                    <div class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200"></div>
+                                    <div class="relative z-10 bg-white px-2 leading-none">
+                                        <i data-tabler="plane" class="text-slate-400" data-size="18"></i>
+                                    </div>
+                                </div>
+                                <span class="font-normal text-xs text-slate-500">
+                                    {{ $segment['numberOfStops'] }} stop(s)
+                                </span>
+                            </div>
 
-                                <button
-                                    class="w-9 h-9 flex justify-center items-center font-normal text-sm text-slate-950 bg-white p-2 rounded-lg border border-slate-100 hover:bg-slate-50 transition-all">10</button>
-                                <button
-                                    class="w-9 h-9 flex justify-center items-center font-normal text-sm text-slate-950 bg-white p-2 rounded-lg border border-slate-100 hover:bg-slate-50 transition-all">11</button>
-                                <button
-                                    class="w-9 h-9 flex justify-center items-center font-normal text-sm text-slate-950 bg-white p-2 rounded-lg border border-slate-100 hover:bg-slate-50 transition-all lg:flex hidden">12</button>
+                            <div class="flex flex-col items-end">
+                                <span class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
+                                    {{ \Carbon\Carbon::parse($arrival['at'])->format('h:i A') }}
+                                </span>
+                                <span class="font-normal text-sm text-slate-500 text-right">{{ $arrival['iataCode'] }}</span>
+                            </div>
+                        </div>
 
-                                <!-- Next Button -->
-                                <button
-                                    class="flex items-center gap-1.5 transition-all text-slate-950 px-3 py-2 bg-white rounded-lg border border-slate-100 hover:bg-slate-50">
-                                    <span class="font-normal text-sm">Next</span>
-                                    <i data-tabler="chevron-right" data-size="16"></i>
-                                </button>
+                        <!-- Amenities -->
+                        <div class="flex flex-wrap gap-2.5">
+                            @if(isset($bags['quantity']))
+                                <div class="tag tag-gray">
+                                    <i data-tabler="briefcase"></i>
+                                    <span>{{ $bags['quantity'] }}kg</span>
+                                </div>
+                            @endif
+                            <div class="tag tag-gray">
+                                <span>Aircraft: {{ $aircraft }}</span>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Divider -->
+                    <div class="hidden lg:block w-px bg-slate-200 h-auto self-stretch"></div>
+                    <div class="lg:hidden h-px bg-slate-100 w-full"></div>
+
+                    <!-- Price & Select -->
+                    <div class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between lg:min-w-[153px] gap-4">
+                        <div class="flex flex-col lg:items-end">
+                            <span class="font-normal text-sm text-slate-500">From</span>
+                            <span class="font-semibold text-[24px] leading-[36px] text-blue-600">€{{ $price }}</span>
+                            <span class="font-normal text-sm text-slate-500">per person</span>
+                        </div>
+                        <button onclick="flight_details_modal.showModal()" class="btn btn-primary whitespace-nowrap btn-sm">Select Flight</button>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-8 flex flex-col md:flex-row flex-col-reverse justify-between items-center gap-6 self-stretch">
+        <span class="font-normal text-sm text-slate-600 order-2 md:order-1">
+            Showing {{ $flights->count() }} of {{ $total }} results
+        </span>
+        <div class="flex items-center gap-2 md:gap-2.5 order-1 md:order-2 flex-wrap justify-center">
+            <button wire:click="$set('page', max($page-1,1))" class="px-3 py-2 border rounded disabled:opacity-50" @if($page == 1) disabled @endif>Back</button>
+
+            @for($i = 1; $i <= ceil($total / $limit); $i++)
+                <button wire:click="$set('page', {{ $i }})" class="px-3 py-2 border rounded {{ $page==$i?'bg-yellow-500 text-white':'bg-white text-black' }}">
+                    {{ $i }}
+                </button>
+            @endfor
+
+            <button wire:click="$set('page', min($page+1, ceil($total/$limit)))" class="px-3 py-2 border rounded" @if($page >= ceil($total/$limit)) disabled @endif>Next</button>
+        </div>
+    </div>
+</div>
+
                 </div>
             </div>
         </div>
