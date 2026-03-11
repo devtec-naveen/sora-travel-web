@@ -57,4 +57,9 @@ return [
     'firebase' => [
         'project_id' => env('FIREBASE_PROJECT_ID'),
     ],
+    
+    'duffel' => [
+        'base_url' => env('DUFFEL_API_URL'),
+        'token' => env('DUFFEL_TOKEN'),
+    ],
 ];

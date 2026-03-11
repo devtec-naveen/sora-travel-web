@@ -12,11 +12,12 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/forgot-password', 'forgotPassword');
 });
 
+Route::controller(ContentController::class)->group(function () {
+    Route::get('/special-offers', 'specialOffers');
+    Route::get('/popular-destinations', 'popularDestinations');
+});
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/special-offers', [ContentController::class, 'specialOffers']);
-    Route::get('/popular-destinations', [ContentController::class, 'popularDestinations']);
 });
-    
-
