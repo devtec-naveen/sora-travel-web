@@ -55,7 +55,7 @@
                     </li> --}}
                 </ul>
             </li>
-            @if (app()->environment('local'))
+            {{-- @if (app()->environment('local')) --}}
                 <li class="nav-item {{ request()->routeIs('admin.offers*') ? 'active' : '' }}">
                     <a class="nav-link" wire:navigate href="{{ route('admin.offersList') }}">
                         <span class="shape1"></span>
@@ -70,7 +70,7 @@
                         <span class="sidemenu-label">Popular Destinations</span>
                     </a>
                 </li>
-            @endif
+            {{-- @endif --}}
             <li class="nav-item {{ Route::currentRouteName() == 'admin.globalSettingList' ? 'active' : '' }}">
                 <a class="nav-link" wire:navigate href="{{ route('admin.globalSettingList') }}">
                     <span class="shape1"></span>
