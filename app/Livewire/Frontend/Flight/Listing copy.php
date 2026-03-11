@@ -1,43 +1,29 @@
 <?php
 
 namespace App\Livewire\Frontend\Flight;
-
 use Livewire\Component;
-use App\Services\Common\Duffel\DuffelService;
+use App\Services\Common\Amadeus\FlightService;
 
 class Listing extends Component
 {
     public $origin;
     public $destination;
     public $departureDate;
-
     public $adults = 1;
-    public $children = 0;
-    public $infants = 0;
-
-    public $cabinClass = 'economy';
-
     public $page = 1;
-
     public $flights = [];
-    public $total = 0;  
+    public $total = 0;
+    public $children = 0;  
+    public $infants = 0;   
+    public $cabinClass = 'Economy'; 
 
-    protected $queryString = [
-        'origin',
-        'destination',
-        'departureDate',
-        'adults',
-        'children',
-        'infants',
-        'cabinClass',
-        'page'
-    ];
+    protected $flightService;
 
-     protected $duffelService;
+    protected $queryString = ['origin','destination','departureDate','adults','children','infants','cabinClass','page'];
 
-    public function mount(DuffelService $duffelService)
+    public function mount(FlightService $flightService)
     {
-        $this->duffelService = $duffelService;
+        $this->flightService = $flightService;
         $this->loadFlights();
     }
 
@@ -54,19 +40,21 @@ class Listing extends Component
             return;
         }
 
-        $response = $this->duffelService->searchFlights([
+        $limit = 20;
+        $offset = ($this->page - 1) * $limit;
+        $response = $this->flightService->searchFlights([
             'origin' => $this->origin,
             'destination' => $this->destination,
             'departureDate' => $this->departureDate,
             'adults' => $this->adults,
             'children' => $this->children,
             'infants' => $this->infants,
-            'cabin' => $this->cabinClass,
-            'limit' => 20,
+            'cabin' => strtoupper($this->cabinClass),
+            'max' => $limit,
         ]);
-        $offers = $response['data']['offers'] ?? [];
-        $this->flights = collect($offers);
-        $this->total = count($offers);
+        
+        $this->flights = collect($response['data'] ?? []);;
+        $this->total = $response['meta']['count'] ?? count($this->flights);
     }
 
     public function render()

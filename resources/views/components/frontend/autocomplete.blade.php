@@ -9,7 +9,7 @@
         <span class="text-xs text-slate-800 leading-4">
             {{ $label }}
         </span>
-        <span class="ap-display text-sm font-semibold text-slate-800 leading-5 text-capitalize">
+        <span class="ap-display text-sm font-semibold text-slate-800 leading-5 capitalize">
             {{ $display }}
         </span>
         <input type="hidden" class="ap-hidden" name="{{ $name }}" value="{{ $value }}" />

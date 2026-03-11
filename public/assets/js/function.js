@@ -1,3 +1,12 @@
+document.addEventListener('DOMContentLoaded', function () {
+    const loader = document.getElementById('Loader');
+    if (loader) loader.style.display = 'flex';
+    setTimeout(() => {
+        if (loader) loader.style.display = 'none';
+    }, 1000);
+});
+
+
 document.addEventListener("DOMContentLoaded", () => {
     const icons = document.querySelectorAll("i[data-tabler]");
     icons.forEach(async (icon) => {
