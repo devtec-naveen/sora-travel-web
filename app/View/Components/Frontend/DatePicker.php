@@ -14,6 +14,7 @@ class DatePicker extends Component
     public $placeholder;
     public $mode;
     public $minDate;
+    public $value;
     /**
      * Create a new component instance.
      */
@@ -23,7 +24,8 @@ class DatePicker extends Component
         $label = 'Select Date',
         $placeholder = 'Select date',
         $mode = 'date',
-        $minDate = 'today'
+        $minDate = 'today',
+        $value = null
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -31,6 +33,7 @@ class DatePicker extends Component
         $this->placeholder = $placeholder;
         $this->mode = $mode;
         $this->minDate = $minDate;
+        $this->value = $value;
     }
     /**
      * Get the view / contents that represent the component.

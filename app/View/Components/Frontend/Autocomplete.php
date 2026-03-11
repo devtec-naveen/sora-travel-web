@@ -15,6 +15,8 @@ class Autocomplete extends Component
     public $placeholder;
     public $type;
     public $icon;
+    public $cityInputName;
+    public $cityValue;
 
     /**
      * Create a new component instance.
@@ -26,7 +28,9 @@ class Autocomplete extends Component
         $display = '',
         $placeholder = 'Search...',
         $type = 'default',
-        $icon = ''
+        $icon = '',
+        $cityInputName = '',
+        $cityValue = ''
         
     ) {
         $this->label = $label;
@@ -36,6 +40,8 @@ class Autocomplete extends Component
         $this->placeholder = $placeholder;
         $this->type = $type;
         $this->icon = $icon;
+        $this->cityInputName = $cityInputName;
+        $this->cityValue = $cityValue;
     }
     /**
      * Get the view / contents that represent the component.

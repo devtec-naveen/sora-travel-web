@@ -143,12 +143,11 @@ function closeTravelers(id) {
 }
 
 function ensurePax(id) {
-
     if (!PAX[id]) {
         PAX[id] = {
             adults: 1,
             children: 0,
-            infants: 0
+            infants: 0,
         };
     }
 }
@@ -158,37 +157,30 @@ function changePax(id, type, delta) {
     const limits = {
         adults: [1, 9],
         children: [0, 9],
-        infants: [0, 9]
+        infants: [0, 9],
     };
     const [min, max] = limits[type];
-    PAX[id][type] = Math.min(
-        max,
-        Math.max(min, PAX[id][type] + delta)
-    );
+    PAX[id][type] = Math.min(max, Math.max(min, PAX[id][type] + delta));
     document.getElementById(`${id}_${type}-count`).textContent = PAX[id][type];
     updateTravelersLabel(id);
-
 }
 
 function updateTravelersLabel(id) {
     ensurePax(id);
     const wrapper = document.getElementById(id + "Wrapper");
-    const cls = wrapper
-        .querySelector(`input[name='${id}_cabinClass']:checked`)
-        ?.value || "Economy";
+    const cls =
+        wrapper.querySelector(`input[name='${id}_cabinClass']:checked`)
+            ?.value || "Economy";
 
-    const total =
-        PAX[id].adults +
-        PAX[id].children +
-        PAX[id].infants;
+    const total = PAX[id].adults + PAX[id].children + PAX[id].infants;
 
     const word = total === 1 ? "traveler" : "travelers";
-    document.getElementById(id + "Label").textContent = `${total} ${word}, ${cls}`;
+    document.getElementById(id + "Label").textContent =
+        `${total} ${word}, ${cls}`;
     document.getElementById(id + "_inp_adults").value = PAX[id].adults;
     document.getElementById(id + "_inp_children").value = PAX[id].children;
     document.getElementById(id + "_inp_infants").value = PAX[id].infants;
     document.getElementById(id + "_inp_class").value = cls;
-
 }
 
 document.addEventListener("click", function (e) {
@@ -310,24 +302,29 @@ const TOP = ["DEL", "BLR", "BOM", "CCU", "JAI", "HYD", "MAA", "DXB"];
 
 async function apiAirports(q) {
     try {
-        const r = await fetch(`airport-search?keyword=${encodeURIComponent(q)}`, {
-            headers: {
-                Accept: "application/json",
-                "X-Requested-With": "XMLHttpRequest",
+        const r = await fetch(
+            `airport-search?keyword=${encodeURIComponent(q)}`,
+            {
+                headers: {
+                    Accept: "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
+                },
             },
-        });
+        );
         if (!r.ok) throw 0;
         const j = await r.json();
         const list = j.data ?? j;
-        return list.map(a => ({
+        return list.map((a) => ({
             code: a.iataCode ?? "",
             city: a.address?.cityName
-                ? a.address.cityName.charAt(0) + a.address.cityName.slice(1).toLowerCase()
+                ? a.address.cityName.charAt(0) +
+                  a.address.cityName.slice(1).toLowerCase()
                 : "",
             name: a.name ?? "",
             country: a.address?.countryName
-                ? a.address.countryName.charAt(0) + a.address.countryName.slice(1).toLowerCase()
-                : ""
+                ? a.address.countryName.charAt(0) +
+                  a.address.countryName.slice(1).toLowerCase()
+                : "",
         }));
     } catch {
         return null;
@@ -404,6 +401,7 @@ function initField(fieldEl) {
     const resultsEl = fieldEl.querySelector(".ap-results");
     const display = fieldEl.querySelector(".ap-display");
     const hidden = fieldEl.querySelector(".ap-hidden");
+    const cityHidden = fieldEl.querySelector(".ap-city-hidden");
 
     function openDropdown() {
         document.querySelectorAll(".ap-dropdown.open").forEach((d) => {
@@ -437,6 +435,9 @@ function initField(fieldEl) {
                 display.classList.remove("text-slate-400");
                 display.classList.add("text-slate-800");
                 hidden.value = code;
+                if (cityHidden) {
+                    cityHidden.value = city;
+                }
                 closeDropdown();
             });
         });
@@ -477,8 +478,18 @@ document.querySelectorAll(".ap-field").forEach(initField);
 //══════════════════════════════════════  Date Time Picker ══════════════════════════════════════
 
 const MONTHS = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
 ];
 const WDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
@@ -510,34 +521,41 @@ function dtpFmt(d) {
 
 function dtpLocalISO(d) {
     if (!d) return "";
-    const y  = d.getFullYear();
-    const m  = String(d.getMonth() + 1).padStart(2, "0");
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${dd}`;
 }
 
 function dtpInit(fieldEl) {
-    const id   = fieldEl.dataset.dtpId;
+    const id = fieldEl.dataset.dtpId;
     const mode = fieldEl.dataset.mode || "date";
     const minD = dtpParseMin(fieldEl.dataset.minDate);
     const maxD = dtpParseMin(fieldEl.dataset.maxDate);
 
     _dtp[id] = {
-        mode, minD, maxD,
-        navYear  : new Date().getFullYear(),
-        navMonth : new Date().getMonth(),
-        date     : null,
-        endDate  : null,
+        mode,
+        minD,
+        maxD,
+        navYear: new Date().getFullYear(),
+        navMonth: new Date().getMonth(),
+        date: null,
+        endDate: null,
         selecting: false,
     };
 
-    const hiddenInp  = document.getElementById(`dtp_val_${id}`);
-    const hasDefault = fieldEl.hasAttribute("data-default-today")
-                    || (hiddenInp && hiddenInp.hasAttribute("data-default-today"));
+    const hiddenInp = document.getElementById(`dtp_val_${id}`);
 
-    if (hasDefault) {
+    if (hiddenInp && hiddenInp.value) {
+        const existing = new Date(hiddenInp.value);
+        existing.setHours(0,0,0,0);
+        _dtp[id].date = existing;
+        _dtp[id].navYear = existing.getFullYear();
+        _dtp[id].navMonth = existing.getMonth();
+    }
+    else if (hiddenInp && hiddenInp.hasAttribute("data-default-today")) {
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        today.setHours(0,0,0,0);
         _dtp[id].date = today;
     }
 
@@ -551,18 +569,20 @@ function dtpInit(fieldEl) {
         const lbl = document.getElementById(`dtp_lbl_${id}`);
         const val = document.getElementById(`dtp_val_${id}`);
         if (lbl) {
-            lbl.textContent      = dtpFmt(_dtp[id].date);
-            lbl.style.color      = "#1e293b";
+            lbl.textContent = dtpFmt(_dtp[id].date);
+            lbl.style.color = "#1e293b";
             lbl.style.fontWeight = "500";
         }
-        if (val) val.value = dtpLocalISO(_dtp[id].date); // ✅ local ISO
+        if (val) val.value = dtpLocalISO(_dtp[id].date);
     }
 }
 
 function dtpOpen(id) {
     _dtpOpen = id;
     document.getElementById(`dtp_dd_${id}`).classList.add("open");
-    document.querySelectorAll(".ap-dropdown.open").forEach((d) => d.classList.remove("open"));
+    document
+        .querySelectorAll(".ap-dropdown.open")
+        .forEach((d) => d.classList.remove("open"));
     dtpRender(id);
 }
 
@@ -572,38 +592,50 @@ function dtpClose(id) {
 }
 
 function dtpRender(id) {
-    const s    = _dtp[id];
+    const s = _dtp[id];
     const body = document.getElementById(`dtp_body_${id}`);
-    const today      = dtpDateOnly(new Date());
-    const year       = s.navYear;
-    const month      = s.navMonth;
-    const firstDay   = new Date(year, month, 1).getDay();
-    const daysInMonth= new Date(year, month + 1, 0).getDate();
-    const thisYear   = new Date().getFullYear();
+    const today = dtpDateOnly(new Date());
+    const year = s.navYear;
+    const month = s.navMonth;
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const thisYear = new Date().getFullYear();
 
     const yearOpts = Array.from({ length: 7 }, (_, i) => thisYear - 1 + i)
-        .map((y) => `<option value="${y}"${y === year ? " selected" : ""}>${y}</option>`)
+        .map(
+            (y) =>
+                `<option value="${y}"${y === year ? " selected" : ""}>${y}</option>`,
+        )
         .join("");
 
-    const monthOpts = MONTHS.map((m, i) =>
-        `<option value="${i}"${i === month ? " selected" : ""}>${m}</option>`
+    const monthOpts = MONTHS.map(
+        (m, i) =>
+            `<option value="${i}"${i === month ? " selected" : ""}>${m}</option>`,
     ).join("");
 
     let cells = "";
     for (let i = 0; i < firstDay; i++) cells += `<div></div>`;
     for (let d = 1; d <= daysInMonth; d++) {
-        const dt  = dtpDateOnly(new Date(year, month, d));
+        const dt = dtpDateOnly(new Date(year, month, d));
         const dis = (s.minD && dt < s.minD) || (s.maxD && dt > s.maxD);
-        const isTd= dt.getTime() === today.getTime();
-        const isSl= s.date    && dt.getTime() === dtpDateOnly(s.date).getTime();
-        const isEn= s.endDate && dt.getTime() === dtpDateOnly(s.endDate).getTime();
-        const inRg= s.mode === "range" && s.date && s.endDate
-                 && dt > dtpDateOnly(s.date) && dt < dtpDateOnly(s.endDate);
+        const isTd = dt.getTime() === today.getTime();
+        const isSl = s.date && dt.getTime() === dtpDateOnly(s.date).getTime();
+        const isEn =
+            s.endDate && dt.getTime() === dtpDateOnly(s.endDate).getTime();
+        const inRg =
+            s.mode === "range" &&
+            s.date &&
+            s.endDate &&
+            dt > dtpDateOnly(s.date) &&
+            dt < dtpDateOnly(s.endDate);
 
         let cls = "dtp-day";
-        if (dis)  cls += " disabled";
+        if (dis) cls += " disabled";
         if (isTd) cls += " today";
-        if (isSl) cls += " selected" + (s.mode === "range" && s.endDate ? " range-start" : "");
+        if (isSl)
+            cls +=
+                " selected" +
+                (s.mode === "range" && s.endDate ? " range-start" : "");
         if (isEn) cls += " selected range-end";
         if (inRg) cls += " in-range";
         cells += `<div class="${cls}" data-y="${year}" data-m="${month}" data-d="${d}">${d}</div>`;
@@ -642,16 +674,22 @@ function dtpRender(id) {
         s.navMonth === 11 ? ((s.navMonth = 0), s.navYear++) : s.navMonth++;
         dtpRender(id);
     };
-    body.querySelector(".dtp-month").onchange = (e) => { s.navMonth = +e.target.value; dtpRender(id); };
-    body.querySelector(".dtp-year").onchange  = (e) => { s.navYear  = +e.target.value; dtpRender(id); };
+    body.querySelector(".dtp-month").onchange = (e) => {
+        s.navMonth = +e.target.value;
+        dtpRender(id);
+    };
+    body.querySelector(".dtp-year").onchange = (e) => {
+        s.navYear = +e.target.value;
+        dtpRender(id);
+    };
 
     body.querySelector(".dtp-clear").onclick = () => {
         s.date = null;
         s.endDate = null;
         s.selecting = false;
         const lbl = document.getElementById(`dtp_lbl_${id}`);
-        lbl.textContent      = "Select date";
-        lbl.style.color      = "#94a3b8";
+        lbl.textContent = "Select date";
+        lbl.style.color = "#94a3b8";
         lbl.style.fontWeight = "400";
         document.getElementById(`dtp_val_${id}`).value = "";
         dtpRender(id);
@@ -662,12 +700,13 @@ function dtpRender(id) {
         const val = document.getElementById(`dtp_val_${id}`);
         let display = "";
         if (s.mode === "range")
-            display = s.date && s.endDate
-                ? `${dtpFmt(s.date)} → ${dtpFmt(s.endDate)}`
-                : "Select dates";
+            display =
+                s.date && s.endDate
+                    ? `${dtpFmt(s.date)} → ${dtpFmt(s.endDate)}`
+                    : "Select dates";
         else display = s.date ? dtpFmt(s.date) : "Select date";
-        lbl.textContent      = display;
-        lbl.style.color      = s.date ? "#1e293b" : "#94a3b8";
+        lbl.textContent = display;
+        lbl.style.color = s.date ? "#1e293b" : "#94a3b8";
         lbl.style.fontWeight = s.date ? "500" : "400";
         val.value = dtpLocalISO(s.date);
         dtpClose(id);
@@ -675,13 +714,23 @@ function dtpRender(id) {
 
     body.querySelectorAll(".dtp-day[data-d]").forEach((cell) => {
         cell.onclick = () => {
-            const dt = new Date(+cell.dataset.y, +cell.dataset.m, +cell.dataset.d);
+            const dt = new Date(
+                +cell.dataset.y,
+                +cell.dataset.m,
+                +cell.dataset.d,
+            );
             if (s.mode === "range") {
                 if (!s.date || !s.selecting) {
-                    s.date = dt; s.endDate = null; s.selecting = true;
+                    s.date = dt;
+                    s.endDate = null;
+                    s.selecting = true;
                 } else {
-                    if (dt < s.date) { s.endDate = s.date; s.date = dt; }
-                    else { s.endDate = dt; }
+                    if (dt < s.date) {
+                        s.endDate = s.date;
+                        s.date = dt;
+                    } else {
+                        s.endDate = dt;
+                    }
                     s.selecting = false;
                 }
             } else {
@@ -697,7 +746,9 @@ document.querySelectorAll(".dtp-field").forEach(dtpInit);
 document.addEventListener("click", (e) => {
     if (!e.target.isConnected) return;
     if (!e.target.closest(".ap-field"))
-        document.querySelectorAll(".ap-dropdown.open").forEach((d) => d.classList.remove("open"));
+        document
+            .querySelectorAll(".ap-dropdown.open")
+            .forEach((d) => d.classList.remove("open"));
     if (!e.target.closest(".dtp-field") && _dtpOpen) dtpClose(_dtpOpen);
 });
 
@@ -723,7 +774,9 @@ function toggleHG() {
     dd.classList.toggle("hidden");
     // close other dropdowns (dtp, ap) if open
     if (!dd.classList.contains("hidden")) {
-        document.querySelectorAll(".ap-dropdown.open").forEach(d => d.classList.remove("open"));
+        document
+            .querySelectorAll(".ap-dropdown.open")
+            .forEach((d) => d.classList.remove("open"));
         if (typeof _dtpOpen !== "undefined" && _dtpOpen) dtpClose(_dtpOpen);
         if (typeof closeTravelers === "function") closeTravelers();
     }
@@ -742,7 +795,9 @@ function changeHG(type, delta) {
     if (minusBtn) minusBtn.disabled = HG[type] <= mn;
 
     // children note
-    document.getElementById("hgChildNote")?.classList.toggle("hidden", HG.children === 0);
+    document
+        .getElementById("hgChildNote")
+        ?.classList.toggle("hidden", HG.children === 0);
 
     updateHGLabel();
 }
@@ -750,26 +805,30 @@ function changeHG(type, delta) {
 function handlePet() {
     const checked = document.getElementById("petCheck").checked;
     HG.pets = checked ? 1 : 0;
-    document.getElementById("petCard").classList.toggle("border-blue-400", checked);
-    document.getElementById("petCard").classList.toggle("bg-blue-50/50", checked);
+    document
+        .getElementById("petCard")
+        .classList.toggle("border-blue-400", checked);
+    document
+        .getElementById("petCard")
+        .classList.toggle("bg-blue-50/50", checked);
     document.getElementById("petPaw").style.color = checked ? "#3b82f6" : "";
     updateHGLabel();
 }
 
 function updateHGLabel() {
-    const adultWord   = HG.adults   === 1 ? "adult"    : "adults";
-    const childWord   = HG.children === 1 ? "child"    : "children";
-    const roomWord    = HG.rooms    === 1 ? "room"     : "rooms";
-    const petStr      = HG.pets     ? " · pets" : "";
+    const adultWord = HG.adults === 1 ? "adult" : "adults";
+    const childWord = HG.children === 1 ? "child" : "children";
+    const roomWord = HG.rooms === 1 ? "room" : "rooms";
+    const petStr = HG.pets ? " · pets" : "";
 
     // label — same format as original "1 adult · 0 children · 1 room"
     document.getElementById("hgLabel").textContent =
         `${HG.adults} ${adultWord} · ${HG.children} ${childWord} · ${HG.rooms} ${roomWord}${petStr}`;
 
-    document.getElementById("hg_rooms").value    = HG.rooms;
-    document.getElementById("hg_adults").value   = HG.adults;
+    document.getElementById("hg_rooms").value = HG.rooms;
+    document.getElementById("hg_adults").value = HG.adults;
     document.getElementById("hg_children").value = HG.children;
-    document.getElementById("hg_pets").value     = HG.pets;
+    document.getElementById("hg_pets").value = HG.pets;
 }
 
 function applyHG() {
@@ -778,11 +837,13 @@ function applyHG() {
 }
 
 // outside click close
-document.addEventListener("click", e => {
+document.addEventListener("click", (e) => {
     if (!e.target.closest("#hgWrapper")) closeHG();
 });
 
 // init — minus buttons disabled at starting min
-document.getElementById("btn_rooms_minus").disabled    = true;  // rooms start=1
-document.getElementById("btn_adults_minus").disabled   = true;  // adults start=1
-document.getElementById("btn_children_minus").disabled = true;  // children start=0
+document.getElementById("btn_rooms_minus").disabled = true; // rooms start=1
+document.getElementById("btn_adults_minus").disabled = true; // adults start=1
+document.getElementById("btn_children_minus").disabled = true; // children start=0
+
+//========================== Multi City ============================================

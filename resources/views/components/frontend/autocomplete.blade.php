@@ -9,10 +9,13 @@
         <span class="text-xs text-slate-800 leading-4">
             {{ $label }}
         </span>
-        <span class="ap-display text-sm font-semibold text-slate-800 leading-5">
+        <span class="ap-display text-sm font-semibold text-slate-800 leading-5 text-capitalize">
             {{ $display }}
         </span>
         <input type="hidden" class="ap-hidden" name="{{ $name }}" value="{{ $value }}" />
+        @if($type == 'airport')
+            <input type="hidden" class="ap-city-hidden" name="{{$cityInputName}}" value="{{ $cityValue }}" />
+        @endif
     </div>
     <div class="ap-dropdown hidden">
         <div class="ap-search-wrap">
