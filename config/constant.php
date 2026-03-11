@@ -2,6 +2,8 @@
 
 return [
 
+    'image_base_url' => env('IMAGE_BASE_URL'),
+
     'role' => [
         1 => 'user',
         2 => 'admin'
