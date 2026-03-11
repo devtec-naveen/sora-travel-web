@@ -11,8 +11,10 @@ class DuffelService
 
     public function __construct()
     {
+        dd(config('services.duffel.base_url'));
         $this->baseUrl = config('services.duffel.base_url');
         $this->token = config('services.duffel.token');
+
     }
 
     private function client()

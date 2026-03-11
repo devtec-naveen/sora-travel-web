@@ -33,7 +33,7 @@ class Listing extends Component
         'page'
     ];
 
-     protected $duffelService;
+    protected DuffelService $duffelService;
 
     public function mount(DuffelService $duffelService)
     {
