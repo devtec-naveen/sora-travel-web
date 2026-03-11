@@ -6,12 +6,11 @@ use Illuminate\Support\Facades\Http;
 
 class DuffelService
 {
-    private string $baseUrl;
-    private string $token;
+    private $baseUrl;
+    private $token;
 
     public function __construct()
     {
-        dd(config('services.duffel.base_url'));
         $this->baseUrl = config('services.duffel.base_url');
         $this->token = config('services.duffel.token');
 
