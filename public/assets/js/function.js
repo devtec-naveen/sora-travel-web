@@ -63,10 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (subTabs.length > 0 && subPanels.length > 0) {
             subTabs.forEach((tab, index) => {
                 tab.addEventListener("click", () => {
-                    // Remove active from only this group
                     subTabs.forEach((t) => t.classList.remove("active"));
                     tab.classList.add("active");
-                    // Hide/show only the panels in this main tab
                     subPanels.forEach((subPanel, pIndex) => {
                         subPanel.classList.toggle("hidden", index !== pIndex);
                     });
@@ -319,20 +317,20 @@ async function apiAirports(q) {
                 },
             },
         );
+
         if (!r.ok) throw 0;
+
         const j = await r.json();
-        const list = j.data ?? j;
+        const list = j.data ?? [];
+
         return list.map((a) => ({
-            code: a.iataCode ?? "",
-            city: a.address?.cityName
-                ? a.address.cityName.charAt(0) +
-                  a.address.cityName.slice(1).toLowerCase()
+            code: a.iata_code ?? "",
+            city: a.city_name
+                ? a.city_name.charAt(0) +
+                  a.city_name.slice(1).toLowerCase()
                 : "",
             name: a.name ?? "",
-            country: a.address?.countryName
-                ? a.address.countryName.charAt(0) +
-                  a.address.countryName.slice(1).toLowerCase()
-                : "",
+            country: a.iata_country_code ?? "",
         }));
     } catch {
         return null;
@@ -418,7 +416,8 @@ function initField(fieldEl) {
         dropdown.classList.add("open");
         searchInp.value = "";
         searchInp.focus();
-        loadResults("");
+        renderResults(resultsEl, AIRPORTS, "");
+        bindOptionClicks();
     }
 
     function closeDropdown() {

@@ -10,22 +10,21 @@ class Listing extends Component
     public $origin;
     public $destination;
     public $departureDate;
-
     public $adults = 1;
     public $children = 0;
     public $infants = 0;
-
     public $cabinClass = 'economy';
-
     public $page = 1;
-
     public $flights = [];
     public $total = 0;  
+    public $returnDate;
+    public $sortBy = '';
 
     protected $queryString = [
         'origin',
         'destination',
         'departureDate',
+        'returnDate',
         'adults',
         'children',
         'infants',
@@ -33,11 +32,16 @@ class Listing extends Component
         'page'
     ];
 
-    protected DuffelService $duffelService;
+    protected $duffelService;
 
     public function mount(DuffelService $duffelService)
     {
         $this->duffelService = $duffelService;
+        $this->loadFlights();
+    }
+
+    public function updatedSortBy($value)
+    {
         $this->loadFlights();
     }
 
@@ -54,18 +58,34 @@ class Listing extends Component
             return;
         }
 
-        $response = $this->duffelService->searchFlights([
+        $duffelService = $this->duffelService ?? app(DuffelService::class);
+        $requestData = [
             'origin' => $this->origin,
             'destination' => $this->destination,
             'departureDate' => $this->departureDate,
+            'returnDate' => $this->returnDate,
             'adults' => $this->adults,
             'children' => $this->children,
             'infants' => $this->infants,
             'cabin' => $this->cabinClass,
             'limit' => 20,
-        ]);
+        ];
+
+
+        if ($this->returnDate) {
+            $requestData['returnDate'] = $this->returnDate;
+        }
+
+        $response = $duffelService->searchFlightsMain($requestData);
+
         $offers = $response['data']['offers'] ?? [];
+
+        if ($this->sortBy) {
+            $offers = $this->sortOffers($offers, $this->sortBy);
+        }
+
         $this->flights = collect($offers);
+
         $this->total = count($offers);
     }
 
@@ -77,5 +97,15 @@ class Listing extends Component
             'limit' => 20,
             'total' => $this->total
         ]);
+    }
+
+    private function sortOffers(array $offers, string $sortBy): array
+    {
+        return match($sortBy) {
+            'price_low_high' => collect($offers)->sortBy(fn($o) => $o['total_amount'] ?? 0)->values()->toArray(),
+            'price_high_low' => collect($offers)->sortByDesc(fn($o) => $o['total_amount'] ?? 0)->values()->toArray(),
+            'duration' => collect($offers)->sortBy(fn($o) => $o['slices'][0]['duration'] ?? 0)->values()->toArray(),
+            default => $offers,
+        };
     }
 }

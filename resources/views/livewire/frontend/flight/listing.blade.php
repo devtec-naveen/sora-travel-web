@@ -56,10 +56,14 @@
                                 <div class="form-control">
                                     <label class="form-label">Sort By</label>
                                     <div class="relative mt-1">
-                                        <select class="form-input appearance-none pr-10">
-                                            <option>Price (Low to High)</option>
-                                            <option>Price (High to Low)</option>
-                                            <option>Duration (Shortest)</option>
+                                        <select 
+                                            class="form-input appearance-none pr-10"
+                                            wire:model.live="sortBy" 
+                                        >
+                                            <option value="">Default</option>
+                                            <option value="price_low_high">Price (Low to High)</option>
+                                            <option value="price_high_low">Price (High to Low)</option>
+                                            <option value="duration">Duration (Shortest)</option>
                                         </select>
                                         <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                                             <i data-tabler="chevron-down" data-size="16" class="text-slate-400"></i>

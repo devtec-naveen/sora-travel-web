@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Services\Common\Amadeus\AirportService;
+use App\Services\Common\Duffel\AirportService;
 
 class AirportController extends Controller
 {

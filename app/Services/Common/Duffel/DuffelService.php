@@ -6,30 +6,37 @@ use Illuminate\Support\Facades\Http;
 
 class DuffelService
 {
-    private $baseUrl;
-    private $token;
+    private $auth;
 
-    public function __construct()
+    public function __construct(AuthService $auth)
     {
-        $this->baseUrl = config('services.duffel.base_url');
-        $this->token = config('services.duffel.token');
-
-    }
-
-    private function client()
-    {
-        return Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->token,
-            'Duffel-Version' => 'v1',
-            'Content-Type' => 'application/json',
-        ]);
+        $this->auth = $auth;
     }
 
     /**
-     * @param array $data
-     * @return array
+     * Main Flight Search
+     * Automatically detects One-way, Round-trip, Multi-city
      */
-    public function searchFlights(array $data): array
+    public function searchFlightsMain(array $data): array
+    {
+        // Multi-city
+        if (!empty($data['trips']) && count($data['trips']) > 1) {
+            return $this->searchMultiCity($data);
+        }
+
+        // Round-trip
+        if (!empty($data['returnDate'])) {
+            return $this->searchRoundTrip($data);
+        }
+
+        // Default -> One-way
+        return $this->searchOneWay($data);
+    }
+
+    /**
+     * One-way Flight Search
+     */
+    private function searchOneWay(array $data): array
     {
         $params = [
             "data" => [
@@ -47,18 +54,83 @@ class DuffelService
         ];
 
         /** @var \Illuminate\Http\Client\Response $response */
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . config('services.duffel.token'),
-            'Duffel-Version' => 'v2',
-            'Accept' => 'application/json',
-        ])
-            ->post(config('services.duffel.base_url') . '/air/offer_requests?limit=50', $params);
+        $response = $this->auth
+            ->client()
+            ->post($this->auth->baseUrl() . '/air/offer_requests?limit=50', $params);
 
-        /** @var array $responseData */
-        $responseData = $response->json();
-        return $responseData;
+        return $response->json();
     }
 
+    /**
+     * Round-trip Flight Search
+     */
+    private function searchRoundTrip(array $data): array
+    {
+        $slices = [
+            [
+                "origin" => $data['origin'],
+                "destination" => $data['destination'],
+                "departure_date" => $data['departureDate']
+            ],
+            [
+                "origin" => $data['destination'],
+                "destination" => $data['origin'],
+                "departure_date" => $data['returnDate']
+            ]
+        ];
+
+        $params = [
+            "data" => [
+                "slices" => $slices,
+                "passengers" => $this->buildPassengers($data),
+                "cabin_class" => strtolower($data['cabin'] ?? 'economy'),
+                "max_connections" => 0
+            ]
+        ];
+
+        /** @var \Illuminate\Http\Client\Response $response */
+        $response = $this->auth
+            ->client()
+            ->post($this->auth->baseUrl() . '/air/offer_requests?limit=50', $params);
+
+        return $response->json();
+    }
+
+    /**
+     * Multi-city Flight Search
+     */
+    private function searchMultiCity(array $data): array
+    {
+        $slices = [];
+
+        foreach ($data['trips'] as $trip) {
+            $slices[] = [
+                "origin" => $trip['origin'],
+                "destination" => $trip['destination'],
+                "departure_date" => $trip['departureDate']
+            ];
+        }
+
+        $params = [
+            "data" => [
+                "slices" => $slices,
+                "passengers" => $this->buildPassengers($data),
+                "cabin_class" => strtolower($data['cabin'] ?? 'economy'),
+                "max_connections" => 0
+            ]
+        ];
+        
+        /** @var \Illuminate\Http\Client\Response $response */
+        $response = $this->auth
+            ->client()
+            ->post($this->auth->baseUrl() . '/air/offer_requests?limit=50', $params);
+
+        return $response->json();
+    }
+
+    /**
+     * Build Passenger List
+     */
     private function buildPassengers(array $data): array
     {
         $passengers = [];

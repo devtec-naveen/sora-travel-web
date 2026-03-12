@@ -23,6 +23,7 @@ Route::get('/', function () {
 
 
 Route::get('/flight-search',[AirportController::class,'index'])->name('front.flightSearch');
+
 Route::get('/airport-search',[AirportController::class, 'search'])->name('airport.search');
 
 
