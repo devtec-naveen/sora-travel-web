@@ -1,11 +1,10 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const loader = document.getElementById('Loader');
-    if (loader) loader.style.display = 'flex';
+document.addEventListener("DOMContentLoaded", function () {
+    const loader = document.getElementById("Loader");
+    if (loader) loader.style.display = "flex";
     setTimeout(() => {
-        if (loader) loader.style.display = 'none';
+        if (loader) loader.style.display = "none";
     }, 1000);
 });
-
 
 document.addEventListener("DOMContentLoaded", () => {
     const icons = document.querySelectorAll("i[data-tabler]");
@@ -183,7 +182,7 @@ function updateTravelersLabel(id) {
 
     const total = PAX[id].adults + PAX[id].children + PAX[id].infants;
 
-    const word = total === 1 ? "traveler" : "travelers";
+    const word = total === 1 ? "Traveler" : "Travelers";
     document.getElementById(id + "Label").textContent =
         `${total} ${word}, ${cls}`;
     document.getElementById(id + "_inp_adults").value = PAX[id].adults;
@@ -557,14 +556,13 @@ function dtpInit(fieldEl) {
 
     if (hiddenInp && hiddenInp.value) {
         const existing = new Date(hiddenInp.value);
-        existing.setHours(0,0,0,0);
+        existing.setHours(0, 0, 0, 0);
         _dtp[id].date = existing;
         _dtp[id].navYear = existing.getFullYear();
         _dtp[id].navMonth = existing.getMonth();
-    }
-    else if (hiddenInp && hiddenInp.hasAttribute("data-default-today")) {
+    } else if (hiddenInp && hiddenInp.hasAttribute("data-default-today")) {
         const today = new Date();
-        today.setHours(0,0,0,0);
+        today.setHours(0, 0, 0, 0);
         _dtp[id].date = today;
     }
 
@@ -718,6 +716,10 @@ function dtpRender(id) {
         lbl.style.color = s.date ? "#1e293b" : "#94a3b8";
         lbl.style.fontWeight = s.date ? "500" : "400";
         val.value = dtpLocalISO(s.date);
+        const endVal = document.getElementById(`dtp_end_${id}`);
+        if (endVal && s.endDate) {
+            endVal.value = dtpLocalISO(s.endDate);
+        }
         dtpClose(id);
     };
 

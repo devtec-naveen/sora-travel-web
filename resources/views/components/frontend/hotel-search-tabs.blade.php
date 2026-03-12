@@ -1,145 +1,101 @@
 <div
     class="hidden flex flex-col justify-center gap-4 self-stretch bg-white p-2 md:p-4 rounded-xl shadow-sm border border-slate-100">
-    <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-3 w-full">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3 w-full items-stretch">
+        <div class="lg:col-span-3">
+            <x-frontend.autocomplete label="Where are you going?" name="origin" value="JAI" display="JAI – Jaipur"
+                placeholder="Search city…" type="hotel" icon="hotel.svg" class="h-full" />
+        </div>
 
-        <x-frontend.autocomplete label="Where are you going?" name="origin" value="JAI" display="JAI – Jaipur"
-            placeholder="Search city…" type="hotel" icon="hotel.svg" class="md:col-span-4 lg:col-span-2" />
+        <div class="md:col-span-1 lg:col-span-4">
+            <x-frontend.date-picker 
+                id="hotel_dates"
+                name="check_in"
+                label="Check in – Check out"
+                placeholder="Select dates"
+                mode="range"
+            />
+        </div>
 
-
-        <div
-            class="md:col-span-2 lg:col-span-1 flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200 hover:border-blue-400 transition cursor-pointer">
-            <div class="w-6 h-6 text-slate-400 flex-shrink-0">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_6654_12912)">
+        
+        <div class="relative lg:col-span-3" id="hgWrapper">
+            <div onclick="toggleHG()"
+                class="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200 hover:border-blue-400 transition cursor-pointer h-full">
+                <div class="w-6 h-6 text-slate-400 flex-shrink-0">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
                         <path
-                            d="M22.5 13.5V21.75C22.5 21.9489 22.421 22.1397 22.2803 22.2803C22.1397 22.421 21.9489 22.5 21.75 22.5H2.25C2.05109 22.5 1.86032 22.421 1.71967 22.2803C1.57902 22.1397 1.5 21.9489 1.5 21.75V5.25C1.5 5.05109 1.57902 4.86032 1.71967 4.71967C1.86032 4.57902 2.05109 4.5 2.25 4.5H21.75C21.9489 4.5 22.1397 4.57902 22.2803 4.71967C22.421 4.86032 22.5 5.05109 22.5 5.25V13.5ZM24 13.5V5.25C24 4.65326 23.7629 4.08097 23.341 3.65901C22.919 3.23705 22.3467 3 21.75 3H2.25C1.65326 3 1.08097 3.23705 0.65901 3.65901C0.237053 4.08097 0 4.65326 0 5.25L0 21.75C0 22.3467 0.237053 22.919 0.65901 23.341C1.08097 23.7629 1.65326 24 2.25 24H21.75C22.3467 24 22.919 23.7629 23.341 23.341C23.7629 22.919 24 22.3467 24 21.75V13.5ZM0.75 10.5H23.25C23.4489 10.5 23.6397 10.421 23.7803 10.2803C23.921 10.1397 24 9.94891 24 9.75C24 9.55109 23.921 9.36032 23.7803 9.21967C23.6397 9.07902 23.4489 9 23.25 9H0.75C0.551088 9 0.360322 9.07902 0.21967 9.21967C0.0790176 9.36032 0 9.55109 0 9.75C0 9.94891 0.0790176 10.1397 0.21967 10.2803C0.360322 10.421 0.551088 10.5 0.75 10.5ZM7.5 6V0.75C7.5 0.551088 7.42098 0.360322 7.28033 0.21967C7.13968 0.0790176 6.94891 0 6.75 0C6.55109 0 6.36032 0.0790176 6.21967 0.21967C6.07902 0.360322 6 0.551088 6 0.75V6C6 6.19891 6.07902 6.38968 6.21967 6.53033C6.36032 6.67098 6.55109 6.75 6.75 6.75C6.94891 6.75 7.13968 6.67098 7.28033 6.53033C7.42098 6.38968 7.5 6.19891 7.5 6ZM18 6V0.75C18 0.551088 17.921 0.360322 17.7803 0.21967C17.6397 0.0790176 17.4489 0 17.25 0C17.0511 0 16.8603 0.0790176 16.7197 0.21967C16.579 0.360322 16.5 0.551088 16.5 0.75V6C16.5 6.19891 16.579 6.38968 16.7197 6.53033C16.8603 6.67098 17.0511 6.75 17.25 6.75C17.4489 6.75 17.6397 6.67098 17.7803 6.53033C17.921 6.38968 18 6.19891 18 6ZM5.095 14.03C5.16366 14.1037 5.24646 14.1628 5.33846 14.2038C5.43046 14.2448 5.52977 14.2668 5.63048 14.2686C5.73118 14.2704 5.83121 14.2518 5.9246 14.2141C6.01799 14.1764 6.10282 14.1203 6.17404 14.049C6.24526 13.9778 6.3014 13.893 6.33912 13.7996C6.37684 13.7062 6.39537 13.6062 6.39359 13.5055C6.39181 13.4048 6.36977 13.3055 6.32878 13.2135C6.28779 13.1215 6.22869 13.0387 6.155 12.97C6.01283 12.8375 5.82478 12.7654 5.63048 12.7688C5.43618 12.7723 5.25079 12.851 5.11338 12.9884C4.97597 13.1258 4.89725 13.3112 4.89383 13.5055C4.8904 13.6998 4.96252 13.8878 5.095 14.03ZM5.625 12.75C5.32663 12.75 5.04048 12.8685 4.8295 13.0795C4.61853 13.2905 4.5 13.5766 4.5 13.875C4.5 14.1734 4.61853 14.4595 4.8295 14.6705C5.04048 14.8815 5.32663 15 5.625 15C5.92337 15 6.20952 14.8815 6.4205 14.6705C6.63147 14.4595 6.75 14.1734 6.75 13.875C6.75 13.5766 6.63147 13.2905 6.4205 13.0795C6.20952 12.8685 5.92337 12.75 5.625 12.75C5.42609 12.75 5.23532 12.829 5.09467 12.9697C4.95402 13.1103 4.875 13.3011 4.875 13.5C4.875 13.6989 4.95435 13.8893 5.095 14.03C5.23565 14.1707 5.42609 14.25 5.625 14.25C5.52554 14.25 5.43016 14.2105 5.35984 14.1402C5.28951 14.0698 5.25 13.9745 5.25 13.875C5.25 13.7755 5.28951 13.6802 5.35984 13.6098C5.43016 13.5395 5.52554 13.5 5.625 13.5C5.72446 13.5 5.81984 13.5395 5.89016 13.6098C5.96049 13.6802 6 13.7755 6 13.875C6 13.9745 5.96049 14.0698 5.89016 14.1402C5.81984 14.2105 5.72446 14.25 5.625 14.25C5.82391 14.25 6.01468 14.171 6.15533 14.0303C6.29598 13.8897 6.375 13.6989 6.375 13.5C6.375 13.3011 6.29565 13.1107 6.155 12.97C6.01435 12.8293 5.82391 12.75 5.625 12.75ZM5.095 19.28C5.16366 19.3537 5.24646 19.4128 5.33846 19.4538C5.43046 19.4948 5.52977 19.5168 5.63048 19.5186C5.73118 19.5204 5.83121 19.5018 5.9246 19.4641C6.01799 19.4264 6.10282 19.3703 6.17404 19.299C6.24526 19.2278 6.3014 19.143 6.33912 19.0496C6.37684 18.9562 6.39537 18.8562 6.39359 18.7555C6.39181 18.6548 6.36977 18.5555 6.32878 18.4635C6.28779 18.3715 6.22869 18.2887 6.155 18.22C6.01283 18.0875 5.82478 18.0154 5.63048 18.0188C5.43618 18.0223 5.25079 18.101 5.11338 18.2384C4.97597 18.3758 4.89725 18.5612 4.89383 18.7555C4.8904 18.9498 4.96252 19.1378 5.095 19.28ZM5.625 18C5.32663 18 5.04048 18.1185 4.8295 18.3295C4.61853 18.5405 4.5 18.8266 4.5 19.125C4.5 19.4234 4.61853 19.7095 4.8295 19.9205C5.04048 20.1315 5.32663 20.25 5.625 20.25C5.92337 20.25 6.20952 20.1315 6.4205 19.9205C6.63147 19.7095 6.75 19.4234 6.75 19.125C6.75 18.8266 6.63147 18.5405 6.4205 18.3295C6.20952 18.1185 5.92337 18 5.625 18C5.42609 18 5.23532 18.079 5.09467 18.2197C4.95402 18.3603 4.875 18.5511 4.875 18.75C4.875 18.9489 4.95435 19.1393 5.095 19.28C5.23565 19.4207 5.42609 19.5 5.625 19.5C5.52554 19.5 5.43016 19.4605 5.35984 19.3902C5.28951 19.3198 5.25 19.2245 5.25 19.125C5.25 19.0255 5.28951 18.9302 5.35984 18.8598C5.43016 18.7895 5.52554 18.75 5.625 18.75C5.72446 18.75 5.81984 18.7895 5.89016 18.8598C5.96049 18.9302 6 19.0255 6 19.125C6 19.2245 5.96049 19.3198 5.89016 19.3902C5.81984 19.4605 5.72446 19.5 5.625 19.5C5.82391 19.5 6.01468 19.421 6.15533 19.2803C6.29598 19.1397 6.375 18.9489 6.375 18.75C6.375 18.5511 6.29565 18.3607 6.155 18.22C6.01435 18.0793 5.82391 18 5.625 18ZM11.47 14.03C11.5387 14.1037 11.6215 14.1628 11.7135 14.2038C11.8055 14.2448 11.9048 14.2668 12.0055 14.2686C12.1062 14.2704 12.2062 14.2518 12.2996 14.2141C12.393 14.1764 12.4778 14.1203 12.549 14.049C12.6203 13.9778 12.6764 13.893 12.7141 13.7996C12.7518 13.7062 12.7704 13.6062 12.7686 13.5055C12.7668 13.4048 12.7448 13.3055 12.7038 13.2135C12.6628 13.1215 12.6037 13.0387 12.53 12.97C12.3878 12.8375 12.1998 12.7654 12.0055 12.7688C11.8112 12.7723 11.6258 12.851 11.4884 12.9884C11.351 13.1258 11.2723 13.3112 11.2688 13.5055C11.2654 13.6998 11.3375 13.8878 11.47 14.03ZM12 12.75C11.8523 12.75 11.706 12.7791 11.5695 12.8356C11.433 12.8922 11.309 12.975 11.2045 13.0795C11.1 13.184 11.0172 13.308 10.9606 13.4445C10.9041 13.581 10.875 13.7273 10.875 13.875C10.875 14.0227 10.9041 14.169 10.9606 14.3055C11.0172 14.442 11.1 14.566 11.2045 14.6705C11.309 14.775 11.433 14.8578 11.5695 14.9144C11.706 14.9709 11.8523 15 12 15C12.2984 15 12.5845 14.8815 12.7955 14.6705C13.0065 14.4595 13.125 14.1734 13.125 13.875C13.125 13.5766 13.0065 13.2905 12.7955 13.0795C12.5845 12.8685 12.2984 12.75 12 12.75C11.8011 12.75 11.6103 12.829 11.4697 12.9697C11.329 13.1103 11.25 13.3011 11.25 13.5C11.25 13.6989 11.3293 13.8893 11.47 14.03C11.6107 14.1707 11.8011 14.25 12 14.25C11.9005 14.25 11.8052 14.2105 11.7348 14.1402C11.6645 14.0698 11.625 13.9745 11.625 13.875C11.625 13.7755 11.6645 13.6802 11.7348 13.6098C11.8052 13.5395 11.9005 13.5 12 13.5C12.0995 13.5 12.1948 13.5395 12.2652 13.6098C12.3355 13.6802 12.375 13.7755 12.375 13.875C12.375 13.9745 12.3355 14.0698 12.2652 14.1402C12.1948 14.2105 12.0995 14.25 12 14.25C12.1989 14.25 12.3897 14.171 12.5303 14.0303C12.671 13.8897 12.75 13.6989 12.75 13.5C12.75 13.3011 12.6707 13.1107 12.53 12.97C12.3893 12.8293 12.1989 12.75 12 12.75ZM11.47 19.28C11.5387 19.3537 11.6215 19.4128 11.7135 19.4538C11.8055 19.4948 11.9048 19.5168 12.0055 19.5186C12.1062 19.5204 12.2062 19.5018 12.2996 19.4641C12.393 19.4264 12.4778 19.3703 12.549 19.299C12.6203 19.2278 12.6764 19.143 12.7141 19.0496C12.7518 18.9562 12.7704 18.8562 12.7686 18.7555C12.7668 18.6548 12.7448 18.5555 12.7038 18.4635C12.6628 18.3715 12.6037 18.2887 12.53 18.22C12.3878 18.0875 12.1998 18.0154 12.0055 18.0188C11.8112 18.0223 11.6258 18.101 11.4884 18.2384C11.351 18.3758 11.2723 18.5612 11.2688 18.7555C11.2654 18.9498 11.3375 19.1378 11.47 19.28ZM12 18C11.7016 18 11.4155 18.1185 11.2045 18.3295C10.9935 18.5405 10.875 18.8266 10.875 19.125C10.875 19.4234 10.9935 19.7095 11.2045 19.9205C11.4155 20.1315 11.7016 20.25 12 20.25C12.2984 20.25 12.5845 20.1315 12.7955 19.9205C13.0065 19.7095 13.125 19.4234 13.125 19.125C13.125 18.8266 13.0065 18.5405 12.7955 18.3295C12.5845 18.1185 12.2984 18 12 18C11.8011 18 11.6103 18.079 11.4697 18.2197C11.329 18.3603 11.25 18.5511 11.25 18.75C11.25 18.9489 11.3293 19.1393 11.47 19.28C11.6107 19.4207 11.8011 19.5 12 19.5C11.9005 19.5 11.8052 19.4605 11.7348 19.3902C11.6645 19.3198 11.625 19.2245 11.625 19.125C11.625 19.0255 11.6645 18.9302 11.7348 18.8598C11.8052 18.7895 11.9005 18.75 12 18.75C12.0995 18.75 12.1948 18.7895 12.2652 18.8598C12.3355 18.9302 12.375 19.0255 12.375 19.125C12.375 19.2245 12.3355 19.3198 12.2652 19.3902C12.1948 19.4605 12.0995 19.5 12 19.5C12.1989 19.5 12.3897 19.421 12.5303 19.2803C12.671 19.1397 12.75 18.9489 12.75 18.75C12.75 18.5511 12.6707 18.3607 12.53 18.22C12.3893 18.0793 12.1989 18 12 18ZM17.845 14.03C17.9137 14.1037 17.9965 14.1628 18.0885 14.2038C18.1805 14.2448 18.2798 14.2668 18.3805 14.2686C18.4812 14.2704 18.5812 14.2518 18.6746 14.2141C18.768 14.1764 18.8528 14.1203 18.924 14.049C18.9953 13.9778 19.0514 13.893 19.0891 13.7996C19.1268 13.7062 19.1454 13.6062 19.1436 13.5055C19.1418 13.4048 19.1198 13.3055 19.0788 13.2135C19.0378 13.1215 18.9787 13.0387 18.905 12.97C18.7628 12.8375 18.5748 12.7654 18.3805 12.7688C18.1862 12.7723 18.0008 12.851 17.8634 12.9884C17.726 13.1258 17.6473 13.3112 17.6438 13.5055C17.6404 13.6998 17.7125 13.8878 17.845 14.03ZM18.375 12.75C18.0766 12.75 17.7905 12.8685 17.5795 13.0795C17.3685 13.2905 17.25 13.5766 17.25 13.875C17.25 14.1734 17.3685 14.4595 17.5795 14.6705C17.7905 14.8815 18.0766 15 18.375 15C18.6734 15 18.9595 14.8815 19.1705 14.6705C19.3815 14.4595 19.5 14.1734 19.5 13.875C19.5 13.5766 19.3815 13.2905 19.1705 13.0795C18.9595 12.8685 18.6734 12.75 18.375 12.75C18.1761 12.75 17.9853 12.829 17.8447 12.9697C17.704 13.1103 17.625 13.3011 17.625 13.5C17.625 13.6989 17.7043 13.8893 17.845 14.03C17.9857 14.1707 18.1761 14.25 18.375 14.25C18.2755 14.25 18.1802 14.2105 18.1098 14.1402C18.0395 14.0698 18 13.9745 18 13.875C18 13.7755 18.0395 13.6802 18.1098 13.6098C18.1802 13.5395 18.2755 13.5 18.375 13.5C18.4745 13.5 18.5698 13.5395 18.6402 13.6098C18.7105 13.6802 18.75 13.7755 18.75 13.875C18.75 13.9745 18.7105 14.0698 18.6402 14.1402C18.5698 14.2105 18.4745 14.25 18.375 14.25C18.5739 14.25 18.7647 14.171 18.9053 14.0303C19.046 13.8897 19.125 13.6989 19.125 13.5C19.125 13.3011 19.0457 13.1107 18.905 12.97C18.7643 12.8293 18.5739 12.75 18.375 12.75ZM17.845 19.28C17.9137 19.3537 17.9965 19.4128 18.0885 19.4538C18.1805 19.4948 18.2798 19.5168 18.3805 19.5186C18.4812 19.5204 18.5812 19.5018 18.6746 19.4641C18.768 19.4264 18.8528 19.3703 18.924 19.299C18.9953 19.2278 19.0514 19.143 19.0891 19.0496C19.1268 18.9562 19.1454 18.8562 19.1436 18.7555C19.1418 18.6548 19.1198 18.5555 19.0788 18.4635C19.0378 18.3715 18.9787 18.2887 18.905 18.22C18.7628 18.0875 18.5748 18.0154 18.3805 18.0188C18.1862 18.0223 18.0008 18.101 17.8634 18.2384C17.726 18.3758 17.6473 18.5612 17.6438 18.7555C17.6404 18.9498 17.7125 19.1378 17.845 19.28ZM18.375 18C18.0766 18 17.7905 18.1185 17.5795 18.3295C17.3685 18.5405 17.25 18.8266 17.25 19.125C17.25 19.4234 17.3685 19.7095 17.5795 19.9205C17.7905 20.1315 18.0766 20.25 18.375 20.25C18.6734 20.25 18.9595 20.1315 19.1705 19.9205C19.3815 19.7095 19.5 19.4234 19.5 19.125C19.5 18.8266 19.3815 18.5405 19.1705 18.3295C18.9595 18.1185 18.6734 18 18.375 18C18.1761 18 17.9853 18.079 17.8447 18.2197C17.704 18.3603 17.625 18.5511 17.625 18.75C17.625 18.9489 17.7043 19.1393 17.845 19.28C17.9857 19.4207 18.1761 19.5 18.375 19.5C18.2755 19.5 18.1802 19.4605 18.1098 19.3902C18.0395 19.3198 18 19.2245 18 19.125C18 19.0255 18.0395 18.9302 18.1098 18.8598C18.1802 18.7895 18.2755 18.75 18.375 18.75C18.4745 18.75 18.5698 18.7895 18.6402 18.8598C18.7105 18.9302 18.75 19.0255 18.75 19.125C18.75 19.2245 18.7105 19.3198 18.6402 19.3902C18.5698 19.4605 18.4745 19.5 18.375 19.5C18.5739 19.5 18.7647 19.421 18.9053 19.2803C19.046 19.1397 19.125 18.9489 19.125 18.75C19.125 18.5511 19.0457 18.3607 18.905 18.22C18.7643 18.0793 18.5739 18 18.375 18Z"
+                            d="M16.5 6C16.5 7.19347 16.0259 8.33807 15.182 9.18198C14.3381 10.0259 13.1935 10.5 12 10.5C10.8065 10.5 9.66193 10.0259 8.81802 9.18198C7.97411 8.33807 7.5 7.19347 7.5 6C7.5 4.80653 7.97411 3.66193 8.81802 2.81802C9.66193 1.97411 10.8065 1.5 12 1.5C13.1935 1.5 14.3381 1.97411 15.182 2.81802C16.0259 3.66193 16.5 4.80653 16.5 6ZM18 6C18 4.4087 17.3679 2.88258 16.2426 1.75736C15.1174 0.632141 13.5913 0 12 0C10.4087 0 8.88258 0.632141 7.75736 1.75736C6.63214 2.88258 6 4.4087 6 6C6 7.5913 6.63214 9.11742 7.75736 10.2426C8.88258 11.3679 10.4087 12 12 12C13.5913 12 15.1174 11.3679 16.2426 10.2426C17.3679 9.11742 18 7.5913 18 6ZM3 23.25C3 22.0681 3.23279 20.8978 3.68508 19.8058C4.13738 18.7139 4.80031 17.7218 5.63604 16.886C6.47177 16.0503 7.46392 15.3874 8.55585 14.9351C9.64778 14.4828 10.8181 14.25 12 14.25C13.1819 14.25 14.3522 14.4828 15.4442 14.9351C16.5361 15.3874 17.5282 16.0503 18.364 16.886C19.1997 17.7218 19.8626 18.7139 20.3149 19.8058C20.7672 20.8978 21 22.0681 21 23.25C21 23.4489 21.079 23.6397 21.2197 23.7803C21.3603 23.921 21.5511 24 21.75 24C21.9489 24 22.1397 23.921 22.2803 23.7803C22.421 23.6397 22.5 23.4489 22.5 23.25C22.5 17.451 17.799 12.75 12 12.75C6.201 12.75 1.5 17.451 1.5 23.25C1.5 23.4489 1.57902 23.6397 1.71967 23.7803C1.86032 23.921 2.05109 24 2.25 24C2.44891 24 2.63968 23.921 2.78033 23.7803C2.92098 23.6397 3 23.4489 3 23.25Z"
                             fill="#94A3B8" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_6654_12912">
-                            <rect width="24" height="24" fill="white" />
-                        </clipPath>
-                    </defs>
-                </svg>
-            </div>
-            
-            <div class="flex flex-col">
-                <span class="text-xs text-slate-800 leading-4">Check in date - Check
-                    out date</span>
-                <span class="text-sm text-slate-800">Mon, Feb 4 – Tue,
-                    Mar 3</span>
-            </div>
-        </div>
-<div class="relative" id="hgWrapper">
-
-    {{-- ── Trigger — teri exact div same, sirf onclick add kiya ── --}}
-    <div onclick="toggleHG()"
-        class="md:col-span-2 lg:col-span-1 flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200 hover:border-blue-400 transition cursor-pointer">
-        <div class="w-6 h-6 text-slate-400 flex-shrink-0">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                    d="M16.5 6C16.5 7.19347 16.0259 8.33807 15.182 9.18198C14.3381 10.0259 13.1935 10.5 12 10.5C10.8065 10.5 9.66193 10.0259 8.81802 9.18198C7.97411 8.33807 7.5 7.19347 7.5 6C7.5 4.80653 7.97411 3.66193 8.81802 2.81802C9.66193 1.97411 10.8065 1.5 12 1.5C13.1935 1.5 14.3381 1.97411 15.182 2.81802C16.0259 3.66193 16.5 4.80653 16.5 6ZM18 6C18 4.4087 17.3679 2.88258 16.2426 1.75736C15.1174 0.632141 13.5913 0 12 0C10.4087 0 8.88258 0.632141 7.75736 1.75736C6.63214 2.88258 6 4.4087 6 6C6 7.5913 6.63214 9.11742 7.75736 10.2426C8.88258 11.3679 10.4087 12 12 12C13.5913 12 15.1174 11.3679 16.2426 10.2426C17.3679 9.11742 18 7.5913 18 6ZM3 23.25C3 22.0681 3.23279 20.8978 3.68508 19.8058C4.13738 18.7139 4.80031 17.7218 5.63604 16.886C6.47177 16.0503 7.46392 15.3874 8.55585 14.9351C9.64778 14.4828 10.8181 14.25 12 14.25C13.1819 14.25 14.3522 14.4828 15.4442 14.9351C16.5361 15.3874 17.5282 16.0503 18.364 16.886C19.1997 17.7218 19.8626 18.7139 20.3149 19.8058C20.7672 20.8978 21 22.0681 21 23.25C21 23.4489 21.079 23.6397 21.2197 23.7803C21.3603 23.921 21.5511 24 21.75 24C21.9489 24 22.1397 23.921 22.2803 23.7803C22.421 23.6397 22.5 23.4489 22.5 23.25C22.5 17.451 17.799 12.75 12 12.75C6.201 12.75 1.5 17.451 1.5 23.25C1.5 23.4489 1.57902 23.6397 1.71967 23.7803C1.86032 23.921 2.05109 24 2.25 24C2.44891 24 2.63968 23.921 2.78033 23.7803C2.92098 23.6397 3 23.4489 3 23.25Z"
-                    fill="#94A3B8" />
-            </svg>
-        </div>
-        <div class="flex flex-col">
-            <span class="text-xs text-slate-800 leading-4">Guests</span>
-            {{-- JS sirf iska textContent update karta hai --}}
-            <span id="hgLabel" class="text-sm text-slate-800">1 adult · 0 children · 1 room</span>
-        </div>
-    </div>
-
-    {{-- Hidden inputs — form submit pe URL mein jayenge --}}
-    <input type="hidden" name="rooms"    id="hg_rooms"    value="1"/>
-    <input type="hidden" name="adults"   id="hg_adults"   value="1"/>
-    <input type="hidden" name="children" id="hg_children" value="0"/>
-    <input type="hidden" name="pets"     id="hg_pets"     value="0"/>
-
-    {{-- ── Dropdown ── --}}
-    <div id="hgDropdown" class="hidden absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 p-5"
-        onclick="event.stopPropagation()">
-
-        {{-- Counters --}}
-        <div class="space-y-5 mb-5">
-
-            {{-- Room --}}
-            <div class="flex items-center justify-between">
-                <p class="text-sm font-semibold text-slate-800">Room</p>
-                <div class="flex items-center gap-3">
-                    <button type="button" id="btn_rooms_minus" onclick="changeHG('rooms',-1)"
-                        class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none disabled:opacity-30 disabled:cursor-default disabled:hover:border-slate-300 disabled:hover:text-slate-600 disabled:hover:bg-transparent">−</button>
-                    <span id="hg_disp_rooms" class="w-5 text-center text-sm font-bold text-slate-800">1</span>
-                    <button type="button" onclick="changeHG('rooms',1)"
-                        class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none">+</button>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xs text-slate-400 leading-4">Guests</span>
+                    <span id="hgLabel" class="text-sm font-semibold text-slate-800">1 adult · 0 children · 1
+                        room</span>
                 </div>
             </div>
 
-            {{-- Adults --}}
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-semibold text-slate-800">Adults</p>
-                    <p class="text-xs text-slate-400">18+ Years</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button type="button" id="btn_adults_minus" onclick="changeHG('adults',-1)"
-                        class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none disabled:opacity-30 disabled:cursor-default disabled:hover:border-slate-300 disabled:hover:text-slate-600 disabled:hover:bg-transparent">−</button>
-                    <span id="hg_disp_adults" class="w-5 text-center text-sm font-bold text-slate-800">1</span>
-                    <button type="button" onclick="changeHG('adults',1)"
-                        class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none">+</button>
-                </div>
-            </div>
+            <input type="hidden" name="rooms" id="hg_rooms" value="1" />
+            <input type="hidden" name="adults" id="hg_adults" value="1" />
+            <input type="hidden" name="children" id="hg_children" value="0" />
+            <input type="hidden" name="pets" id="hg_pets" value="0" />
 
-            {{-- Children --}}
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-semibold text-slate-800">Children</p>
-                    <p class="text-xs text-slate-400">0 – 17 Years Old</p>
+            <div id="hgDropdown"
+                class="hidden absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 p-5"
+                onclick="event.stopPropagation()">
+                <div class="space-y-5 mb-5">
+                    {{-- Room --}}
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-semibold text-slate-800">Room</p>
+                        <div class="flex items-center gap-3">
+                            <button type="button" id="btn_rooms_minus" onclick="changeHG('rooms',-1)"
+                                class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none disabled:opacity-30">−</button>
+                            <span id="hg_disp_rooms" class="w-5 text-center text-sm font-bold text-slate-800">1</span>
+                            <button type="button" onclick="changeHG('rooms',1)"
+                                class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none">+</button>
+                        </div>
+                    </div>
+                    {{-- Adults --}}
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-semibold text-slate-800">Adults</p>
+                            <p class="text-xs text-slate-400">18+ Years</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button type="button" id="btn_adults_minus" onclick="changeHG('adults',-1)"
+                                class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none disabled:opacity-30">−</button>
+                            <span id="hg_disp_adults" class="w-5 text-center text-sm font-bold text-slate-800">1</span>
+                            <button type="button" onclick="changeHG('adults',1)"
+                                class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none">+</button>
+                        </div>
+                    </div>
+                    {{-- Children --}}
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-semibold text-slate-800">Children</p>
+                            <p class="text-xs text-slate-400">0 – 17 Years Old</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button type="button" id="btn_children_minus" onclick="changeHG('children',-1)"
+                                class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none disabled:opacity-30">−</button>
+                            <span id="hg_disp_children"
+                                class="w-5 text-center text-sm font-bold text-slate-800">0</span>
+                            <button type="button" onclick="changeHG('children',1)"
+                                class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none">+</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button type="button" id="btn_children_minus" onclick="changeHG('children',-1)"
-                        class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none disabled:opacity-30 disabled:cursor-default disabled:hover:border-slate-300 disabled:hover:text-slate-600 disabled:hover:bg-transparent">−</button>
-                    <span id="hg_disp_children" class="w-5 text-center text-sm font-bold text-slate-800">0</span>
-                    <button type="button" onclick="changeHG('children',1)"
-                        class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none">+</button>
-                </div>
+                <button type="button" onclick="applyHG()"
+                    class="btn-primary w-full py-2.5 rounded-xl text-white text-sm font-semibold transition cursor-pointer">
+                    Apply
+                </button>
             </div>
         </div>
 
-        {{-- Children note --}}
-        <p id="hgChildNote" class="hidden text-xs text-slate-500 mb-4 leading-relaxed">
-            Please provide right number of children along with their right age for best options and prices.
-        </p>
-
-        <div class="border-t border-slate-100 mb-4"></div>
-
-        {{-- Pet checkbox --}}
-        <label id="petCard"
-            class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-blue-300 hover:bg-blue-50/50 transition mb-5">
-            <input type="checkbox" id="petCheck" onchange="handlePet()"
-                class="mt-0.5 w-4 h-4 accent-blue-500 flex-shrink-0 cursor-pointer"/>
-            <div class="flex-1">
-                <p class="text-sm font-semibold text-slate-800 mb-0.5">Are you travelling with pets?</p>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Selecting this option will show only pet-friendly properties. Please review the pet policies &amp; applicable fees, if any.
-                </p>
-            </div>
-            <svg class="w-8 h-8 text-slate-300 flex-shrink-0 transition-colors" id="petPaw" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M4.5 9a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM9 6.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 6.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM19.5 9a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM12 10c-2.5 0-6 2-6 5.5 0 2 1.5 3.5 3 3.5.5 0 1-.1 1.5-.3.3-.1.7-.2 1.5-.2s1.2.1 1.5.2c.5.2 1 .3 1.5.3 1.5 0 3-1.5 3-3.5C18 12 14.5 10 12 10z"/>
-            </svg>
-        </label>
-
-        {{-- Apply button --}}
-        <button type="button" onclick="applyHG()"
-            class="btn-primary w-full py-2.5 rounded-xl text-white text-sm font-semibold transition cursor-pointer">
-            Apply
-        </button>
-
-    </div>
-</div>
-
-        <button class="btn btn-primary h-full md:col-span-4 lg:col-span-1">
+        {{-- Search Button (1x = 2 cols) --}}
+        <button class="btn btn-primary h-full lg:col-span-2 md:col-span-2">
             <i data-tabler="search" class="shrink-0"></i> Search
         </button>
+
     </div>
 </div>

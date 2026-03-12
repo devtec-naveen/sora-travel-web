@@ -109,7 +109,6 @@
                     <button type="submit" class="btn btn-primary h-full md:col-span-2 lg:col-span-1">
                         <i data-tabler="search"></i> Search
                     </button>
-
                     <button type="submit" class="btn btn-secondary border-none h-full md:col-span-2 lg:col-span-1">
                         <i data-tabler="plus"></i> Add City
                     </button>
