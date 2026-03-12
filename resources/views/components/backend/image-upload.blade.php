@@ -1,5 +1,5 @@
 <div wire:ignore>
-    <input type="file" id="drop-{{ $previewId }}" wire:model="image" class="dropify" data-height="200" data-max-file-size="1M"
+    <input type="file" id="drop-{{ $previewId }}" wire:model="image" class="dropify" data-max-file-size="1M"
         @if($currentImage && $folderPath)
             data-default-file="{{ asset('uploads/' . $folderPath . '/' . $currentImage) }}"
         @endif/>
@@ -16,7 +16,7 @@
                     'error': 'Ooops, something wrong.'
                 },
                 error: {
-                    'fileSize': 'The file size is too big (max).'
+                    'fileSize': 'File size must be less than 1 MB.'
                 }
             });
     

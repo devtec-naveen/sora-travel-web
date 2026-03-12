@@ -11,14 +11,14 @@
         <div class="form-group mb-3">
             <label>Start Date *</label>
             <input type="text" wire:model="start_date" id="start_date" class="form-control" readonly>
-            @error('start_date_time')
+            @error('start_date')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
         </div>
         <div class="form-group mb-3">
             <label>End Date *</label>
             <input type="text" wire:model="end_date" id="end_date" class="form-control" readonly>
-            @error('end_date_time')
+            @error('end_date')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
         </div>

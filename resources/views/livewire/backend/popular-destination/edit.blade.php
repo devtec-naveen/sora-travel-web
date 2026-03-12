@@ -17,7 +17,6 @@
             @enderror
         </div>
         <button type="submit" class="btn btn-success" wire:loading.attr="disabled">
-
             <span wire:loading.remove>Update</span>
             <span wire:loading>Updating...</span>
         </button>

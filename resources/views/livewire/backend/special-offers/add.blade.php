@@ -10,14 +10,14 @@
         </div>
         <div class="form-group mb-3">
             <label>Start Date<span class="requirestar">*</span></label>
-            <input type="text" wire:model="start_date_time" id="start_date" class="form-control" readonly>
+            <input type="text" wire:model="start_date" id="start_date" class="form-control" readonly>
             @error('start_date')
                 <span class="text-danger form-error">{{ $message }}</span>
             @enderror
         </div>
         <div class="form-group mb-3">
             <label>End Date<span class="requirestar">*</span></label>
-            <input type="text" wire:model="end_date_time" id="end_date" class="form-control" readonly>
+            <input type="text" wire:model="end_date" id="end_date" class="form-control" readonly>
             @error('end_date')
                 <span class="text-danger form-error">{{ $message }}</span>
             @enderror
@@ -44,7 +44,7 @@
             let startPicker = flatpickr("#start_date", {
                 enableTime: false,
                 dateFormat: "Y-m-d",
-                defaultDate: @this.start_date ?? null,
+                defaultDate: "{{ $start_date ?? '' }}" || "today",
                 onChange: function(selectedDates, dateStr) {
                     @this.set('start_date', dateStr);
 
@@ -58,7 +58,7 @@
             let endPicker = flatpickr("#end_date", {
                 enableTime: false,
                 dateFormat: "Y-m-d",
-                defaultDate: @this.end_date ?? null,
+                defaultDate: "{{ $end_date ?? '' }}" || "today",
                 minDate: new Date().fp_incr(1),
                 onChange: function(selectedDates, dateStr) {
                     @this.set('end_date', dateStr);

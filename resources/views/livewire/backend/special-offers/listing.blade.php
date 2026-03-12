@@ -31,15 +31,15 @@
                         @endif
                     </th>
                     <th>Image</th>
-                    <th wire:click="sortBy('start_date_time')" class="cursor-pointer">
+                    <th wire:click="sortBy('start_date')" class="cursor-pointer">
                         Start Date
-                        @if ($sortField === 'start_date_time')
+                        @if ($sortField === 'start_date')
                             {{ $sortDirection === 'asc' ? '↑' : '↓' }}
                         @endif
                     </th>
-                    <th wire:click="sortBy('end_date_time')" class="cursor-pointer">
+                    <th wire:click="sortBy('end_date')" class="cursor-pointer">
                         End Date
-                        @if ($sortField === 'end_date_time')
+                        @if ($sortField === 'end_date')
                             {{ $sortDirection === 'asc' ? '↑' : '↓' }}
                         @endif
                     </th>

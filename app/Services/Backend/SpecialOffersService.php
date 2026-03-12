@@ -44,8 +44,8 @@ class SpecialOffersService
 
         $data = $request->only([
             'title',
-            'start_date_time',
-            'end_date_time',
+            'start_date',
+            'end_date',
             'status'
         ]);
 
