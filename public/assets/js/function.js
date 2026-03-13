@@ -870,9 +870,13 @@ document.addEventListener("click", (e) => {
     if (!e.target.closest("#hgWrapper")) closeHG();
 });
 
-document.getElementById("btn_rooms_minus").disabled = true; // rooms start=1
-document.getElementById("btn_adults_minus").disabled = true; // adults start=1
-document.getElementById("btn_children_minus").disabled = true; // children start=0
+const roomsBtn = document.getElementById("btn_rooms_minus");
+const adultsBtn = document.getElementById("btn_adults_minus");
+const childrenBtn = document.getElementById("btn_children_minus");
+
+if (roomsBtn) roomsBtn.disabled = true;
+if (adultsBtn) adultsBtn.disabled = true;
+if (childrenBtn) childrenBtn.disabled = true;
 
 //========================== Multi City ============================================
 
