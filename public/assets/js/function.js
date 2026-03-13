@@ -305,7 +305,23 @@ const AIRPORTS = [
     },
 ];
 const TOP = ["DEL", "BLR", "BOM", "CCU", "JAI", "HYD", "MAA", "DXB"];
+const RECENT_KEY = "recent_airports";
 
+
+function getRecentAirports(fieldId) {
+    return JSON.parse(localStorage.getItem("recent_airports_" + fieldId)) || [];
+}
+
+function saveRecentAirport(fieldId, airport) {
+    let recents = getRecentAirports(fieldId);
+    recents = recents.filter(a => a.code !== airport.code);
+    recents.unshift(airport);
+    recents = recents.slice(0,5);
+    localStorage.setItem(
+        "recent_airports_" + fieldId,
+        JSON.stringify(recents)
+    );
+}
 async function apiAirports(q) {
     try {
         const r = await fetch(
@@ -358,23 +374,27 @@ const PLANE = `<svg viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-widt
 /* ══════════════════════════════════════
    RENDER RESULTS
 ══════════════════════════════════════ */
-function renderResults(resultsEl, data, query) {
+
+function renderResults(resultsEl, data, query, fieldId) {
+    if (!query) {
+        const recent = getRecentAirports(fieldId);
+        let html = "";
+        if (recent.length) {
+            html += groupHTML("Recent Searches", recent);
+        }
+        const top = data.filter(a => TOP.includes(a.code));
+        const rest = data.filter(a => !TOP.includes(a.code));
+        if (top.length) html += groupHTML("Top Cities", top);
+        if (rest.length) html += groupHTML("Other Airports", rest);
+        resultsEl.innerHTML = html;
+        return;
+    }
+
     if (!data.length) {
         resultsEl.innerHTML = `<div class="ap-empty">No airports found</div>`;
         return;
     }
-
-    let html = "";
-    if (!query) {
-        const top = data.filter((a) => TOP.includes(a.code));
-        const rest = data.filter((a) => !TOP.includes(a.code));
-        if (top.length) html += groupHTML("Top Cities", top);
-        if (rest.length) html += groupHTML("Other Airports", rest);
-    } else {
-        html = data.map(optionHTML).join("");
-    }
-
-    resultsEl.innerHTML = html;
+    resultsEl.innerHTML = data.map(optionHTML).join("");
 }
 
 function groupHTML(label, list) {
@@ -415,7 +435,7 @@ function initField(fieldEl) {
         dropdown.classList.add("open");
         searchInp.value = "";
         searchInp.focus();
-        renderResults(resultsEl, AIRPORTS, "");
+        renderResults(resultsEl, AIRPORTS, "",id);
         bindOptionClicks();
     }
 
@@ -428,7 +448,7 @@ function initField(fieldEl) {
         resultsEl.innerHTML = `<div class="ap-empty" style="padding:16px"><span class="loading loading-dots loading-lg"></span></div>`;
         let data = await apiAirports(q);
         if (!data) data = localSearch(q);
-        renderResults(resultsEl, data, q);
+        renderResults(resultsEl, data, q,id);
         bindOptionClicks();
     }
 
@@ -436,7 +456,11 @@ function initField(fieldEl) {
         resultsEl.querySelectorAll(".ap-option").forEach((opt) => {
             opt.addEventListener("click", () => {
                 const code = opt.dataset.code;
+                const country = opt.dataset.country;
+                const name = opt.dataset.name;
                 const city = opt.dataset.city;
+                const airport = { code, city, name, country };
+                saveRecentAirport(id,airport);
                 display.textContent = `${code} – ${city}`;
                 display.classList.remove("text-slate-400");
                 display.classList.add("text-slate-800");
