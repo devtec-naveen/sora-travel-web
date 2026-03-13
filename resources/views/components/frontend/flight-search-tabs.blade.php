@@ -14,25 +14,25 @@
                     <x-frontend.autocomplete
                         label="Leaving from"
                         name="origin"
-                        value="{{ request('origin', 'JAI') }}"
-                        display="{{ request('origin') ? request('origin').' – '.request('origin_city') : 'JAI – Jaipur' }}"
+                        value="{{ request('origin.0','JAI') }}"
+                        display="{{ request('origin.0','JAI') }} – {{ request('origin_city.0','Jaipur') }}"
                         placeholder="Search airport or city…"
                         type="airport"
                         icon="takeoff.svg"
                         cityInputName="origin_city"
-                        cityValue="{{ request('origin_city', 'jaipur') }}"
+                        cityValue="{{ request('origin_city.0','jaipur') }}"
                     />
 
                     <x-frontend.autocomplete
                         label="Going to"
                         name="destination"
-                        value="{{ request('destination', 'BLR') }}"
-                        display="{{ request('destination') ? request('destination').' – '.request('departure_city') : 'BLR – Bangalore' }}"
+                        value="{{ request('destination.0','BLR') }}"
+                        display="{{ request('destination.0','BLR') }} – {{ request('departure_city.0','Bangalore') }}"
                         placeholder="Search airport or city…"
                         type="airport"
                         icon="dropoff.svg"
                         cityInputName="departure_city"
-                        cityValue="{{ request('departure_city', 'bangalore') }}"
+                        cityValue="{{ request('departure_city.0','bangalore') }}"
                     />
 
                     <x-frontend.date-picker 
@@ -59,26 +59,26 @@
                     <x-frontend.autocomplete
                         label="Leaving from"
                         name="origin"
-                        value="{{ request('origin', 'JAI') }}"
-                        display="{{ request('origin') ? request('origin').' – '.request('origin_city') : 'JAI – Jaipur' }}"
+                        value="{{ is_array(request('origin')) ? request('origin')[0] : request('origin', 'JAI') }}"
+                        display="{{ request('origin.0') ? request('origin.0').' – '.request('origin_city.0') : 'JAI – Jaipur' }}"
                         placeholder="Search airport or city…"
                         type="airport"
                         icon="takeoff.svg"
                         cityInputName="origin_city"
-                        cityValue="{{ request('origin_city', 'jaipur') }}"
+                        cityValue="{{ request('origin_city.0', 'jaipur') }}"
                     />
 
                     <x-frontend.autocomplete
                         label="Going to"
                         name="destination"
-                        value="{{ request('destination', 'BLR') }}"
-                        display="{{ request('destination') ? request('destination').' – '.request('departure_city') : 'BLR – Bangalore' }}"
+                        value="{{ is_array(request('destination')) ? request('destination')[0] : request('destination', 'BLR') }}"
+                        display="{{ request('destination.0') ? request('destination.0').' – '.request('departure_city.0') : 'BLR – Bangalore' }}"
                         placeholder="Search airport or city…"
                         type="airport"
                         icon="dropoff.svg"
                         cityInputName="departure_city"
-                        cityValue="{{ request('departure_city', 'bangalore') }}"
-                    />      
+                        cityValue="{{ request('departure_city.0', 'bangalore') }}"
+                    />
 
                     <x-frontend.date-picker 
                         id="round_fl_dep"
@@ -106,7 +106,8 @@
         </div>
         {{-- ====================================== Muti Trip ======================================= --}}
         <div class="{{ request('trip_type') == 'multicity' ? 'block' : 'hidden' }}">
-            <form method="get" action="{{ route('front.flightSearch') }}" id="multicity-form"> 
+            <form method="get" action="{{ route('front.flightSearch') }}" id="multicity-form">
+                <input type="hidden" name="trip_type" id="trip_type" value="multicity">
                 <div class="rounded-xl border border-base-200 bg-base-50 p-3 md:p-0 md:border-0 md:bg-transparent md:rounded-none">
                     <div class="flex items-center gap-2 mb-3 md:hidden">
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
@@ -118,25 +119,27 @@
                         <x-frontend.autocomplete
                             label="Leaving from"
                             name="origin[]"
-                            value="{{ request('origin', 'JAI') }}"
-                            display="{{ request('origin') ? request('origin').' – '.request('origin_city') : 'JAI – Jaipur' }}"
+                            value="{{ request('origin.0', 'JAI') }}"
+                            display="{{ request('origin.0') ? request('origin.0').' – '.request('origin_city.0') : 'JAI – Jaipur' }}"
                             placeholder="Search airport or city…"
                             type="airport"
                             icon="takeoff.svg"
                             cityInputName="origin_city[]"
-                            cityValue="{{ request('origin_city', 'jaipur') }}"
+                            cityValue="{{ request('origin_city.0', 'jaipur') }}"
                         />
+
                         <x-frontend.autocomplete
                             label="Going to"
                             name="destination[]"
-                            value="{{ request('destination', 'BLR') }}"
-                            display="{{ request('destination') ? request('destination').' – '.request('departure_city') : 'BLR – Bangalore' }}"
+                            value="{{ request('destination.0', 'BLR') }}"
+                            display="{{ request('destination.0') ? request('destination.0').' – '.request('departure_city.0') : 'BLR – Bangalore' }}"
                             placeholder="Search airport or city…"
                             type="airport"
                             icon="dropoff.svg"
                             cityInputName="departure_city[]"
-                            cityValue="{{ request('departure_city', 'bangalore') }}"
+                            cityValue="{{ request('departure_city.0', 'bangalore') }}"
                         />
+
                         <x-frontend.date-picker
                             id="mul_fl_dep_0"
                             name="departure_date[]"
@@ -159,24 +162,25 @@
                                 <x-frontend.autocomplete
                                     label="Leaving from"
                                     name="origin[]"
-                                    value="{{ request('origin', 'BLR') }}"
-                                    display="BLR – Bangalore"
+                                    value="{{ request('origin.0', 'JAI') }}"
+                                    display="{{ request('origin.0') ? request('origin.0').' – '.request('origin_city.0') : 'BLR – Bangalore' }}"
                                     placeholder="Search airport or city…"
                                     type="airport"
                                     icon="takeoff.svg"
                                     cityInputName="origin_city[]"
-                                    cityValue="bangalore"
+                                    cityValue="{{ request('origin_city.0', 'jaipur') }}"
                                 />
+
                                 <x-frontend.autocomplete
                                     label="Going to"
                                     name="destination[]"
-                                    value="{{ request('destination', 'DEL') }}"
-                                    display="DEL – Delhi"
+                                    value="{{ request('destination.0', 'BLR') }}"
+                                    display="{{ request('destination.0') ? request('destination.0').' – '.request('departure_city.0') : 'DEL - Delhi' }}"
                                     placeholder="Search airport or city…"
                                     type="airport"
                                     icon="dropoff.svg"
                                     cityInputName="departure_city[]"
-                                    cityValue="delhi"
+                                    cityValue="{{ request('departure_city.0', 'bangalore') }}"
                                 />
                                 <x-frontend.date-picker
                                     id="mul_fl_dep_1"
