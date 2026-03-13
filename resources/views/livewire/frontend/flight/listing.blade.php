@@ -22,15 +22,12 @@
                         Filter & Sort
                     </button>
                 </div>
-
                 <div class="flex flex-col md:flex-row gap-6">
                     <!-- Filter Overlay Backdrop -->
                     <div id="filter-backdrop" class="fixed inset-0 bg-slate-900/40 z-[99] hidden md:hidden"></div>
-
                     <!-- Filters Sidebar / Mobile Modal -->
                     <div id="filter-sidebar"
                         class="rounded-none shadow-sm border border-slate-200 lg:rounded-lg fixed inset-y-0 left-0 z-[100] w-full h-screen translate-x-[-100%] transition-transform duration-300 md:relative md:translate-x-0 md:z-auto md:w-[317px] md:h-fit md:block bg-white overflow-hidden">
-
                         <div class="flex flex-col h-full md:card md:p-5 md:block">
                             <!-- Header -->
                             <div
@@ -49,17 +46,13 @@
                                     </button>
                                 </div>
                             </div>
-
                             <!-- Content -->
                             <div class="flex-1 overflow-y-auto p-5 md:p-0 space-y-8 md:overflow-visible">
                                 <!-- Sort By -->
                                 <div class="form-control">
                                     <label class="form-label">Sort By</label>
                                     <div class="relative mt-1">
-                                        <select 
-                                            class="form-input appearance-none pr-10"
-                                            wire:model.live="sortBy" 
-                                        >
+                                        <select class="form-input appearance-none pr-10" wire:model.live="sortBy">
                                             <option value="">Default</option>
                                             <option value="price_low_high">Price (Low to High)</option>
                                             <option value="price_high_low">Price (High to Low)</option>
@@ -70,7 +63,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Max Price -->
                                 <div class="space-y-4">
                                     <div class="flex justify-between items-center">
@@ -82,7 +74,6 @@
                                             class="range range-xs range-primary" />
                                     </div>
                                 </div>
-
                                 <!-- Stops -->
                                 <div class="space-y-4">
                                     <h4 class="form-label">Stops</h4>
@@ -106,7 +97,6 @@
                                         </label>
                                     </div>
                                 </div>
-
                                 <!-- Airlines -->
                                 <div class="space-y-4">
                                     <h4 class="form-label">Airlines</h4>
@@ -130,7 +120,6 @@
                                         </label>
                                     </div>
                                 </div>
-
                                 <!-- Options -->
                                 <div class="pt-2 md:mt-6 mb-6">
                                     <label class="flex items-center gap-3 cursor-pointer group">
@@ -141,50 +130,36 @@
                                     </label>
                                 </div>
                             </div>
-
                             <!-- Footer (Fixed Bottom for Mobile) -->
                             <div class="p-5 border-t border-slate-100 md:hidden shrink-0">
                                 <button id="apply-filter" class="w-full btn btn-primary">Apply Filters</button>
                             </div>
                         </div>
                     </div>
-
                     <div class="flex-1 space-y-5">
-
                         <div class="headings">
                             <h4 class="font-semibold text-lg sm:text-xl leading-7 sm:leading-8 text-slate-950">
                                 {{ $total }} flights found
                             </h4>
                         </div>
-
                         <div class="space-y-3.5">
-
                             @foreach ($flights as $flight)
                                 @php
                                     $slice = $flight['slices'][0];
                                     $segment = $slice['segments'][0];
-
                                     $airline = $segment['operating_carrier']['name'] ?? '';
                                     $airlineCode = $segment['operating_carrier']['iata_code'] ?? '';
                                     $logo = $segment['operating_carrier']['logo_symbol_url'] ?? '';
-
                                     $flightNumber = $segment['operating_carrier_flight_number'] ?? '';
-
                                     $departure = $segment['departing_at'];
                                     $arrival = $segment['arriving_at'];
-
                                     $origin = $segment['origin']['iata_code'] ?? '';
                                     $destination = $segment['destination']['iata_code'] ?? '';
-
                                     $duration = $segment['duration'] ?? '';
-
                                     $aircraft = $segment['aircraft']['name'] ?? '';
-
                                     $price = $flight['total_amount'] ?? '';
                                     $currency = $flight['total_currency'] ?? '';
-
                                     $stops = count($slice['segments']) - 1;
-
                                     $bags = $segment['passengers'][0]['baggages'] ?? [];
                                 @endphp
 
@@ -314,40 +289,26 @@
                                         <!-- PRICE SECTION -->
                                         <div
                                             class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between lg:min-w-[153px] gap-4">
-
                                             <div class="flex flex-col lg:items-end">
-
                                                 <span class="font-normal text-sm text-slate-500">
                                                     From
                                                 </span>
-
                                                 <span class="font-semibold text-[24px] leading-[36px] text-blue-600">
                                                     {{ $currency }} {{ $price }}
                                                 </span>
-
                                                 <span class="font-normal text-sm text-slate-500">
                                                     per person
                                                 </span>
-
                                             </div>
-
-
                                             <button onclick="flight_details_modal.showModal()"
                                                 class="btn btn-primary whitespace-nowrap btn-sm">
                                                 Select Flight
                                             </button>
-
                                         </div>
-
                                     </div>
-
                                 </div>
                             @endforeach
-
                         </div>
-
-
-
                         <!-- Pagination -->
                         {{-- <div
                             class="mt-8 flex flex-col md:flex-row flex-col-reverse justify-between items-center gap-6 self-stretch">
@@ -374,7 +335,6 @@
                                 </button>
                             </div>
                         </div> --}}
-
                     </div>
                 </div>
             </div>

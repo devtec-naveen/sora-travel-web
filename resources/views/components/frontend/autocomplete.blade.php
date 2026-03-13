@@ -12,7 +12,7 @@
         <span class="ap-display text-sm font-semibold text-slate-800 leading-5 capitalize">
             {{ $display }}
         </span>
-        <input type="hidden" class="ap-hidden" name="{{ $name }}" value="{{ $value }}" />
+        <input type="hidden" class="ap-hidden" id="{{ $name }}" name="{{ $name }}" value="{{ $value }}" />
         @if($type == 'airport')
             <input type="hidden" class="ap-city-hidden" name="{{$cityInputName}}" value="{{ $cityValue }}" />
         @endif

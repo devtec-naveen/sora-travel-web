@@ -326,8 +326,7 @@ async function apiAirports(q) {
         return list.map((a) => ({
             code: a.iata_code ?? "",
             city: a.city_name
-                ? a.city_name.charAt(0) +
-                  a.city_name.slice(1).toLowerCase()
+                ? a.city_name.charAt(0) + a.city_name.slice(1).toLowerCase()
                 : "",
             name: a.name ?? "",
             country: a.iata_country_code ?? "",
@@ -782,7 +781,6 @@ const HG_LIMITS = { rooms: [1, 9], adults: [1, 30], children: [0, 10] };
 function toggleHG() {
     const dd = document.getElementById("hgDropdown");
     dd.classList.toggle("hidden");
-    // close other dropdowns (dtp, ap) if open
     if (!dd.classList.contains("hidden")) {
         document
             .querySelectorAll(".ap-dropdown.open")
@@ -800,11 +798,9 @@ function changeHG(type, delta) {
     HG[type] = Math.min(mx, Math.max(mn, HG[type] + delta));
     document.getElementById(`hg_disp_${type}`).textContent = HG[type];
 
-    // minus button disable at min
     const minusBtn = document.getElementById(`btn_${type}_minus`);
     if (minusBtn) minusBtn.disabled = HG[type] <= mn;
 
-    // children note
     document
         .getElementById("hgChildNote")
         ?.classList.toggle("hidden", HG.children === 0);
@@ -831,7 +827,6 @@ function updateHGLabel() {
     const roomWord = HG.rooms === 1 ? "room" : "rooms";
     const petStr = HG.pets ? " · pets" : "";
 
-    // label — same format as original "1 adult · 0 children · 1 room"
     document.getElementById("hgLabel").textContent =
         `${HG.adults} ${adultWord} · ${HG.children} ${childWord} · ${HG.rooms} ${roomWord}${petStr}`;
 
@@ -851,9 +846,223 @@ document.addEventListener("click", (e) => {
     if (!e.target.closest("#hgWrapper")) closeHG();
 });
 
-// init — minus buttons disabled at starting min
 document.getElementById("btn_rooms_minus").disabled = true; // rooms start=1
 document.getElementById("btn_adults_minus").disabled = true; // adults start=1
 document.getElementById("btn_children_minus").disabled = true; // children start=0
 
 //========================== Multi City ============================================
+
+const MAX_CITIES = 5;
+let multiCityCount = 2;
+
+function refreshButtons() {
+    const container = document.getElementById("addon-rows-container");
+    const rows = container.querySelectorAll(".addon-city-row");
+    const maxReached = multiCityCount >= MAX_CITIES;
+
+    rows.forEach((row, i) => {
+        const col = row.querySelector(".addon-action-col");
+        const isLast = i === rows.length - 1;
+
+        if (!isLast) {
+            col.innerHTML = "";
+            return;
+        }
+
+        const SVG_PLUS = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`;
+        const SVG_X = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`;
+        const SVG_SEARCH = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>`;
+        const SVG_BAN = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>`;
+
+        const addBtn = !maxReached
+            ? `<button type="button" onclick="addMultiCity()"
+                        class="btn btn-secondary border-none flex items-center justify-center gap-1 flex-1"
+                        style="height:48px; font-size:14px; font-weight:500;">
+                        ${SVG_PLUS} Add City
+                    </button>`
+            : ``;
+
+
+        let removeBtnDesktop = "";
+        let removeBtnMobile = ""
+
+        if (multiCityCount >= 3) {
+            removeBtnMobile = `
+            <button type="button" onclick="removeMultiCity(this)"
+                class="flex items-center justify-center gap-1 flex-1 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-lg px-4"
+                style="height:48px; font-size:14px; font-weight:500;">
+                ${SVG_X} Remove
+            </button>`;
+        }
+
+        if (multiCityCount >= 3) {
+            removeBtnDesktop = `
+                       <button type="button" onclick="removeMultiCity(this)"
+                           class="flex items-center justify-center flex-shrink-0 text-base-content/40 hover:text-error transition-colors"
+                           style="width:40px;height:40px;border-radius:50%;border:1.5px solid currentColor;background:transparent;cursor:pointer;">
+                           ${SVG_X}
+                       </button>`;
+        }
+
+        const searchBtn = `
+                <button type="submit"
+                    class="btn btn-primary flex items-center justify-center gap-2"
+                    style="height:48px; font-weight:600; font-size:14px; letter-spacing:0.04em;">
+                    ${SVG_SEARCH} SEARCH
+                </button>`;
+
+        col.innerHTML = `
+                <div class="flex flex-col gap-2 w-full">
+                    <div class="flex items-center gap-2 w-full lg:hidden">
+                        ${addBtn}
+                        ${removeBtnMobile}
+                    </div>
+                    <div class="w-full lg:hidden">
+                        <button type="submit"
+                            class="btn btn-primary w-full flex items-center justify-center gap-2"
+                            style="height:48px; font-weight:600; font-size:14px; letter-spacing:0.04em;">
+                            ${SVG_SEARCH} SEARCH
+                        </button>
+                    </div>
+                    <div class="hidden lg:flex items-center gap-2 w-full">
+                        ${searchBtn}
+                        ${addBtn}
+                        ${removeBtnDesktop}
+                    </div>
+                </div>`;
+    });
+
+    rows.forEach((row, i) => {
+        const label = row.querySelector(".addon-flight-label");
+        if (label)
+            label.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 2c-2-2-4-2-5.5-.5L10 5 1.8 6.2l2.3 2.3L2 10l2 2 2-2 2 2-2 2 2 2 1.5-3.8 2.3 2.3z"/></svg> Flight ${i + 2}`;
+    });
+
+    if (typeof tabler !== "undefined" && tabler.createIcons)
+        tabler.createIcons();
+}
+
+function addMultiCity() {
+    if (multiCityCount >= MAX_CITIES) return;
+
+    const container = document.getElementById("addon-rows-container");
+    const firstRow = container.querySelector(".addon-city-row");
+    const clone = firstRow.cloneNode(true);
+
+    multiCityCount++;
+    const idx = multiCityCount - 1;
+    clone.setAttribute("data-row", idx);
+
+    clone.querySelectorAll("[id]").forEach((el) => {
+        const oldId = el.getAttribute("id");
+        const newId = oldId.replace(/_\d+$/, "_" + idx);
+        el.setAttribute("id", newId);
+        clone
+            .querySelectorAll('[for="' + oldId + '"]')
+            .forEach((lbl) => lbl.setAttribute("for", newId));
+    });
+
+    [
+        "data-target",
+        "data-id",
+        "aria-controls",
+        "data-dropdown-target",
+        "data-dtp-id",
+    ].forEach((attr) => {
+        clone.querySelectorAll("[" + attr + "]").forEach((el) => {
+            el.setAttribute(
+                attr,
+                el.getAttribute(attr).replace(/_\d+$/, "_" + idx),
+            );
+        });
+    });
+
+    clone
+        .querySelectorAll(".ap-field")
+        .forEach((el) => el.removeAttribute("data-default"));
+    clone.querySelectorAll(".ap-display").forEach((el,i) => {
+        el.textContent = i === 0 ? 'From' : 'To';
+        el.classList.add("text-slate-400");
+        el.classList.remove("text-slate-800");
+    });
+    clone
+        .querySelectorAll(".ap-hidden, .ap-city-hidden")
+        .forEach((el) => (el.value = ""));
+    clone
+        .querySelectorAll(".ap-dropdown")
+        .forEach((el) => el.classList.remove("open"));
+    clone.querySelectorAll('[id^="dtp_lbl_"]').forEach((el) => {
+        el.textContent = "Select date";
+        el.style.color = "#94a3b8";
+        el.style.fontWeight = "400";
+    });
+    clone.querySelectorAll('[id^="dtp_val_"]').forEach((el) => (el.value = ""));
+    clone
+        .querySelectorAll('[id^="dtp_dd_"]')
+        .forEach((el) => el.classList.remove("open"));
+
+    const col = clone.querySelector(".addon-action-col");
+    if (col) col.innerHTML = "";
+
+    container.appendChild(clone);
+
+    clone.querySelectorAll(".ap-field").forEach((field) => {
+        if (field.dataset.id)
+            field.dataset.id = field.dataset.id.replace(/_\d+$/, "_" + idx);
+        initField(field);
+    });
+    clone.querySelectorAll(".dtp-field").forEach((field) => {
+        if (field.dataset.dtpId)
+            field.dataset.dtpId = field.dataset.dtpId.replace(
+                /_\d+$/,
+                "_" + idx,
+            );
+        dtpInit(field);
+    });
+
+    refreshButtons();
+}
+
+function removeMultiCity(btn) {
+    const container = document.getElementById("addon-rows-container");
+    const rows = container.querySelectorAll(".addon-city-row");
+    if (rows.length <= 1) return;
+
+    const row = btn.closest(".addon-city-row");
+    row.querySelectorAll(".dtp-field").forEach((field) => {
+        const id = field.dataset.dtpId;
+        if (id && window._dtp) delete window._dtp[id];
+    });
+    row.remove();
+    multiCityCount--;
+    refreshButtons();
+}
+
+refreshButtons();
+
+
+
+const validator = new JustValidate('#flightOneWayForm');
+validator.addField('#destination', [
+{
+  validator: (value) => {
+    const origin = document.querySelector('[name="origin"]').value;
+    return value !== origin;
+  },
+  errorMessage: 'Source and destination cannot be same'
+}
+])
+
+.onSuccess((event) => {
+  event.target.submit();
+})
+.onFail(() => {
+    setTimeout(() => {
+        document.querySelectorAll('.just-validate-error-label').forEach(el => {
+        el.remove();
+        });
+        document.querySelectorAll('.just-validate-error-field').forEach(el => {
+        el.classList.remove('just-validate-error-field');
+        });
+    }, 3000);
+});
