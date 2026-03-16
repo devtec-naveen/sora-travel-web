@@ -15,7 +15,6 @@
         </section>
         <div class="listing-area py-10 lg:py-16">
             <div class="container">
-                <!-- Mobile Filter Toggle Button -->
                 <div class="md:hidden mb-6">
                     <button id="open-filter" class="w-full btn btn-primary flex items-center justify-center gap-2">
                         <i data-tabler="adjustments-horizontal" data-size="18"></i>
@@ -23,13 +22,10 @@
                     </button>
                 </div>
                 <div class="flex flex-col md:flex-row gap-6">
-                    <!-- Filter Overlay Backdrop -->
                     <div id="filter-backdrop" class="fixed inset-0 bg-slate-900/40 z-[99] hidden md:hidden"></div>
-                    <!-- Filters Sidebar / Mobile Modal -->
                     <div id="filter-sidebar"
                         class="rounded-none shadow-sm border border-slate-200 lg:rounded-lg fixed inset-y-0 left-0 z-[100] w-full h-screen translate-x-[-100%] transition-transform duration-300 md:relative md:translate-x-0 md:z-auto md:w-[317px] md:h-fit md:block bg-white overflow-hidden">
                         <div class="flex flex-col h-full md:card md:p-5 md:block">
-                            <!-- Header -->
                             <div
                                 class="flex justify-between items-center p-5 border-b border-slate-100 md:p-0 md:border-none md:mb-6 shrink-0">
                                 <div class="flex items-center gap-2">

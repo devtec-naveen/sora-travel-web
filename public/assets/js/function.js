@@ -132,11 +132,20 @@ var swiper = new Swiper(".DestinationsSlider", {
 const PAX = {};
 
 function initPax(id, adults = 1, children = 0, infants = 0) {
+
     PAX[id] = {
-        adults: adults,
-        children: children,
-        infants: infants,
+        adults: Number(adults),
+        children: Number(children),
+        infants: Number(infants)
     };
+
+    const el = document.getElementById(`${id}_adults-count`);
+    if (el) {
+        el.innerHTML = ''; 
+        el.textContent = PAX[id].adults;
+    }
+
+    updateTravelersLabel(id);
 }
 
 function toggleTravelers(id) {

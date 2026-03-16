@@ -14,6 +14,12 @@ return [
         'admin' => 2
     ],
 
+    'flight_trip_types' => [
+        'oneway',
+        'roundtrip',
+        'multicity',
+    ],
+    
     'httpCode' => [
 
         // Success Codes

@@ -42,7 +42,7 @@
                     </button>
                     <span id="{{ $id }}_adults-count"
                         class="w-5 text-center text-sm font-semibold text-slate-800">
-                        {{ $adults }} {{request('adults')}}
+                        {{ $adults }}
                     </span>
                     <button type="button"
                         onclick="changePax('{{ $id }}','adults',1)"

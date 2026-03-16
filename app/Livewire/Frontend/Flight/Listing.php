@@ -36,6 +36,12 @@ class Listing extends Component
 
     public function mount(DuffelService $duffelService)
     {
+        $tripType = request('trip_type');
+        $allowedTripTypes = config('constant.flight_trip_types');
+        if (!$tripType || !in_array($tripType, $allowedTripTypes)) {
+            return redirect()->route('home');
+        }
+
         $this->duffelService = $duffelService;
         $this->loadFlights();
     }

@@ -1,3 +1,16 @@
+@php
+    $origins = Arr::wrap(request('origin') ?? []);
+    $destinations = Arr::wrap(request('destination') ?? []);
+    $originCities = Arr::wrap(request('origin_city') ?? []);
+    $destinationCities = Arr::wrap(request('departure_city') ?? []);
+    $originValue = $origins[0] ?? 'JAI';
+    $originCity = $originCities[0] ?? 'Jaipur';
+    $destinationValue = $destinations[0] ?? 'BLR';
+    $destinationCity = $destinationCities[0] ?? 'Bangalore';
+    $departureDate = request('departureDate') ?? now()->format('Y-m-d');
+    $returnDate = request('returnDate') ?? '';
+    $totalRows = max(count($origins ?: []),count($destinations ?: []),2);
+@endphp
 <div
     class="flex flex-col justify-center gap-4 self-stretch bg-white p-2 md:p-4 rounded-xl shadow-sm border border-slate-100">
     <div class="flex items-center gap-2">
@@ -9,30 +22,30 @@
         {{-- ====================================== One Way Trip ======================================= --}}
         <div class="{{ request('trip_type','oneway') == 'oneway' ? '' : 'hidden' }}">
             <form method="get" action="{{ route('front.flightSearch') }}" id="flightOneWayForm">
-               <input type="hidden" name="trip_type" id="trip_type" value="oneway">
+               <input type="hidden" name="trip_type" id="trip_type" value="{{ config('constant.flight_trip_types.oneway') }}">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 w-full" id="flightOneWay">
                     <x-frontend.autocomplete
                         label="Leaving from"
                         name="origin"
-                        value="{{ request('origin.0','JAI') }}"
-                        display="{{ request('origin.0','JAI') }} – {{ request('origin_city.0','Jaipur') }}"
+                        value="{{ $originValue }}"
+                        display="{{ $originValue }} – {{ $originCity }}"
                         placeholder="Search airport or city…"
                         type="airport"
                         icon="takeoff.svg"
                         cityInputName="origin_city"
-                        cityValue="{{ request('origin_city.0','jaipur') }}"
+                        cityValue="{{ $originCity }}"
                     />
 
                     <x-frontend.autocomplete
                         label="Going to"
                         name="destination"
-                        value="{{ request('destination.0','BLR') }}"
-                        display="{{ request('destination.0','BLR') }} – {{ request('departure_city.0','Bangalore') }}"
+                        value="{{ $destinationValue }}"
+                        display="{{ $destinationValue }} – {{ $destinationCity }}"
                         placeholder="Search airport or city…"
                         type="airport"
                         icon="dropoff.svg"
                         cityInputName="departure_city"
-                        cityValue="{{ request('departure_city.0','bangalore') }}"
+                        cityValue="{{ $destinationCity }}"
                     />
 
                     <x-frontend.date-picker 
@@ -40,7 +53,7 @@
                         name="departureDate"
                         label="Departure Date"
                         placeholder="Select date"
-                        value="{{ request('departureDate', '') }}"
+                        value="{{ $departureDate }}"
                     />
 
                     <x-frontend.travelers id="FlightOneway" />
@@ -54,30 +67,30 @@
         {{-- ====================================== Round Trip ======================================= --}}
         <div class="{{ request('trip_type') == 'roundtrip' ? 'block' : 'hidden' }}">
             <form method="get" action="{{ route('front.flightSearch') }}">
-                <input type="hidden" name="trip_type" id="trip_type" value="roundtrip">
+                <input type="hidden" name="trip_type" id="trip_type" value="{{ config('constant.flight_trip_types.roundtrip') }}">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3 w-full" id="flightRoundTrip">
                     <x-frontend.autocomplete
                         label="Leaving from"
                         name="origin"
-                        value="{{ is_array(request('origin')) ? request('origin')[0] : request('origin', 'JAI') }}"
-                        display="{{ request('origin.0') ? request('origin.0').' – '.request('origin_city.0') : 'JAI – Jaipur' }}"
+                        value="{{ $originValue }}"
+                        display="{{ $originValue }} – {{ $originCity }}"
                         placeholder="Search airport or city…"
                         type="airport"
                         icon="takeoff.svg"
                         cityInputName="origin_city"
-                        cityValue="{{ request('origin_city.0', 'jaipur') }}"
+                        cityValue="{{ $originCity }}"
                     />
 
                     <x-frontend.autocomplete
                         label="Going to"
                         name="destination"
-                        value="{{ is_array(request('destination')) ? request('destination')[0] : request('destination', 'BLR') }}"
-                        display="{{ request('destination.0') ? request('destination.0').' – '.request('departure_city.0') : 'BLR – Bangalore' }}"
+                        value="{{ $destinationValue }}"
+                        display="{{ $destinationValue }} – {{ $destinationCity }}"
                         placeholder="Search airport or city…"
                         type="airport"
                         icon="dropoff.svg"
                         cityInputName="departure_city"
-                        cityValue="{{ request('departure_city.0', 'bangalore') }}"
+                        cityValue="{{ $destinationCity }}"
                     />
 
                     <x-frontend.date-picker 
@@ -85,7 +98,7 @@
                         name="departureDate"
                         label="Departure Date"
                         placeholder="Select date"
-                        value="{{ request('departureDate', '') }}"
+                        value="{{ $departureDate }}"
                     />
 
                     <x-frontend.date-picker 
@@ -93,7 +106,7 @@
                         name="returnDate"
                         label="Return Date"
                         placeholder="Select date"
-                        value="{{ request('returnDate', '') }}"
+                        value="{{ $returnDate }}"
                     />
 
                     <x-frontend.travelers id="FlightRoundtrip" />
@@ -107,22 +120,7 @@
         {{-- ====================================== Muti Trip ======================================= --}}
         <div class="{{ request('trip_type') == 'multicity' ? 'block' : 'hidden' }}">
             <form method="get" action="{{ route('front.flightSearch') }}" id="multicity-form">
-                <input type="hidden" name="trip_type" id="trip_type" value="multicity">        
-                @php
-                    $origins      = request()->has('origin')
-                                        ? request('origin', [])
-                                        : ['JAI', 'BLR'];
-        
-                    $destinations = request()->has('destination')
-                                        ? request('destination', [])
-                                        : ['BLR', 'DEL'];
-        
-                    $depDates     = request('departure_date', []);
-                    $originCities = request('origin_city', []);
-                    $depCities    = request('departure_city', []);
-        
-                    $totalRows    = max(count($origins), 2);
-                @endphp        
+                <input type="hidden" name="trip_type" id="trip_type" value="{{ config('constant.flight_trip_types.multicity') }}">         
                 <div class="rounded-xl border border-base-200 bg-base-50 p-3 md:p-0 md:border-0 md:bg-transparent md:rounded-none">
                     <div class="flex items-center gap-2 mb-3 md:hidden">
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
@@ -177,8 +175,8 @@
                                 <x-frontend.autocomplete
                                     label="Leaving from"
                                     name="origin[]"
-                                    value="{{ $origins[$i] ?? '' }}"
-                                    display="{{ isset($origins[$i]) && isset($originCities[$i]) ? $origins[$i].' – '.$originCities[$i] : 'From' }}"
+                                    value="{{ $origins[$i] ?? 'BLR' }}"
+                                    display="{{ isset($origins[$i]) && isset($originCities[$i]) ? $origins[$i].' – '.$originCities[$i] : 'BLR – Bangalore' }}"
                                     placeholder="Search airport or city…"
                                     type="airport"
                                     icon="takeoff.svg"
@@ -189,8 +187,8 @@
                                 <x-frontend.autocomplete
                                     label="Going to"
                                     name="destination[]"
-                                    value="{{ $destinations[$i] ?? '' }}"
-                                    display="{{ isset($destinations[$i]) && isset($depCities[$i]) ? $destinations[$i].' – '.$depCities[$i] : 'To' }}"
+                                    value="{{ $destinations[$i] ?? 'DEL' }}"
+                                    display="{{ isset($destinations[$i]) && isset($depCities[$i]) ? $destinations[$i].' – '.$depCities[$i] : 'DEL - Delhi' }}"
                                     placeholder="Search airport or city…"
                                     type="airport"
                                     icon="dropoff.svg"
@@ -204,15 +202,12 @@
                                     label="Departure Date"
                                     placeholder="Select date"
                                     value="{{ $depDates[$i] ?? '' }}"
-                                />
-        
-                                <div class="addon-action-col flex items-end gap-2 lg:col-span-1"></div>
-        
+                                />        
+                                <div class="addon-action-col flex items-end gap-2 lg:col-span-1"></div>        
                             </div>
                         </div>
                     </div>
-                    @endfor
-        
+                    @endfor        
                 </div>
             </form>
         </div>
