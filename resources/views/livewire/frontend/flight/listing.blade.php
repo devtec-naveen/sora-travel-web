@@ -12,6 +12,19 @@
                     <x-frontend.flight-search-tabs />
                 </div>
             </div>
+            @if(request('trip_type') == config('constant.flight_trip_types.multicity'))
+                <div class="flex justify-center mt-3">
+                    <button id="hero-toggle-btn" onclick="toggleHeroSection()"
+                        class="flex items-center justify-center bg-white/20 hover:bg-white/30 transition-all duration-200 rounded-full"
+                        style="width:36px;height:36px;">
+                        <svg id="hero-toggle-icon" width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="white" stroke-width="2.5"
+                            style="transition:transform 0.3s ease;">
+                            <path d="M18 15l-6-6-6 6"/>
+                        </svg>
+                    </button>
+                </div>
+            @endif
         </section>
         <div class="listing-area py-10 lg:py-16">
             <div class="container">
@@ -36,15 +49,12 @@
                                     <button
                                         class="text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors uppercase">Clear
                                         All</button>
-                                    <!-- Mobile Close Button -->
                                     <button id="close-filter" class="md:hidden text-slate-400 hover:text-slate-950">
                                         <i data-tabler="x" data-size="22"></i>
                                     </button>
                                 </div>
                             </div>
-                            <!-- Content -->
                             <div class="flex-1 overflow-y-auto p-5 md:p-0 space-y-8 md:overflow-visible">
-                                <!-- Sort By -->
                                 <div class="form-control">
                                     <label class="form-label">Sort By</label>
                                     <div class="relative mt-1">
@@ -59,7 +69,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Max Price -->
                                 <div class="space-y-4">
                                     <div class="flex justify-between items-center">
                                         <span class="form-label">Max Price</span>
@@ -70,7 +79,6 @@
                                             class="range range-xs range-primary" />
                                     </div>
                                 </div>
-                                <!-- Stops -->
                                 <div class="space-y-4">
                                     <h4 class="form-label">Stops</h4>
                                     <div class="flex flex-col gap-3">
@@ -93,7 +101,6 @@
                                         </label>
                                     </div>
                                 </div>
-                                <!-- Airlines -->
                                 <div class="space-y-4">
                                     <h4 class="form-label">Airlines</h4>
                                     <div class="flex flex-col gap-3">
@@ -116,7 +123,6 @@
                                         </label>
                                     </div>
                                 </div>
-                                <!-- Options -->
                                 <div class="pt-2 md:mt-6 mb-6">
                                     <label class="flex items-center gap-3 cursor-pointer group">
                                         <input type="checkbox" class="checkbox shrink-0" />
@@ -126,7 +132,6 @@
                                     </label>
                                 </div>
                             </div>
-                            <!-- Footer (Fixed Bottom for Mobile) -->
                             <div class="p-5 border-t border-slate-100 md:hidden shrink-0">
                                 <button id="apply-filter" class="w-full btn btn-primary">Apply Filters</button>
                             </div>
@@ -157,132 +162,84 @@
                                     $currency = $flight['total_currency'] ?? '';
                                     $stops = count($slice['segments']) - 1;
                                     $bags = $segment['passengers'][0]['baggages'] ?? [];
+                                    $isRefundable = $flight['conditions']['refund_before_departure']['allowed'] ?? false;  
                                 @endphp
-
-
                                 <div class="card p-4 transition-all hover:shadow-md">
-
                                     <div class="flex flex-col lg:flex-row gap-3 md:gap-6">
-
-                                        <!-- LEFT SIDE -->
                                         <div class="flex-1 flex flex-col gap-3">
-
-                                            <!-- Airline -->
                                             <div class="flex items-center gap-4">
-
                                                 <div
                                                     class="w-11 h-11 rounded-xl bg-slate-50 overflow-hidden border border-slate-100">
-                                                    <img src="{{ $logo }}" alt="{{ $airline }}"
-                                                        class="w-full h-full object-cover">
+                                                    <img src="{{ $logo }}" alt="{{ $airline }}" class="w-full h-full object-cover">
                                                 </div>
-
                                                 <div class="flex flex-col">
                                                     <span class="font-semibold text-base text-slate-950">
                                                         {{ $airline }}
                                                     </span>
-
                                                     <span class="font-normal text-sm text-slate-500">
                                                         {{ $airlineCode }} {{ $flightNumber }}
                                                     </span>
                                                 </div>
-
                                             </div>
-
-
-                                            <!-- Time & Route -->
                                             <div class="flex flex-row items-center justify-between gap-6 sm:gap-4">
-
-                                                <!-- Departure -->
                                                 <div class="flex flex-col items-start">
                                                     <span
                                                         class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
                                                         {{ \Carbon\Carbon::parse($departure)->format('h:i A') }}
                                                     </span>
-
                                                     <span class="font-normal text-sm text-slate-500">
                                                         {{ $origin }}
                                                     </span>
                                                 </div>
-
-
-                                                <!-- Duration -->
-                                                <div
-                                                    class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
-
+                                                <div class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
                                                     <span class="font-normal text-xs text-slate-500">
                                                         {{ \Carbon\CarbonInterval::make($duration)->cascade()->forHumans() }}
                                                     </span>
-
                                                     <div class="relative w-full flex items-center justify-center h-4">
-
                                                         <div class="absolute w-full h-px bg-slate-200"></div>
-
-                                                        <div
-                                                            class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200">
-                                                        </div>
-
-                                                        <div
-                                                            class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200">
-                                                        </div>
-
+                                                        <div class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200"></div>
+                                                        <div class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200"></div>
                                                         <div class="relative z-10 bg-white px-2 leading-none">
                                                             <i data-tabler="plane" class="text-slate-400"
                                                                 data-size="18"></i>
                                                         </div>
-
                                                     </div>
-
                                                     <span class="font-normal text-xs text-slate-500">
                                                         {{ $stops }} stop(s)
                                                     </span>
-
                                                 </div>
-
-
-                                                <!-- Arrival -->
                                                 <div class="flex flex-col items-end">
-
                                                     <span
                                                         class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
                                                         {{ \Carbon\Carbon::parse($arrival)->format('h:i A') }}
                                                     </span>
-
                                                     <span class="font-normal text-sm text-slate-500 text-right">
                                                         {{ $destination }}
                                                     </span>
-
                                                 </div>
-
                                             </div>
-
-
-                                            <!-- Amenities -->
                                             <div class="flex flex-wrap gap-2.5">
-
                                                 @foreach ($bags as $bag)
                                                     <div class="tag tag-gray">
                                                         <i data-tabler="briefcase"></i>
                                                         <span>{{ $bag['quantity'] }} {{ $bag['type'] }}</span>
                                                     </div>
                                                 @endforeach
-
-                                                <div class="tag tag-gray">
-                                                    <span>Aircraft: {{ $aircraft }}</span>
-                                                </div>
-
+                                                @if($aircraft)
+                                                    <div class="tag tag-gray">
+                                                        <span>Aircraft: {{ $aircraft }}</span>
+                                                    </div>
+                                                @endif
+                                                @if($isRefundable)
+                                                    <div class="tag tag-green">
+                                                    <i data-tabler="circle-check"></i>
+                                                       <span>Refundable</span>
+                                                    </div>
+                                                @endif
                                             </div>
-
                                         </div>
-
-
-
-                                        <!-- Divider -->
                                         <div class="hidden lg:block w-px bg-slate-200 h-auto self-stretch"></div>
                                         <div class="lg:hidden h-px bg-slate-100 w-full"></div>
-
-
-
-                                        <!-- PRICE SECTION -->
                                         <div
                                             class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between lg:min-w-[153px] gap-4">
                                             <div class="flex flex-col lg:items-end">

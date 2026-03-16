@@ -3,6 +3,7 @@
     $destinations = Arr::wrap(request('destination') ?? []);
     $originCities = Arr::wrap(request('origin_city') ?? []);
     $destinationCities = Arr::wrap(request('departure_city') ?? []);
+    // dd($origins,$destinations,$originCities,$destinationCities);
     $originValue = $origins[0] ?? 'JAI';
     $originCity = $originCities[0] ?? 'Jaipur';
     $destinationValue = $destinations[0] ?? 'BLR';
@@ -12,7 +13,7 @@
     $totalRows = max(count($origins ?: []),count($destinations ?: []),2);
 @endphp
 <div
-    class="flex flex-col justify-center gap-4 self-stretch bg-white p-2 md:p-4 rounded-xl shadow-sm border border-slate-100">
+     class="flex flex-col justify-center gap-4 self-stretch bg-white p-2 md:p-4 rounded-xl shadow-sm border border-slate-100">
     <div class="flex items-center gap-2">
         <button type="button" class="trip-tab tabs {{ request('trip_type','oneway') == 'oneway' ? 'active' : '' }}" data-trip="oneway">One way</button>
         <button type="button" class="trip-tab tabs {{ request('trip_type') == 'roundtrip' ? 'active' : '' }}" data-trip="roundtrip">Round trip</button>
@@ -159,6 +160,15 @@
                             value="{{ $depDates[0] ?? '' }}"
                         />
                         <x-frontend.travelers id="FlightMultrip_0" />
+
+                        <div id="collapsed-search-btn" style="display:none;" class="mt-3">
+                            <button type="submit" form="multicity-form"
+                                class="btn btn-primary flex items-center justify-center gap-2 w-full lg:w-auto"
+                                style="height:48px; font-weight:600; font-size:14px; letter-spacing:0.04em;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                                SEARCH
+                            </button>
+                        </div>
                     </div>
                 </div>        
                 <div id="addon-rows-container" class="flex flex-col gap-3 mt-3">        
@@ -171,7 +181,8 @@
                             </span>
                         </div>        
                         <div class="rounded-xl border border-base-200 bg-base-50 p-3 md:p-0 md:border-0 md:bg-transparent md:rounded-none">
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 w-full items-end">        
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 w-full items-end">
+                        
                                 <x-frontend.autocomplete
                                     label="Leaving from"
                                     name="origin[]"
@@ -213,3 +224,6 @@
         </div>
     </div>
 </div>
+<script>
+      window.multiTotal = {{$totalRows}};
+</script>

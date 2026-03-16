@@ -54,11 +54,8 @@ class Listing extends Component
     public function loadFlights()
     {
         $duffelService = $this->duffelService ?? app(DuffelService::class);
+        $tripType = request('trip_type');
         $requestData = [
-            'origin' => $this->origin,
-            'destination' => $this->destination,
-            'departureDate' => $this->departureDate,
-            'returnDate' => $this->returnDate,
             'adults' => $this->adults,
             'children' => $this->children,
             'infants' => $this->infants,
@@ -66,9 +63,27 @@ class Listing extends Component
             'limit' => 20,
         ];
 
+        if ($tripType === 'multicity') {
+            $origins = request('origin', []);
+            $destinations = request('destination', []);
+            $dates = request('departure_date', []);
+            $trips = [];
+            foreach ($origins as $i => $origin) {
+                $trips[] = [
+                    'origin' => $origin,
+                    'destination' => $destinations[$i] ?? null,
+                    'departureDate' => $dates[$i] ?? null,
+                ];
+            }
+            $requestData['trips'] = $trips;
 
-        if ($this->returnDate) {
-            $requestData['returnDate'] = $this->returnDate;
+        } else {
+            $requestData['origin'] = $this->origin;
+            $requestData['destination'] = $this->destination;
+            $requestData['departureDate'] = $this->departureDate;
+            if ($this->returnDate) {
+                $requestData['returnDate'] = $this->returnDate;
+            }
         }
 
         $response = $duffelService->searchFlightsMain($requestData);

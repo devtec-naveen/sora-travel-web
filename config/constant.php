@@ -15,9 +15,9 @@ return [
     ],
 
     'flight_trip_types' => [
-        'oneway',
-        'roundtrip',
-        'multicity',
+        'oneway' => 'oneway',
+        'roundtrip' => 'roundtrip',
+        'multicity' => 'multicity',
     ],
     
     'httpCode' => [

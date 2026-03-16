@@ -890,7 +890,7 @@ if (childrenBtn) childrenBtn.disabled = true;
 //========================== Multi City ============================================
 
 const MAX_CITIES = 5;
-let multiCityCount = 2;
+let multiCityCount = window.multiTotal ? window.multiTotal : 2;
 
 function refreshButtons() {
     const container = document.getElementById("addon-rows-container");
@@ -940,6 +940,8 @@ function refreshButtons() {
                            ${SVG_X}
                        </button>`;
         }
+
+        console.log(multiCityCount);
 
         const searchBtn = `
                 <button type="submit"
@@ -1102,4 +1104,22 @@ validator.addField('#destination', [
         el.classList.remove('just-validate-error-field');
         });
     }, 3000);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const box         = document.getElementById('addon-rows-container');
+    const icon        = document.getElementById('hero-toggle-icon');
+    const closedBtn   = document.getElementById('collapsed-search-btn');
+    if (!box || !icon) return;
+
+    let isOpen = true;
+
+    window.toggleHeroSection = function () {
+        isOpen = !isOpen;
+        box.style.display       = isOpen ? '' : 'none';
+        icon.style.transform    = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        if (closedBtn) {
+            closedBtn.style.display = isOpen ? 'none' : '';
+        }
+    };
 });

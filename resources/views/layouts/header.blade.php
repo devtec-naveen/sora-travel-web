@@ -10,7 +10,7 @@
                 <div class="flex items-center justify-center shrink-0 ">
                     <div class="dropdown cursor-pointer">
                         <div tabindex="0" role="button" class=""><i data-tabler="user-circle"
-                                class="size-6 md:size-9 text-white"></i></div>
+                                class="size-6 md:size-9 {{ request()->routeIs('home') ? 'text-white' : 'text-blue' }}"></i></div>
                         <ul tabindex="0"
                             class="dropdown-content menu bg-white rounded-lg shadow-lg border border-slate-200 z-[1] w-52 p-2 mt-2 !right-0 !left-auto top-10">
                             <li><a class="py-3 rounded-lg hover:bg-slate-50" href="javascript:void(0)"
