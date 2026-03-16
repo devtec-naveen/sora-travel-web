@@ -17,35 +17,35 @@ class Autocomplete extends Component
     public $icon;
     public $cityInputName;
     public $cityValue;
+    public $latitude;
+    public $longitude;
 
-    /**
-     * Create a new component instance.
-     */
     public function __construct(
-        $label = '',
-        $name = '',
-        $value = '',
-        $display = '',
-        $placeholder = 'Search...',
-        $type = 'default',
-        $icon = '',
+        $label         = '',
+        $name          = '',
+        $value         = '',
+        $display       = '',
+        $placeholder   = 'Search...',
+        $type          = 'default',
+        $icon          = '',
         $cityInputName = '',
-        $cityValue = ''
-        
+        $cityValue     = '',
+        $latitude      = '',
+        $longitude     = ''
     ) {
-        $this->label = $label;
-        $this->name = $name;
-        $this->value = $value;
-        $this->display = $display;
-        $this->placeholder = $placeholder;
-        $this->type = $type;
-        $this->icon = $icon;
+        $this->label         = $label;
+        $this->name          = $name;
+        $this->value         = $value;
+        $this->display       = $display;
+        $this->placeholder   = $placeholder;
+        $this->type          = $type;
+        $this->icon          = $icon;
         $this->cityInputName = $cityInputName;
-        $this->cityValue = $cityValue;
+        $this->cityValue     = $cityValue;
+        $this->latitude      = $latitude;
+        $this->longitude     = $longitude;
     }
-    /**
-     * Get the view / contents that represent the component.
-     */
+
     public function render(): View|Closure|string
     {
         return view('components.frontend.autocomplete');

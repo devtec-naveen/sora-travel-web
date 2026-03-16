@@ -1,6 +1,6 @@
 <div {{ $attributes->merge([
         'class' => 'ap-field relative flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200 hover:border-blue-400 transition cursor-pointer'
-    ]) }} 
+    ]) }}
     data-type="{{ $type }}">
     <div class="w-6 h-6 text-slate-400 flex-shrink-0">
         <img src="{{asset('assets/images/'.$icon)}}" alt="icon"/>
@@ -14,7 +14,11 @@
         </span>
         <input type="hidden" class="ap-hidden" id="{{ $name }}" name="{{ $name }}" value="{{ $value }}" />
         @if($type == 'airport')
-            <input type="hidden" class="ap-city-hidden" name="{{$cityInputName}}" value="{{ $cityValue }}" />
+            <input type="hidden" class="ap-city-hidden" name="{{ $cityInputName }}" value="{{ $cityValue }}" />
+        @endif
+        @if($type == 'hotel')
+            <input type="hidden" class="ap-lat-hidden" name="latitude"  value="{{ $latitude  ?? '' }}" />
+            <input type="hidden" class="ap-lng-hidden" name="longitude" value="{{ $longitude ?? '' }}" />
         @endif
     </div>
     <div class="ap-dropdown hidden">

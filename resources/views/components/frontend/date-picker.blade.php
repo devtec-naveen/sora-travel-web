@@ -10,13 +10,18 @@
         <span id="dtp_lbl_{{ $id }}" class="text-sm font-medium" style="color:#94a3b8">
             {{ $placeholder }}
         </span>
-        <input type="hidden" name="{{ $name }}" id="dtp_val_{{ $id }}"
-            @if (!empty($value)) value="{{ $value }}"
-        @else
-            data-default-today @endif />
-
-        @if ($mode == 'range')
-            <input type="hidden" id="dtp_end_hotel_checkin" name="check_out">
+        <input type="hidden"
+            name="{{ $name }}"
+            id="dtp_val_{{ $id }}"
+            value="{{ !empty($value) ? $value : ($mode === 'range' ? now()->format('Y-m-d') : '') }}"
+            @if($mode !== 'range' && empty($value)) data-default-today @endif
+        />
+        @if($mode === 'range')
+            <input type="hidden"
+                id="dtp_end_{{ $id }}"
+                name="{{ $endName }}"
+                value="{{ !empty($endValue) ? $endValue : now()->addDay()->format('Y-m-d') }}"
+            />
         @endif
     </div>
     <div id="dtp_dd_{{ $id }}" class="dtp-drop" onclick="event.stopPropagation()">

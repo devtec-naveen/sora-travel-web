@@ -209,214 +209,146 @@ document.addEventListener("click", function (e) {
 /* ══════════════════════════════════════════ Airports ══════════════════════════════════════════ */
 
 const AIRPORTS = [
-    {
-        code: "JAI",
-        city: "Jaipur",
-        name: "Jaipur International Airport",
-        country: "India",
-    },
-    {
-        code: "DEL",
-        city: "Delhi",
-        name: "Indira Gandhi International Airport",
-        country: "India",
-    },
-    {
-        code: "BLR",
-        city: "Bangalore",
-        name: "Kempegowda International Airport",
-        country: "India",
-    },
-    {
-        code: "BOM",
-        city: "Mumbai",
-        name: "Chhatrapati Shivaji Maharaj Intl Airport",
-        country: "India",
-    },
-    {
-        code: "CCU",
-        city: "Kolkata",
-        name: "Netaji Subhash Chandra Bose Airport",
-        country: "India",
-    },
-    {
-        code: "HYD",
-        city: "Hyderabad",
-        name: "Rajiv Gandhi International Airport",
-        country: "India",
-    },
-    {
-        code: "MAA",
-        city: "Chennai",
-        name: "Chennai International Airport",
-        country: "India",
-    },
-    {
-        code: "AMD",
-        city: "Ahmedabad",
-        name: "Sardar Vallabhbhai Patel Intl Airport",
-        country: "India",
-    },
-    {
-        code: "COK",
-        city: "Kochi",
-        name: "Cochin International Airport",
-        country: "India",
-    },
-    {
-        code: "IXC",
-        city: "Chandigarh",
-        name: "Chandigarh International Airport",
-        country: "India",
-    },
-    {
-        code: "DXB",
-        city: "Dubai",
-        name: "Dubai International Airport",
-        country: "UAE",
-    },
-    {
-        code: "AUH",
-        city: "Abu Dhabi",
-        name: "Zayed International Airport",
-        country: "UAE",
-    },
-    { code: "LHR", city: "London", name: "Heathrow Airport", country: "UK" },
-    {
-        code: "SIN",
-        city: "Singapore",
-        name: "Changi Airport",
-        country: "Singapore",
-    },
-    {
-        code: "BKK",
-        city: "Bangkok",
-        name: "Suvarnabhumi Airport",
-        country: "Thailand",
-    },
-    {
-        code: "CDG",
-        city: "Paris",
-        name: "Charles de Gaulle Airport",
-        country: "France",
-    },
-    {
-        code: "JFK",
-        city: "New York",
-        name: "John F. Kennedy International Airport",
-        country: "USA",
-    },
-    {
-        code: "NRT",
-        city: "Tokyo",
-        name: "Narita International Airport",
-        country: "Japan",
-    },
+    { code:"JAI", city:"Jaipur",     name:"Jaipur International Airport",               country:"India"     },
+    { code:"DEL", city:"Delhi",      name:"Indira Gandhi International Airport",         country:"India"     },
+    { code:"BLR", city:"Bangalore",  name:"Kempegowda International Airport",           country:"India"     },
+    { code:"BOM", city:"Mumbai",     name:"Chhatrapati Shivaji Maharaj Intl Airport",   country:"India"     },
+    { code:"CCU", city:"Kolkata",    name:"Netaji Subhash Chandra Bose Airport",        country:"India"     },
+    { code:"HYD", city:"Hyderabad",  name:"Rajiv Gandhi International Airport",         country:"India"     },
+    { code:"MAA", city:"Chennai",    name:"Chennai International Airport",              country:"India"     },
+    { code:"AMD", city:"Ahmedabad",  name:"Sardar Vallabhbhai Patel Intl Airport",      country:"India"     },
+    { code:"COK", city:"Kochi",      name:"Cochin International Airport",               country:"India"     },
+    { code:"IXC", city:"Chandigarh", name:"Chandigarh International Airport",           country:"India"     },
+    { code:"DXB", city:"Dubai",      name:"Dubai International Airport",                country:"UAE"       },
+    { code:"AUH", city:"Abu Dhabi",  name:"Zayed International Airport",                country:"UAE"       },
+    { code:"LHR", city:"London",     name:"Heathrow Airport",                           country:"UK"        },
+    { code:"SIN", city:"Singapore",  name:"Changi Airport",                             country:"Singapore" },
+    { code:"BKK", city:"Bangkok",    name:"Suvarnabhumi Airport",                       country:"Thailand"  },
+    { code:"CDG", city:"Paris",      name:"Charles de Gaulle Airport",                  country:"France"    },
+    { code:"JFK", city:"New York",   name:"John F. Kennedy International Airport",      country:"USA"       },
+    { code:"NRT", city:"Tokyo",      name:"Narita International Airport",               country:"Japan"     },
 ];
-const TOP = ["DEL", "BLR", "BOM", "CCU", "JAI", "HYD", "MAA", "DXB"];
-const RECENT_KEY = "recent_airports";
-
-
-function getRecentAirports(fieldId) {
-    return JSON.parse(localStorage.getItem("recent_airports_" + fieldId)) || [];
-}
-
-function saveRecentAirport(fieldId, airport) {
-    let recents = getRecentAirports(fieldId);
-    recents = recents.filter(a => a.code !== airport.code);
-    recents.unshift(airport);
-    recents = recents.slice(0,5);
-    localStorage.setItem(
-        "recent_airports_" + fieldId,
-        JSON.stringify(recents)
-    );
-}
-async function apiAirports(q) {
+ 
+const HOTELS = [
+    { code:"JAI", city:"Jaipur",     name:"Hotels in Jaipur",     country:"India",     latitude:26.9124,  longitude:75.7873  },
+    { code:"DEL", city:"Delhi",      name:"Hotels in Delhi",      country:"India",     latitude:28.6139,  longitude:77.2090  },
+    { code:"BLR", city:"Bangalore",  name:"Hotels in Bangalore",  country:"India",     latitude:12.9716,  longitude:77.5946  },
+    { code:"BOM", city:"Mumbai",     name:"Hotels in Mumbai",     country:"India",     latitude:19.0760,  longitude:72.8777  },
+    { code:"CCU", city:"Kolkata",    name:"Hotels in Kolkata",    country:"India",     latitude:22.5726,  longitude:88.3639  },
+    { code:"HYD", city:"Hyderabad",  name:"Hotels in Hyderabad",  country:"India",     latitude:17.3850,  longitude:78.4867  },
+    { code:"MAA", city:"Chennai",    name:"Hotels in Chennai",    country:"India",     latitude:13.0827,  longitude:80.2707  },
+    { code:"AMD", city:"Ahmedabad",  name:"Hotels in Ahmedabad",  country:"India",     latitude:23.0225,  longitude:72.5714  },
+    { code:"GOA", city:"Goa",        name:"Hotels in Goa",        country:"India",     latitude:15.2993,  longitude:74.1240  },
+    { code:"DXB", city:"Dubai",      name:"Hotels in Dubai",      country:"UAE",       latitude:25.2048,  longitude:55.2708  },
+    { code:"BKK", city:"Bangkok",    name:"Hotels in Bangkok",    country:"Thailand",  latitude:13.7563,  longitude:100.5018 },
+    { code:"SIN", city:"Singapore",  name:"Hotels in Singapore",  country:"Singapore", latitude:1.3521,   longitude:103.8198 },
+    { code:"LHR", city:"London",     name:"Hotels in London",     country:"UK",        latitude:51.5074,  longitude:-0.1278  },
+    { code:"CDG", city:"Paris",      name:"Hotels in Paris",      country:"France",    latitude:48.8566,  longitude:2.3522   },
+    { code:"JFK", city:"New York",   name:"Hotels in New York",   country:"USA",       latitude:40.7128,  longitude:-74.0060 },
+];
+ 
+const TOP        = ["DEL","BLR","BOM","CCU","JAI","HYD","MAA","DXB"];
+const TOP_HOTELS = ["DEL","BLR","BOM","JAI","GOA","HYD","MAA","DXB"];
+ 
+const API_URLS = {
+    airport : "airport-search",
+    hotel   : "hotels/suggestions",
+};
+ 
+async function apiSearch(q, type) {
+    const url = API_URLS[type] || API_URLS.airport;
     try {
-        const r = await fetch(
-            `airport-search?keyword=${encodeURIComponent(q)}`,
-            {
-                headers: {
-                    Accept: "application/json",
-                    "X-Requested-With": "XMLHttpRequest",
-                },
+        const r = await fetch(`${url}?keyword=${encodeURIComponent(q)}`, {
+            headers: {
+                Accept: "application/json",
+                "X-Requested-With": "XMLHttpRequest",
             },
-        );
-
+        });
         if (!r.ok) throw 0;
-
-        const j = await r.json();
+        const j  = await r.json();
         const list = j.data ?? [];
-
-        return list.map((a) => ({
-            code: a.iata_code ?? "",
-            city: a.city_name
-                ? a.city_name.charAt(0) + a.city_name.slice(1).toLowerCase()
-                : "",
-            name: a.name ?? "",
-            country: a.iata_country_code ?? "",
+ 
+        return list.map(a => ({
+            code      : a.code        ?? a.iata_city_code ?? a.iata_code ?? a.city_code ?? "",
+            city      : a.city        ?? a.city_name      ?? a.name      ?? "",
+            name      : a.name        ?? "",
+            country   : a.country     ?? a.iata_country_code ?? "",
+            latitude  : a.latitude    != null ? String(a.latitude)  : "",
+            longitude : a.longitude   != null ? String(a.longitude) : "",
         }));
     } catch {
         return null;
     }
 }
-
-function localSearch(q) {
-    if (!q) return AIRPORTS;
+ 
+function localSearch(q, type) {
+    const list = type === "hotel" ? HOTELS : AIRPORTS;
+    if (!q) return list;
     const lq = q.toLowerCase();
-    return AIRPORTS.filter(
-        (a) =>
-            a.city.toLowerCase().includes(lq) ||
-            a.code.toLowerCase().includes(lq) ||
-            a.name.toLowerCase().includes(lq),
+    return list.filter(a =>
+        a.city.toLowerCase().includes(lq) ||
+        a.code.toLowerCase().includes(lq) ||
+        a.name.toLowerCase().includes(lq)
     );
 }
-
+ 
+function getRecents(fieldId, type) {
+    const key = "recent_" + (type || "airport") + "_" + fieldId;
+    return JSON.parse(localStorage.getItem(key)) || [];
+}
+ 
+function saveRecent(fieldId, item, type) {
+    const key = "recent_" + (type || "airport") + "_" + fieldId;
+    let list = getRecents(fieldId, type);
+    list = list.filter(a => a.code !== item.code);
+    list.unshift(item);
+    list = list.slice(0, 5);
+    localStorage.setItem(key, JSON.stringify(list));
+}
+ 
 const timers = {};
 function debounce(fn, key, ms = 300) {
     clearTimeout(timers[key]);
     timers[key] = setTimeout(fn, ms);
 }
-
+ 
 const PLANE = `<svg viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>`;
-
-/* ══════════════════════════════════════
-   RENDER RESULTS
-══════════════════════════════════════ */
-
-function renderResults(resultsEl, data, query, fieldId) {
+const HOTEL_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+ 
+function getIcon(type) {
+    return type === "hotel" ? HOTEL_ICON : PLANE;
+}
+ 
+function renderResults(resultsEl, data, query, fieldId, type) {
+    const topList = type === "hotel" ? TOP_HOTELS : TOP;
+ 
     if (!query) {
-        const recent = getRecentAirports(fieldId);
+        const recent = getRecents(fieldId, type);
         let html = "";
-        if (recent.length) {
-            html += groupHTML("Recent Searches", recent);
-        }
-        const top = data.filter(a => TOP.includes(a.code));
-        const rest = data.filter(a => !TOP.includes(a.code));
-        if (top.length) html += groupHTML("Top Cities", top);
-        if (rest.length) html += groupHTML("Other Airports", rest);
+        if (recent.length)           html += groupHTML("Recent Searches", recent, type);
+        const top  = data.filter(a =>  topList.includes(a.code));
+        const rest = data.filter(a => !topList.includes(a.code));
+        if (top.length)  html += groupHTML(type === "hotel" ? "Popular Cities" : "Top Cities", top, type);
+        if (rest.length) html += groupHTML("Other Results", rest, type);
         resultsEl.innerHTML = html;
         return;
     }
-
+ 
     if (!data.length) {
-        resultsEl.innerHTML = `<div class="ap-empty">No airports found</div>`;
+        resultsEl.innerHTML = `<div class="ap-empty">No results found</div>`;
         return;
     }
-    resultsEl.innerHTML = data.map(optionHTML).join("");
+    resultsEl.innerHTML = data.map(a => optionHTML(a, type)).join("");
 }
-
-function groupHTML(label, list) {
-    return (
-        `<div class="ap-group-label">${label}</div>` +
-        list.map(optionHTML).join("")
-    );
+ 
+function groupHTML(label, list, type) {
+    return `<div class="ap-group-label">${label}</div>` + list.map(a => optionHTML(a, type)).join("");
 }
-
-function optionHTML(a) {
+ 
+function optionHTML(a, type) {
     return `
-    <div class="ap-option" data-code="${a.code}" data-city="${a.city}" data-name="${a.name}" data-country="${a.country}">
-      <div class="ap-opt-icon">${PLANE}</div>
+    <div class="ap-option" data-code="${a.code}" data-city="${a.city}" data-name="${a.name}" data-country="${a.country}" data-latitude="${a.latitude || ''}" data-longitude="${a.longitude || ''}">
+      <div class="ap-opt-icon">${getIcon(type)}</div>
       <div class="ap-opt-body">
         <div class="ap-opt-title">${a.city} <span class="ap-opt-code">(${a.code})</span></div>
         <div class="ap-opt-sub">${a.name}</div>
@@ -424,81 +356,93 @@ function optionHTML(a) {
       <div class="ap-opt-cntry">${a.country}</div>
     </div>`;
 }
-
-/* ══════════════════════════════════════
-   INIT EACH FIELD
-══════════════════════════════════════ */
+ 
 function initField(fieldEl) {
-    const id = fieldEl.dataset.id;
+    const id       = fieldEl.dataset.id;
+    const type     = fieldEl.dataset.type || "airport";  
     const dropdown = fieldEl.querySelector(".ap-dropdown");
-    const searchInp = fieldEl.querySelector(".ap-search-input");
-    const resultsEl = fieldEl.querySelector(".ap-results");
-    const display = fieldEl.querySelector(".ap-display");
-    const hidden = fieldEl.querySelector(".ap-hidden");
+    const searchInp= fieldEl.querySelector(".ap-search-input");
+    const resultsEl= fieldEl.querySelector(".ap-results");
+    const display  = fieldEl.querySelector(".ap-display");
+    const hidden   = fieldEl.querySelector(".ap-hidden");
     const cityHidden = fieldEl.querySelector(".ap-city-hidden");
-
+ 
+    const localData = type === "hotel" ? HOTELS : AIRPORTS;
+ 
     function openDropdown() {
-        document.querySelectorAll(".ap-dropdown.open").forEach((d) => {
+        document.querySelectorAll(".ap-dropdown.open").forEach(d => {
             if (d !== dropdown) d.classList.remove("open");
         });
         dropdown.classList.add("open");
         searchInp.value = "";
         searchInp.focus();
-        renderResults(resultsEl, AIRPORTS, "",id);
+        renderResults(resultsEl, localData, "", id, type);
         bindOptionClicks();
     }
-
+ 
     function closeDropdown() {
         dropdown.classList.remove("open");
         searchInp.value = "";
     }
-
+ 
     async function loadResults(q) {
         resultsEl.innerHTML = `<div class="ap-empty" style="padding:16px"><span class="loading loading-dots loading-lg"></span></div>`;
-        let data = await apiAirports(q);
-        if (!data) data = localSearch(q);
-        renderResults(resultsEl, data, q,id);
+ 
+        let data = await apiSearch(q, type);  
+        if (!data) data = localSearch(q, type);
+ 
+        renderResults(resultsEl, data, q, id, type);
         bindOptionClicks();
     }
-
+ 
     function bindOptionClicks() {
-        resultsEl.querySelectorAll(".ap-option").forEach((opt) => {
+        resultsEl.querySelectorAll(".ap-option").forEach(opt => {
             opt.addEventListener("click", () => {
-                const code = opt.dataset.code;
+                const code    = opt.dataset.code;
+                const city    = opt.dataset.city;
+                const name    = opt.dataset.name;
                 const country = opt.dataset.country;
-                const name = opt.dataset.name;
-                const city = opt.dataset.city;
-                const airport = { code, city, name, country };
-                saveRecentAirport(id,airport);
-                display.textContent = `${code} – ${city}`;
+                const latitude  = opt.dataset.latitude  || "";
+                const longitude = opt.dataset.longitude || ""; 
+ 
+                saveRecent(id, { code, city, name, country, latitude, longitude }, type);
+                display.textContent = type === "hotel" ? city : `${code} – ${city}`;
                 display.classList.remove("text-slate-400");
                 display.classList.add("text-slate-800");
-                hidden.value = code;
-                if (cityHidden) {
-                    cityHidden.value = city;
+                hidden.value = type === "hotel" ? city : code;
+
+                if (type === "hotel") {
+                    const latEl = fieldEl.querySelector(".ap-lat-hidden");
+                    const lngEl = fieldEl.querySelector(".ap-lng-hidden");
+                    if (latEl) latEl.value = latitude;
+                    if (lngEl) lngEl.value = longitude;
                 }
+ 
+                if (cityHidden) cityHidden.value = city;
+ 
                 closeDropdown();
             });
         });
     }
-
-    fieldEl.addEventListener("click", (e) => {
+ 
+    fieldEl.addEventListener("click", e => {
         if (dropdown.contains(e.target)) return;
         openDropdown();
     });
-
+ 
     searchInp.addEventListener("input", () => {
         const q = searchInp.value.trim();
         debounce(() => loadResults(q), id);
     });
-
-    dropdown.addEventListener("click", (e) => e.stopPropagation());
+ 
+    dropdown.addEventListener("click", e => e.stopPropagation());
+ 
     const defCode = fieldEl.dataset.default;
     if (defCode) {
-        const ap = AIRPORTS.find((a) => a.code === defCode);
+        const ap = localData.find(a => a.code === defCode);
         if (ap) {
-            display.textContent = `${ap.code} – ${ap.city}`;
-            hidden.value = ap.code;
+            display.textContent = type === "hotel" ? ap.city : `${ap.code} – ${ap.city}`;
+            hidden.value        = type === "hotel" ? ap.city : ap.code;
         }
     }
 }
@@ -517,24 +461,14 @@ document.querySelectorAll(".ap-field").forEach(initField);
 //══════════════════════════════════════  Date Time Picker ══════════════════════════════════════
 
 const MONTHS = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December",
 ];
 const WDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-
+ 
 const _dtp = {};
 let _dtpOpen = null;
-
+ 
 function dtpParseMin(val) {
     if (!val) return null;
     if (val === "today") {
@@ -546,139 +480,157 @@ function dtpParseMin(val) {
     d.setHours(0, 0, 0, 0);
     return d;
 }
-
+ 
 function dtpDateOnly(d) {
     const x = new Date(d);
     x.setHours(0, 0, 0, 0);
     return x;
 }
-
+ 
 function dtpFmt(d) {
     if (!d) return "";
     return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)} ${d.getFullYear()}`;
 }
-
+ 
 function dtpLocalISO(d) {
     if (!d) return "";
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const y  = d.getFullYear();
+    const m  = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${dd}`;
 }
-
+ 
 function dtpInit(fieldEl) {
-    const id = fieldEl.dataset.dtpId;
+    const id   = fieldEl.dataset.dtpId;
     const mode = fieldEl.dataset.mode || "date";
     const minD = dtpParseMin(fieldEl.dataset.minDate);
     const maxD = dtpParseMin(fieldEl.dataset.maxDate);
-
+ 
     _dtp[id] = {
-        mode,
-        minD,
-        maxD,
-        navYear: new Date().getFullYear(),
-        navMonth: new Date().getMonth(),
-        date: null,
-        endDate: null,
+        mode, minD, maxD,
+        navYear  : new Date().getFullYear(),
+        navMonth : new Date().getMonth(),
+        date     : null,
+        endDate  : null,
         selecting: false,
     };
-
+ 
     const hiddenInp = document.getElementById(`dtp_val_${id}`);
-
+    const endInp    = document.getElementById(`dtp_end_${id}`);
+ 
+    // Check-in value
     if (hiddenInp && hiddenInp.value) {
         const existing = new Date(hiddenInp.value);
         existing.setHours(0, 0, 0, 0);
-        _dtp[id].date = existing;
-        _dtp[id].navYear = existing.getFullYear();
+        _dtp[id].date     = existing;
+        _dtp[id].navYear  = existing.getFullYear();
         _dtp[id].navMonth = existing.getMonth();
-    } else if (hiddenInp && hiddenInp.hasAttribute("data-default-today")) {
+    } else if (hiddenInp && hiddenInp.hasAttribute("data-default-today") && mode !== "range") {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         _dtp[id].date = today;
     }
-
+ 
+    // Check-out value (range mode)
+    if (mode === "range" && endInp && endInp.value) {
+        const existingEnd = new Date(endInp.value);
+        existingEnd.setHours(0, 0, 0, 0);
+        _dtp[id].endDate = existingEnd;
+    }
+ 
     fieldEl.addEventListener("click", () => {
         if (_dtpOpen && _dtpOpen !== id) dtpClose(_dtpOpen);
         _dtpOpen === id ? dtpClose(id) : dtpOpen(id);
     });
-
+ 
     dtpRender(id);
-    if (_dtp[id].date) {
-        const lbl = document.getElementById(`dtp_lbl_${id}`);
-        const val = document.getElementById(`dtp_val_${id}`);
-        if (lbl) {
-            lbl.textContent = dtpFmt(_dtp[id].date);
-            lbl.style.color = "#1e293b";
+ 
+    // Label update on init — after render
+    const lbl   = document.getElementById(`dtp_lbl_${id}`);
+    const val   = document.getElementById(`dtp_val_${id}`);
+    const endEl = document.getElementById(`dtp_end_${id}`);
+    const s     = _dtp[id];
+ 
+    if (mode === "range") {
+        // endDate load karo hidden input se
+        if (endEl && endEl.value) {
+            const ed = new Date(endEl.value);
+            ed.setHours(0, 0, 0, 0);
+            s.endDate = ed;
+        }
+        // dono set hain toh label update karo
+        if (s.date && s.endDate && lbl) {
+            lbl.textContent      = `${dtpFmt(s.date)} – ${dtpFmt(s.endDate)}`;
+            lbl.style.color      = "#1e293b";
             lbl.style.fontWeight = "500";
         }
-        if (val) val.value = dtpLocalISO(_dtp[id].date);
+    } else if (s.date && lbl) {
+        lbl.textContent      = dtpFmt(s.date);
+        lbl.style.color      = "#1e293b";
+        lbl.style.fontWeight = "500";
+        if (val) val.value   = dtpLocalISO(s.date);
     }
 }
-
+ 
 function dtpOpen(id) {
     _dtpOpen = id;
     document.getElementById(`dtp_dd_${id}`).classList.add("open");
-    document
-        .querySelectorAll(".ap-dropdown.open")
-        .forEach((d) => d.classList.remove("open"));
+    document.querySelectorAll(".ap-dropdown.open").forEach(d => d.classList.remove("open"));
     dtpRender(id);
 }
-
+ 
 function dtpClose(id) {
     document.getElementById(`dtp_dd_${id}`)?.classList.remove("open");
     if (_dtpOpen === id) _dtpOpen = null;
 }
-
+ 
 function dtpRender(id) {
-    const s = _dtp[id];
+    const s    = _dtp[id];
     const body = document.getElementById(`dtp_body_${id}`);
-    const today = dtpDateOnly(new Date());
-    const year = s.navYear;
-    const month = s.navMonth;
-    const firstDay = new Date(year, month, 1).getDay();
+    const today     = dtpDateOnly(new Date());
+    const year      = s.navYear;
+    const month     = s.navMonth;
+    const firstDay  = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const thisYear = new Date().getFullYear();
-
+    const thisYear  = new Date().getFullYear();
+ 
     const yearOpts = Array.from({ length: 7 }, (_, i) => thisYear - 1 + i)
-        .map(
-            (y) =>
-                `<option value="${y}"${y === year ? " selected" : ""}>${y}</option>`,
-        )
+        .map(y => `<option value="${y}"${y === year ? " selected" : ""}>${y}</option>`)
         .join("");
-
-    const monthOpts = MONTHS.map(
-        (m, i) =>
-            `<option value="${i}"${i === month ? " selected" : ""}>${m}</option>`,
+ 
+    const monthOpts = MONTHS.map((m, i) =>
+        `<option value="${i}"${i === month ? " selected" : ""}>${m}</option>`
     ).join("");
-
+ 
     let cells = "";
     for (let i = 0; i < firstDay; i++) cells += `<div></div>`;
     for (let d = 1; d <= daysInMonth; d++) {
-        const dt = dtpDateOnly(new Date(year, month, d));
+        const dt  = dtpDateOnly(new Date(year, month, d));
         const dis = (s.minD && dt < s.minD) || (s.maxD && dt > s.maxD);
         const isTd = dt.getTime() === today.getTime();
-        const isSl = s.date && dt.getTime() === dtpDateOnly(s.date).getTime();
-        const isEn =
-            s.endDate && dt.getTime() === dtpDateOnly(s.endDate).getTime();
-        const inRg =
-            s.mode === "range" &&
-            s.date &&
-            s.endDate &&
-            dt > dtpDateOnly(s.date) &&
-            dt < dtpDateOnly(s.endDate);
-
+        const isSl = s.date    && dt.getTime() === dtpDateOnly(s.date).getTime();
+        const isEn = s.endDate && dt.getTime() === dtpDateOnly(s.endDate).getTime();
+        const inRg = s.mode === "range" && s.date && s.endDate
+            && dt > dtpDateOnly(s.date) && dt < dtpDateOnly(s.endDate);
+ 
         let cls = "dtp-day";
-        if (dis) cls += " disabled";
+        if (dis)  cls += " disabled";
         if (isTd) cls += " today";
-        if (isSl)
-            cls +=
-                " selected" +
-                (s.mode === "range" && s.endDate ? " range-start" : "");
+        if (isSl) cls += " selected" + (s.mode === "range" && s.endDate ? " range-start" : "");
         if (isEn) cls += " selected range-end";
         if (inRg) cls += " in-range";
         cells += `<div class="${cls}" data-y="${year}" data-m="${month}" data-d="${d}">${d}</div>`;
     }
-
+ 
+    // Range hint text
+    let rangeHint = "";
+    if (s.mode === "range") {
+        if (!s.date)         rangeHint = "Select check-in date";
+        else if (!s.endDate) rangeHint = "Now select check-out date";
+        else                 rangeHint = `${dtpFmt(s.date)} – ${dtpFmt(s.endDate)}`;
+        rangeHint = `<p class="mt-2 text-xs text-center text-slate-400">${rangeHint}</p>`;
+    }
+ 
     body.innerHTML = `
     <div class="p-4">
       <div class="flex items-center justify-between mb-3 gap-2">
@@ -687,23 +639,23 @@ function dtpRender(id) {
         </button>
         <div class="flex items-center gap-1.5">
           <select class="dtp-month text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none cursor-pointer">${monthOpts}</select>
-          <select class="dtp-year  text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none cursor-pointer">${yearOpts}</select>
+          <select class="dtp-year text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none cursor-pointer">${yearOpts}</select>
         </div>
         <button type="button" class="dtp-next w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
         </button>
       </div>
       <div class="grid grid-cols-7 mb-1">
-        ${WDAYS.map((d) => `<div class="dtp-day text-xs font-bold text-slate-400 cursor-default">${d}</div>`).join("")}
+        ${WDAYS.map(d => `<div class="dtp-day text-xs font-bold text-slate-400 cursor-default">${d}</div>`).join("")}
       </div>
       <div class="grid grid-cols-7 gap-y-0.5">${cells}</div>
-      ${s.mode === "range" ? `<p class="mt-2 text-xs text-center text-slate-400">${!s.date ? "Select check-in" : !s.endDate ? "Select check-out" : `${dtpFmt(s.date)} → ${dtpFmt(s.endDate)}`}</p>` : ""}
+      ${rangeHint}
       <div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-100">
         <button type="button" class="dtp-clear btn-outline text-xs py-1.5 px-3">Clear</button>
         <button type="button" class="dtp-done btn-primary text-xs py-1.5 px-3">Done</button>
       </div>
     </div>`;
-
+ 
     body.querySelector(".dtp-prev").onclick = () => {
         s.navMonth === 0 ? ((s.navMonth = 11), s.navYear--) : s.navMonth--;
         dtpRender(id);
@@ -712,64 +664,62 @@ function dtpRender(id) {
         s.navMonth === 11 ? ((s.navMonth = 0), s.navYear++) : s.navMonth++;
         dtpRender(id);
     };
-    body.querySelector(".dtp-month").onchange = (e) => {
-        s.navMonth = +e.target.value;
-        dtpRender(id);
-    };
-    body.querySelector(".dtp-year").onchange = (e) => {
-        s.navYear = +e.target.value;
-        dtpRender(id);
-    };
-
+    body.querySelector(".dtp-month").onchange = (e) => { s.navMonth = +e.target.value; dtpRender(id); };
+    body.querySelector(".dtp-year").onchange  = (e) => { s.navYear  = +e.target.value; dtpRender(id); };
+ 
     body.querySelector(".dtp-clear").onclick = () => {
-        s.date = null;
-        s.endDate = null;
-        s.selecting = false;
-        const lbl = document.getElementById(`dtp_lbl_${id}`);
-        lbl.textContent = "Select date";
-        lbl.style.color = "#94a3b8";
-        lbl.style.fontWeight = "400";
-        document.getElementById(`dtp_val_${id}`).value = "";
-        dtpRender(id);
-    };
-
-    body.querySelector(".dtp-done").onclick = () => {
+        s.date = null; s.endDate = null; s.selecting = false;
         const lbl = document.getElementById(`dtp_lbl_${id}`);
         const val = document.getElementById(`dtp_val_${id}`);
-        let display = "";
-        if (s.mode === "range")
-            display =
-                s.date && s.endDate
-                    ? `${dtpFmt(s.date)} → ${dtpFmt(s.endDate)}`
-                    : "Select dates";
-        else display = s.date ? dtpFmt(s.date) : "Select date";
-        lbl.textContent = display;
-        lbl.style.color = s.date ? "#1e293b" : "#94a3b8";
-        lbl.style.fontWeight = s.date ? "500" : "400";
-        val.value = dtpLocalISO(s.date);
         const endVal = document.getElementById(`dtp_end_${id}`);
-        if (endVal && s.endDate) {
-            endVal.value = dtpLocalISO(s.endDate);
-        }
-        dtpClose(id);
+        lbl.textContent      = s.mode === "range" ? "Select dates" : "Select date";
+        lbl.style.color      = "#94a3b8";
+        lbl.style.fontWeight = "400";
+        if (val)    val.value    = "";
+        if (endVal) endVal.value = "";
+        dtpRender(id);
     };
-
-    body.querySelectorAll(".dtp-day[data-d]").forEach((cell) => {
+ 
+    body.querySelector(".dtp-done").onclick = () => {
+        const lbl    = document.getElementById(`dtp_lbl_${id}`);
+        const val    = document.getElementById(`dtp_val_${id}`);
+        const endVal = document.getElementById(`dtp_end_${id}`);
+ 
+        if (s.mode === "range") {
+            if (s.date && s.endDate) {
+                lbl.textContent      = `${dtpFmt(s.date)} – ${dtpFmt(s.endDate)}`;
+                lbl.style.color      = "#1e293b";
+                lbl.style.fontWeight = "500";
+                if (val)    val.value    = dtpLocalISO(s.date);
+                if (endVal) endVal.value = dtpLocalISO(s.endDate);
+                dtpClose(id);
+            } else {
+                // Dono select nahi kiye — close mat karo, hint dikhata rahega
+                return;
+            }
+        } else {
+            if (s.date) {
+                lbl.textContent      = dtpFmt(s.date);
+                lbl.style.color      = "#1e293b";
+                lbl.style.fontWeight = "500";
+                if (val) val.value   = dtpLocalISO(s.date);
+            }
+            dtpClose(id);
+        }
+    };
+ 
+    body.querySelectorAll(".dtp-day[data-d]").forEach(cell => {
         cell.onclick = () => {
-            const dt = new Date(
-                +cell.dataset.y,
-                +cell.dataset.m,
-                +cell.dataset.d,
-            );
+            const dt = new Date(+cell.dataset.y, +cell.dataset.m, +cell.dataset.d);
             if (s.mode === "range") {
                 if (!s.date || !s.selecting) {
-                    s.date = dt;
-                    s.endDate = null;
+                    s.date      = dt;
+                    s.endDate   = null;
                     s.selecting = true;
                 } else {
                     if (dt < s.date) {
                         s.endDate = s.date;
-                        s.date = dt;
+                        s.date    = dt;
                     } else {
                         s.endDate = dt;
                     }
@@ -782,18 +732,15 @@ function dtpRender(id) {
         };
     });
 }
-
+ 
 document.querySelectorAll(".dtp-field").forEach(dtpInit);
-
+ 
 document.addEventListener("click", (e) => {
     if (!e.target.isConnected) return;
     if (!e.target.closest(".ap-field"))
-        document
-            .querySelectorAll(".ap-dropdown.open")
-            .forEach((d) => d.classList.remove("open"));
+        document.querySelectorAll(".ap-dropdown.open").forEach(d => d.classList.remove("open"));
     if (!e.target.closest(".dtp-field") && _dtpOpen) dtpClose(_dtpOpen);
 });
-
 //=================== Change Trip Type Handle ====================
 
 document.querySelectorAll(".trip-tab").forEach((tab) => {

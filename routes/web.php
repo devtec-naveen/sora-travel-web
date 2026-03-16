@@ -9,6 +9,7 @@ use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\SpecialOffersController;
 use App\Http\Controllers\Frontend\AirportController;
+use App\Http\Controllers\Frontend\HotelController;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Process\Process;
 use App\Models\User;
@@ -23,8 +24,14 @@ Route::get('/', function () {
 
 
 Route::get('/flight-search',[AirportController::class,'index'])->name('front.flightSearch');
-
 Route::get('/airport-search',[AirportController::class, 'search'])->name('airport.search');
+
+
+Route::get('/hotels/suggestions', [HotelController::class, 'suggest'])->name('hotels.suggestions');
+Route::get('/hotels-search',[HotelController::class, 'search'])->name('hotels.search');
+
+
+
 
 
 

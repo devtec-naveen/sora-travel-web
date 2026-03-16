@@ -15,29 +15,31 @@ class DatePicker extends Component
     public $mode;
     public $minDate;
     public $value;
-    /**
-     * Create a new component instance.
-     */
+    public $endName;
+    public $endValue;
+
     public function __construct(
         $id,
         $name,
-        $label = 'Select Date',
+        $label       = 'Select Date',
         $placeholder = 'Select date',
-        $mode = 'date',
-        $minDate = 'today',
-        $value = null
+        $mode        = 'date',
+        $minDate     = 'today',
+        $value       = null,
+        $endName     = 'check_out',
+        $endValue    = null
     ) {
-        $this->id = $id;
-        $this->name = $name;
-        $this->label = $label;
+        $this->id          = $id;
+        $this->name        = $name;
+        $this->label       = $label;
         $this->placeholder = $placeholder;
-        $this->mode = $mode;
-        $this->minDate = $minDate;
-        $this->value = $value;
+        $this->mode        = $mode;
+        $this->minDate     = $minDate;
+        $this->value       = $value;
+        $this->endName     = $endName;
+        $this->endValue    = $endValue;
     }
-    /**
-     * Get the view / contents that represent the component.
-     */
+
     public function render(): View|Closure|string
     {
         return view('components.frontend.date-picker');
