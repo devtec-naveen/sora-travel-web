@@ -36,12 +36,6 @@ class Listing extends Component
 
     public function mount(DuffelService $duffelService)
     {
-        $tripType = request('trip_type');
-        $allowedTripTypes = config('constant.flight_trip_types');
-        if (!$tripType || !in_array($tripType, $allowedTripTypes)) {
-            return redirect()->route('home');
-        }
-
         $this->duffelService = $duffelService;
         $this->loadFlights();
     }
@@ -59,11 +53,6 @@ class Listing extends Component
 
     public function loadFlights()
     {
-        if (!$this->origin || !$this->destination || !$this->departureDate) {
-            $this->flights = [];
-            return;
-        }
-
         $duffelService = $this->duffelService ?? app(DuffelService::class);
         $requestData = [
             'origin' => $this->origin,
@@ -83,15 +72,11 @@ class Listing extends Component
         }
 
         $response = $duffelService->searchFlightsMain($requestData);
-
         $offers = $response['data']['offers'] ?? [];
-
         if ($this->sortBy) {
             $offers = $this->sortOffers($offers, $this->sortBy);
         }
-
         $this->flights = collect($offers);
-
         $this->total = count($offers);
     }
 
