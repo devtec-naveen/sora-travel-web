@@ -315,11 +315,16 @@
 
                         {{-- Cards grid --}}
                         <div id="results-wrapper" class="grid gap-1 sm:gap-4 lg:gap-6 transition-all duration-300 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
-                            @foreach($hotels as $hotel)
+                            @forelse($hotels as $hotel)
                                 <x-frontend.hotel-card :hotel="$hotel" />
-                            @endforeach
+                            @empty
+                                <div class="col-span-full flex flex-col items-center justify-center py-20 text-center text-slate-600">
+                                    <img src="{{asset('assets/images/hotel-not-found.svg')}}" alt="icon" width="100"/>
+                                    <h3 class="text-xl font-semibold mb-2 mt-3">Hotel Not Found</h3>
+                                    <p class="text-sm text-slate-500">We couldn't find any hotels matching your search criteria.</p>
+                                </div>
+                            @endforelse
                         </div>
-
                         {{-- Pagination --}}
                         <x-frontend.hotel-pagination
                             :current-page="$currentPage"

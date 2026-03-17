@@ -20,6 +20,11 @@ class HotelController extends Controller
         return view('hotel.listing');
     }
 
+    public function details(string $id)
+    {
+        return view('hotel.listing');
+    }
+
     public function suggest(Request $request)
     {
         $request->validate(['keyword' => 'required|string|max:255']);
@@ -46,30 +51,4 @@ class HotelController extends Controller
 
         return response()->json($data);
     }
- 
-    // public function search(Request $request)
-    // {
-    //     $request->validate([
-    //         'latitude'  => 'required|numeric',
-    //         'longitude' => 'required|numeric',
-    //         'check_in'  => 'required|date',
-    //         'check_out' => 'required|date|after:check_in',
-    //         'adults'    => 'integer|min:1',
-    //         'children'  => 'integer|min:0',
-    //         'rooms'     => 'integer|min:1',
-    //     ]);
-
-    //     $results = $this->hotelService->searchByLocation(
-    //         (float)$request->input('latitude'),
-    //         (float)$request->input('longitude'),
-    //         $request->input('check_in'),
-    //         $request->input('check_out'),
-    //         $request->input('adults', 1),
-    //         $request->input('children', 0),
-    //         $request->input('rooms', 1),
-    //         $request->input('radius', 10)
-    //     );
-
-    //     return response()->json($results);
-    // }
 }

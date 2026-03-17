@@ -191,7 +191,10 @@ function toggleTravelers(id) {
 }
 
 function closeTravelers(id) {
-    document.getElementById(id + "Dropdown").classList.add("hidden");
+    const dropdown = document.getElementById(id + "Dropdown");
+    if (dropdown) {
+        dropdown.classList.add("hidden");
+    }
 }
 
 function ensurePax(id) {
@@ -793,20 +796,24 @@ document.querySelectorAll(".trip-tab").forEach((tab) => {
 
 //===================== Hotel ===================
 
-const HG = { rooms: 1, adults: 1, children: 0, pets: 0 };
+const HG = {
+    rooms: parseInt(document.getElementById("hg_rooms")?.value || 1),
+    adults: parseInt(document.getElementById("hg_adults")?.value || 1),
+    children: parseInt(document.getElementById("hg_children")?.value || 0),
+};
+
 const HG_LIMITS = { rooms: [1, 9], adults: [1, 30], children: [0, 10] };
 
 function toggleHG() {
     const dd = document.getElementById("hgDropdown");
     dd.classList.toggle("hidden");
     if (!dd.classList.contains("hidden")) {
-        document
-            .querySelectorAll(".ap-dropdown.open")
-            .forEach((d) => d.classList.remove("open"));
+        document.querySelectorAll(".ap-dropdown.open").forEach(d => d.classList.remove("open"));
         if (typeof _dtpOpen !== "undefined" && _dtpOpen) dtpClose(_dtpOpen);
         if (typeof closeTravelers === "function") closeTravelers();
     }
 }
+
 function closeHG() {
     document.getElementById("hgDropdown")?.classList.add("hidden");
 }
@@ -815,43 +822,29 @@ function changeHG(type, delta) {
     const [mn, mx] = HG_LIMITS[type];
     HG[type] = Math.min(mx, Math.max(mn, HG[type] + delta));
     document.getElementById(`hg_disp_${type}`).textContent = HG[type];
-
     const minusBtn = document.getElementById(`btn_${type}_minus`);
+    const plusBtn = document.querySelector(`#btn_${type}_plus`) || null;
+
     if (minusBtn) minusBtn.disabled = HG[type] <= mn;
+    if (plusBtn) plusBtn.disabled = HG[type] >= mx;
 
-    document
-        .getElementById("hgChildNote")
-        ?.classList.toggle("hidden", HG.children === 0);
-
+    document.getElementById("hgChildNote")?.classList.toggle("hidden", HG.children === 0);
     updateHGLabel();
 }
 
-function handlePet() {
-    const checked = document.getElementById("petCheck").checked;
-    HG.pets = checked ? 1 : 0;
-    document
-        .getElementById("petCard")
-        .classList.toggle("border-blue-400", checked);
-    document
-        .getElementById("petCard")
-        .classList.toggle("bg-blue-50/50", checked);
-    document.getElementById("petPaw").style.color = checked ? "#3b82f6" : "";
-    updateHGLabel();
-}
 
 function updateHGLabel() {
     const adultWord = HG.adults === 1 ? "adult" : "adults";
     const childWord = HG.children === 1 ? "child" : "children";
     const roomWord = HG.rooms === 1 ? "room" : "rooms";
-    const petStr = HG.pets ? " · pets" : "";
 
     document.getElementById("hgLabel").textContent =
-        `${HG.adults} ${adultWord} · ${HG.children} ${childWord} · ${HG.rooms} ${roomWord}${petStr}`;
+        `${HG.adults} ${adultWord} · ${HG.children} ${childWord} · ${HG.rooms} ${roomWord}`;
 
     document.getElementById("hg_rooms").value = HG.rooms;
     document.getElementById("hg_adults").value = HG.adults;
     document.getElementById("hg_children").value = HG.children;
-    document.getElementById("hg_pets").value = HG.pets;
+
 }
 
 function applyHG() {
@@ -859,18 +852,19 @@ function applyHG() {
     closeHG();
 }
 
-// outside click close
+// Outside click to close
 document.addEventListener("click", (e) => {
     if (!e.target.closest("#hgWrapper")) closeHG();
 });
 
-const roomsBtn = document.getElementById("btn_rooms_minus");
-const adultsBtn = document.getElementById("btn_adults_minus");
-const childrenBtn = document.getElementById("btn_children_minus");
+// Initialize minus buttons properly on page load
+["rooms", "adults", "children"].forEach(type => {
+    const minusBtn = document.getElementById(`btn_${type}_minus`);
+    if (minusBtn) minusBtn.disabled = HG[type] <= HG_LIMITS[type][0];
 
-if (roomsBtn) roomsBtn.disabled = true;
-if (adultsBtn) adultsBtn.disabled = true;
-if (childrenBtn) childrenBtn.disabled = true;
+    const plusBtn = document.querySelector(`#btn_${type}_plus`);
+    if (plusBtn) plusBtn.disabled = HG[type] >= HG_LIMITS[type][1];
+});
 
 //========================== Multi City ============================================
 

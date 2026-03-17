@@ -102,7 +102,7 @@
                         <span class="font-normal text-xs text-slate-500">/night</span>
                     </div>
                 </div>
-                <a href=""
+                <a href="{{route('hotels.details',$resultId)}}"
                    class="btn btn-primary btn-sm px-4">
                     View Details
                 </a>

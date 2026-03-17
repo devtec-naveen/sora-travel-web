@@ -2,7 +2,6 @@
 
 namespace App\Services\Common\Duffel\Hotel;
 use App\Services\Common\Duffel\AuthService;
-use Illuminate\Support\Facades\Http;
 
 class DuffelHotelService
 {

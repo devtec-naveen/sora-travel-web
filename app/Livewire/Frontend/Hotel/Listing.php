@@ -4,7 +4,6 @@ namespace App\Livewire\Frontend\Hotel;
 
 use Livewire\Component;
 use App\Services\Common\Duffel\Hotel\DuffelHotelService;
-use Illuminate\Support\Collection;
 
 class Listing extends Component
 {

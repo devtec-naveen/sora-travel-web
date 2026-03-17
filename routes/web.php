@@ -29,6 +29,7 @@ Route::get('/airport-search',[AirportController::class, 'search'])->name('airpor
 
 Route::get('/hotels-search',[HotelController::class, 'index'])->name('front.hotelsSearch');
 Route::get('/hotels/suggestions', [HotelController::class, 'suggest'])->name('hotels.suggestions');
+Route::get('/hotels/details', [HotelController::class, 'details'])->name('hotels.details');
 
 
 
