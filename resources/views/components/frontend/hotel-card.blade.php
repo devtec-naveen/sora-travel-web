@@ -11,7 +11,7 @@
     $amenities     = $accommodation['amenities'] ?? [];
     $price         = $hotel['cheapest_rate_public_amount'] ?? 0;
     $currency      = $hotel['cheapest_rate_public_currency'] ?? 'USD';
-    $resultId      = $hotel['id'] ?? '';
+    $accId      = $hotel['accommodation']['id'] ?? '';
     $ratingColor = match(true) {
         $stars >= 5 => 'bg-green-600',
         $stars >= 3 => 'bg-orange-400',
@@ -102,7 +102,7 @@
                         <span class="font-normal text-xs text-slate-500">/night</span>
                     </div>
                 </div>
-                <a href="{{route('hotels.details',$resultId)}}"
+                <a href="{{route('hotels.details',['id' => $accId])}}"
                    class="btn btn-primary btn-sm px-4">
                     View Details
                 </a>

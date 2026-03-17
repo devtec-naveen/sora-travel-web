@@ -7,6 +7,8 @@ use App\Services\Common\Duffel\Hotel\DuffelHotelService;
 
 class Listing extends Component
 {
+    protected DuffelHotelService $hotelService;
+    
     public ?string $city      = null;
     public ?string $latitude  = null;
     public ?string $longitude = null;

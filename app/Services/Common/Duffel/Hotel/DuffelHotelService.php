@@ -92,4 +92,24 @@ class DuffelHotelService
         ];
     }
 
+    public function getAccommodationDetail(string $accommodationId): array
+    {
+        $response = $this->authService
+            ->hotel()
+            ->get("/accommodation/{$accommodationId}");
+
+        /** @var \Illuminate\Http\Client\Response $response */
+        if ($response->failed()) {
+            return [
+                'error'   => true,
+                'message' => $response->body(),
+            ];
+        }
+
+        return [
+            'error' => false,
+            'data'  => $response->json('data', []),
+        ];
+    }
+
 }

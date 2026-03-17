@@ -15,14 +15,25 @@ class HotelController extends Controller
         $this->hotelService = $hotelService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $searchParams = $request->only([
+            'city',
+            'latitude',
+            'longitude',
+            'check_in',
+            'check_out',
+            'rooms',
+            'adults',
+            'children'
+        ]);
+        session(['hotel_search_params' => $searchParams]);
         return view('hotel.listing');
     }
 
-    public function details(string $id)
+    public function details(string $hotelId)
     {
-        return view('hotel.listing');
+        return view('hotel.details', ['id' => $hotelId]);
     }
 
     public function suggest(Request $request)
@@ -31,8 +42,12 @@ class HotelController extends Controller
 
         $places = $this->hotelService->suggestPlaces($request->input('keyword'));
         $countryNames = [
-            'IN' => 'India', 'US' => 'United States', 'GB' => 'United Kingdom',
-            'AE' => 'UAE', 'TH' => 'Thailand', 'SG' => 'Singapore',
+            'IN' => 'India',
+            'US' => 'United States',
+            'GB' => 'United Kingdom',
+            'AE' => 'UAE',
+            'TH' => 'Thailand',
+            'SG' => 'Singapore',
         ];
 
         $data['data'] = collect($places)
