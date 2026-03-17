@@ -326,12 +326,12 @@
                             @endforelse
                         </div>
                         {{-- Pagination --}}
-                        <x-frontend.hotel-pagination
+                        {{-- <x-frontend.hotel-pagination
                             :current-page="$currentPage"
                             :total-pages="$totalPages"
                             :total="$total"
                             :per-page="$perPage"
-                        />
+                        /> --}}
                     </div>
                 </div>
             </div>

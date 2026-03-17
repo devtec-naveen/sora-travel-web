@@ -10,7 +10,9 @@ class Details extends Component
 {
     public string $accommodationId;     
     public array $hotel = [];          
-    public array $searchParams = [];    
+    public array $searchParams = [];
+    public string $price = '';         
+    public string $currency = '';          
 
     protected DuffelHotelService $hotelService;
 
@@ -19,15 +21,16 @@ class Details extends Component
         $this->hotelService      = $hotelService;
         $this->accommodationId   = $accommodationId;
         $this->searchParams = Session::get('hotel_search_params', []);
+        $allResults = collect(Session::get('hotel_all_results', []));
+        $match = $allResults->firstWhere('accommodation.id', $accommodationId);
+        $this->price    = $match['cheapest_rate_total_amount'] ?? '';
+        $this->currency = $match['cheapest_rate_base_currency'] ?? 'EUR';
         $this->fetchHotelDetails();
     }
 
     protected function fetchHotelDetails(): void
     {
         $response = $this->hotelService->getAccommodationDetail($this->accommodationId);
-
-        // dd($response);
-
         if ($response['error'] ?? false) {
             $this->hotel = [];
             session()->flash('error', $response['message'] ?? 'Unable to fetch hotel details.');
