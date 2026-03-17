@@ -15,7 +15,6 @@ class AuthService
         $this->baseUrl      = config('services.duffel.base_url');
         $this->hotelBaseUrl = config('services.duffel.hotel_base_url');
         $this->token        = config('services.duffel.token');
-        dd($this->hotelBaseUrl);
     }
 
     public function client()
