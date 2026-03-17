@@ -61,10 +61,6 @@ return [
     'duffel' => [
         'base_url' => env('DUFFEL_API_URL'),
         'token' => env('DUFFEL_TOKEN'),
-    ],
-
-    'duffelHotel' => [
-        'base_url' => env('DUFFEL_HOTELS_BASE_URL'),
-        'token' => env('DUFFEL_TOKEN'),
+        'hotel_base_url' => env('DUFFEL_HOTELS_BASE_URL')
     ],
 ];

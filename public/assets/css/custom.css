@@ -37,3 +37,63 @@ header {
    top: 0;
    z-index: 100;
 }
+
+   #results-wrapper.list-view {
+      grid-template-columns: 1fr !important;
+   }
+
+   #results-wrapper.list-view .hotel-card {
+      max-width: 100%;
+   }
+
+   @media (min-width: 640px) {
+      #results-wrapper.list-view .card-inner {
+         flex-direction: row !important;
+         align-items: stretch;
+      }
+
+      #results-wrapper.list-view .image-wrapper {
+         width: 280px !important;
+         height: auto !important;
+         min-height: 200px;
+      }
+   }
+
+   /* Grid view: allow cards to shrink on mobile */
+   #results-wrapper:not(.list-view) .hotel-card {
+      min-width: 0;
+   }
+
+   /* Mobile grid: compact layout for 2 columns */
+   @media (max-width: 639px) {
+      #results-wrapper:not(.list-view) .content-wrapper h3 {
+         font-size: 0.875rem;
+         line-height: 1.25;
+         display: -webkit-box;
+         -webkit-box-orient: vertical;
+         -webkit-line-clamp: 2;
+         overflow: hidden;
+      }
+      #results-wrapper:not(.list-view) .content-wrapper .font-bold.text-2xl {
+         font-size: 1.25rem;
+      }
+      #results-wrapper:not(.list-view) .content-wrapper .tag span {
+         font-size: 0.75rem;
+      }
+      #results-wrapper:not(.list-view) .btn.btn-sm {
+         padding-left: 0.5rem;
+         padding-right: 0.5rem;
+         font-size: 0.75rem;
+      }
+      #results-wrapper:not(.list-view) .content-wrapper .flex.justify-between.items-start.gap-4{
+         flex-direction: column-reverse;
+         gap: 0.5rem;
+      }
+      #results-wrapper:not(.list-view) .content-wrapper .flex.justify-between.items-center.mt-auto{
+         flex-direction: column;
+         gap: 0.5rem;
+      }
+      #results-wrapper:not(.list-view) .content-wrapper .flex.justify-between.items-center.mt-auto > * {
+         width: 100% !important;
+      }
+   }

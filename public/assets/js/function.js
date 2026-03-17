@@ -6,6 +6,43 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1000);
 });
 
+//======================= Grid Changes ==========================
+
+function initViewToggle() {
+    const listBtn = document.getElementById('list-view-btn');
+    const gridBtn = document.getElementById('grid-view-btn');
+    const wrapper = document.getElementById('results-wrapper');
+
+    if (!listBtn || !gridBtn || !wrapper) {
+        console.warn('View toggle elements not found');
+        return; 
+    }
+
+    function setView(view) {
+        if (view === 'list') {
+            listBtn.classList.add('active');
+            gridBtn.classList.remove('active');
+            wrapper.classList.add('list-view');
+            wrapper.classList.remove('grid-cols-2', 'sm:grid-cols-2', 'lg:grid-cols-3');
+            wrapper.classList.add('grid-cols-1');
+        } else {
+            gridBtn.classList.add('active');
+            listBtn.classList.remove('active');
+            wrapper.classList.remove('list-view', 'grid-cols-1');
+            wrapper.classList.add('grid-cols-2', 'sm:grid-cols-2', 'lg:grid-cols-3');
+        }
+    }
+
+    listBtn.addEventListener('click', () => setView('list'));
+    gridBtn.addEventListener('click', () => setView('grid'));
+
+    setView('grid');
+}
+
+document.addEventListener('DOMContentLoaded', initViewToggle);
+
+//======================= Grid Changes End ==========================
+
 document.addEventListener("DOMContentLoaded", () => {
     const icons = document.querySelectorAll("i[data-tabler]");
     icons.forEach(async (icon) => {
@@ -14,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch(url);
             if (!response.ok) {
-                console.warn(`Icon "${iconName}" load nahi ho paya.`);
+                console.warn(`Icon "${iconName}" load`);
                 return;
             }
             const svgText = await response.text();
@@ -346,11 +383,12 @@ function groupHTML(label, list, type) {
 }
  
 function optionHTML(a, type) {
+    const cityName = a.city && typeof a.city === "object" ? a.city.name : a.city;
     return `
-    <div class="ap-option" data-code="${a.code}" data-city="${a.city}" data-name="${a.name}" data-country="${a.country}" data-latitude="${a.latitude || ''}" data-longitude="${a.longitude || ''}">
+    <div class="ap-option" data-code="${a.code}" data-city="${cityName}" data-name="${a.name}" data-country="${a.country}" data-latitude="${a.latitude || ''}" data-longitude="${a.longitude || ''}">
       <div class="ap-opt-icon">${getIcon(type)}</div>
       <div class="ap-opt-body">
-        <div class="ap-opt-title">${a.city} <span class="ap-opt-code">(${a.code})</span></div>
+        <div class="ap-opt-title">${cityName} <span class="ap-opt-code">(${a.code})</span></div>
         <div class="ap-opt-sub">${a.name}</div>
       </div>
       <div class="ap-opt-cntry">${a.country}</div>
@@ -840,8 +878,9 @@ const MAX_CITIES = 5;
 let multiCityCount = window.multiTotal ? window.multiTotal : 2;
 
 function refreshButtons() {
-    const container = document.getElementById("addon-rows-container");
-    const rows = container.querySelectorAll(".addon-city-row");
+    const rows = document
+    .getElementById("addon-rows-container")
+    ?.querySelectorAll(".addon-city-row") || [];
     const maxReached = multiCityCount >= MAX_CITIES;
 
     rows.forEach((row, i) => {

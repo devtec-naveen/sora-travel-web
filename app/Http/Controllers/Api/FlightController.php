@@ -16,14 +16,9 @@ class FlightController extends Controller
         $this->duffelService = $duffelService;
     }
 
-    /**
-     * Main Flight Search
-     */
-    public function search(Request $request)
+    public function listing(Request $request)
     {
         try {
-
-            // ================= Validation =================
             $validator = Validator::make($request->all(), [
                 'origin' => 'required|string',
                 'destination' => 'required|string',
@@ -43,9 +38,7 @@ class FlightController extends Controller
                 ], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
             }
 
-            // ================= Service Call =================
             $result = $this->duffelService->searchFlightsMain($request->all());
-
             return response()->json([
                 'status' => true,
                 'message' => 'Flights fetched successfully',
@@ -53,7 +46,6 @@ class FlightController extends Controller
             ], config('constant.httpCode.SUCCESS_OK'));
 
         } catch (\Throwable $e) {
-
             return response()->json([
                 'status' => false,
                 'message' => 'Flight search failed',

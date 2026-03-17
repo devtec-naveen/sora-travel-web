@@ -56,7 +56,7 @@ class DuffelService
         /** @var \Illuminate\Http\Client\Response $response */
         $response = $this->auth
             ->client()
-            ->post($this->auth->baseUrl() . '/air/offer_requests?limit=50', $params);
+            ->post('/air/offer_requests?limit=50', $params);
 
         return $response->json();
     }
@@ -91,7 +91,7 @@ class DuffelService
         /** @var \Illuminate\Http\Client\Response $response */
         $response = $this->auth
             ->client()
-            ->post($this->auth->baseUrl() . '/air/offer_requests?limit=50', $params);
+            ->post('/air/offer_requests?limit=50', $params);
 
         return $response->json();
     }
@@ -123,7 +123,7 @@ class DuffelService
         /** @var \Illuminate\Http\Client\Response $response */
         $response = $this->auth
             ->client()
-            ->post($this->auth->baseUrl() . '/air/offer_requests?limit=50', $params);
+            ->post('/air/offer_requests?limit=50', $params);
 
         return $response->json();
     }

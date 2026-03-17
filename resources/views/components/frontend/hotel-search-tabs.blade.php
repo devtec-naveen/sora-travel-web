@@ -1,12 +1,19 @@
-<div
-    class="{{$hidden ? 'hidden' : ''}} flex flex-col justify-center gap-4 self-stretch bg-white p-2 md:p-4 rounded-xl shadow-sm border border-slate-100">
-    <form method="get" action="{{ route('hotels.search') }}" id="hotelMain">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3 w-full items-stretch">
+<div class="{{$hidden ? 'hidden' : ''}} flex flex-col justify-center gap-4 self-stretch bg-white p-2 md:p-4 rounded-xl shadow-sm border border-slate-100">
+    <form method="get" action="{{ route('front.hotelsSearch') }}" id="hotelMain">
+         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3 w-full items-stretch">
             <div class="lg:col-span-3">
-                <x-frontend.autocomplete label="Where are you going?" name="city" value="dubai" display="Dubai"
-                    placeholder="Search city…" type="hotel" icon="hotel.svg" class="h-full" latitude="25.252987" longitude="55.365035" />
+                <x-frontend.autocomplete
+                    label="Where are you going?" 
+                    name="city" value="dubai" 
+                    display="Dubai"
+                    placeholder="Search city…" 
+                    type="hotel" 
+                    icon="hotel.svg" 
+                    class="h-full" 
+                    latitude="25.252987" 
+                    longitude="55.365035"
+                 />
             </div>
-
             <div class="md:col-span-1 lg:col-span-4">
                 <x-frontend.date-picker
                     id="hotel_dates"
@@ -20,7 +27,6 @@
                     :end-value="request('check_out')"
                 />
             </div>
-
             <div class="relative lg:col-span-3" id="hgWrapper">
                 <div onclick="toggleHG()"
                     class="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200 hover:border-blue-400 transition cursor-pointer h-full">
@@ -38,17 +44,13 @@
                             room</span>
                     </div>
                 </div>
-
                 <input type="hidden" name="rooms" id="hg_rooms" value="1" />
                 <input type="hidden" name="adults" id="hg_adults" value="1" />
                 <input type="hidden" name="children" id="hg_children" value="0" />
-                <input type="hidden" name="pets" id="hg_pets" value="0" />
-
                 <div id="hgDropdown"
                     class="hidden absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 p-5"
                     onclick="event.stopPropagation()">
                     <div class="space-y-5 mb-5">
-                        {{-- Room --}}
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-semibold text-slate-800">Room</p>
                             <div class="flex items-center gap-3">
@@ -60,7 +62,6 @@
                                     class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none">+</button>
                             </div>
                         </div>
-                        {{-- Adults --}}
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-semibold text-slate-800">Adults</p>
@@ -75,7 +76,6 @@
                                     class="hg-btn w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition font-bold text-lg leading-none">+</button>
                             </div>
                         </div>
-                        {{-- Children --}}
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-semibold text-slate-800">Children</p>
@@ -97,10 +97,9 @@
                     </button>
                 </div>
             </div>
-
             <button class="btn btn-primary h-full lg:col-span-2 md:col-span-2">
                 <i data-tabler="search" class="shrink-0"></i> Search
             </button>        
-        </div>
+         </div>
     </form>
 </div>

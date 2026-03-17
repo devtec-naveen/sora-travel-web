@@ -23,7 +23,7 @@ class AirportService
         $response = $this->authService
             ->client()
             ->get(
-                $this->authService->baseUrl() . '/places/suggestions',
+                '/places/suggestions',
                 [
                     'query' => $keyword
                 ]

@@ -6,37 +6,42 @@ use Illuminate\Support\Facades\Http;
 
 class AuthService
 {
-    private $baseUrl;
-    private $token;
+    private string $baseUrl;
+    private string $hotelBaseUrl;
+    private string $token;
 
     public function __construct()
     {
-        $this->baseUrl = config('services.duffel.base_url');
-        $this->token   = config('services.duffel.token');
+        $this->baseUrl      = config('services.duffel.base_url');
+        $this->hotelBaseUrl = config('services.duffel.hotel_base_url');
+        $this->token        = config('services.duffel.token');
     }
 
-    /**
-     * Duffel HTTP Client
-     *
-     * @return \Illuminate\Http\Client\PendingRequest
-     */
     public function client()
     {
+        if (!$this->baseUrl) {
+            throw new \Exception('Duffel air base URL not configured');
+        }
+
         return Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->token,
-            'Duffel-Version' => 'v2',
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-        ]);
+            'Authorization'   => 'Bearer ' . $this->token,
+            'Duffel-Version'  => 'v2',
+            'Accept'          => 'application/json',
+            'Content-Type'    => 'application/json',
+        ])->baseUrl($this->baseUrl);
     }
 
-    /**
-     * Get Base URL
-     *
-     * @return string
-     */
-    public function baseUrl(): string
+    public function hotel()
     {
-        return $this->baseUrl;
+        if (!$this->hotelBaseUrl) {
+            throw new \Exception('Duffel hotel base URL not configured');
+        }
+
+        return Http::withHeaders([
+            'Authorization'   => 'Bearer ' . $this->token,
+            'Duffel-Version'  => 'v2',
+            'Accept'          => 'application/json',
+            'Content-Type'    => 'application/json',
+        ])->baseUrl($this->hotelBaseUrl);
     }
 }
