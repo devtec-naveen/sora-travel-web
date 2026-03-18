@@ -652,3 +652,8 @@
 #main-gallery-img {
   transition: opacity 0.2s ease;
 }
+
+.lb-wrapper-box {
+  width: 50%;
+  height: 60vh;
+}

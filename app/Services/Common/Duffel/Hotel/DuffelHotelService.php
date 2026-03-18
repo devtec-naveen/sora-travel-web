@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services\Common\Duffel\Hotel;
+
 use App\Services\Common\Duffel\AuthService;
 
 class DuffelHotelService
@@ -50,6 +51,7 @@ class DuffelHotelService
             ->values()
             ->all();
     }
+
     public function searchByLocation(
         float $latitude,
         float $longitude,
@@ -134,4 +136,46 @@ class DuffelHotelService
         ];
     }
 
+    public function fetchAllRates(string $searchResultId): array
+    {
+        $response = $this->authService
+            ->hotel()
+            ->post("/search_results/{$searchResultId}/actions/fetch_all_rates");
+
+        /** @var \Illuminate\Http\Client\Response $response */
+        if ($response->failed()) {
+            return ['error' => true, 'message' => $response->body()];
+        }
+
+        return [
+            'error' => false,
+            'data'  => $response->json('data', []),
+        ];
+    }
+
+    public function getHotelWithRooms(string $accommodationId, string $searchResultId): array
+    {
+        $detailResponse = $this->getAccommodationDetail($accommodationId);
+
+        if ($detailResponse['error'] ?? false) {
+            return [
+                'error'   => true,
+                'message' => $detailResponse['message'] ?? 'Unable to fetch hotel details.',
+            ];
+        }
+
+        $hotelData = $detailResponse['data'] ?? [];
+        if (!empty($searchResultId)) {
+            $roomsResponse = $this->fetchAllRates($searchResultId);
+
+            if (!($roomsResponse['error'] ?? false)) {
+                $hotelData['rooms'] = $roomsResponse['data']['accommodation']['rooms'] ?? [];
+            }
+        }
+
+        return [
+            'error' => false,
+            'data'  => $hotelData,
+        ];
+    }
 }

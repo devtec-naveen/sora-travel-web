@@ -112,4 +112,42 @@ class HotelController extends Controller
             ], config('constant.httpCode.INTERNAL_SERVER_ERROR'));
         }
     }
+
+    public function details(Request $request, string $accommodationId)
+    {
+        try {
+            $request->validate([
+                'search_result_id' => 'required|string',
+            ]);
+
+            $result = $this->duffelHotelService->getHotelWithRooms(
+                accommodationId: $accommodationId,
+                searchResultId:  $request->input('search_result_id'),
+            );
+
+            if ($result['error'] ?? false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'] ?? 'Unable to fetch hotel details.',
+                ], config('constant.httpCode.BAD_REQUEST'));
+            }
+
+            return response()->json([
+                'success' => true,
+                'data'    => $result['data'],
+            ], config('constant.httpCode.SUCCESS_OK'));
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->errors(),
+            ], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching hotel details.',
+            ], config('constant.httpCode.INTERNAL_SERVER_ERROR'));
+        }
+    }
 }

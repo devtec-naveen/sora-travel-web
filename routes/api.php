@@ -28,9 +28,8 @@ Route::post('/flights/search', [FlightController::class, 'listing']);
 Route::prefix('hotels')->group(function () {
     Route::get('search', [HotelController::class, 'search']);
     Route::get('listing', [HotelController::class, 'listing']);
+    Route::get('/detail/{accommodationId}', [HotelController::class, 'details']);
 });
-
-
 
 
 

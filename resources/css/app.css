@@ -12,7 +12,7 @@
 @layer components {
 
 .btn {
-  @apply flex items-center justify-center gap-1.5 rounded-lg px-5 py-3 text-sm font-medium shadow-none cursor-pointer select-none;
+  @apply h-12 px-5 py-3 text-sm font-medium bg-primary-950 rounded-lg inline-flex items-center justify-center gap-1.5 shadow-none [text-shadow:none];
 }
 
   .btn-sm{
