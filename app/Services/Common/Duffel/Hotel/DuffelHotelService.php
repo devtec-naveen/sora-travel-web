@@ -25,9 +25,31 @@ class DuffelHotelService
             return [];
         }
 
-        return $response->json('data', []);
-    }
+        $places = $response->json('data', []);
 
+        $countryNames = [
+            'IN' => 'India',
+            'US' => 'United States',
+            'GB' => 'United Kingdom',
+            'AE' => 'UAE',
+            'TH' => 'Thailand',
+            'SG' => 'Singapore',
+        ];
+
+        return collect($places)
+            ->filter(fn($place) => !empty($place['iata_city_code']) && !empty($place['city_name']))
+            ->unique('iata_city_code')
+            ->map(fn($place) => [
+                'code'      => $place['iata_city_code'],
+                'city'      => $place['city_name'],
+                'name'      => 'Hotels in ' . $place['city_name'],
+                'country'   => $countryNames[$place['iata_country_code'] ?? ''] ?? ($place['iata_country_code'] ?? ''),
+                'latitude'  => $place['latitude'] ?? null,
+                'longitude' => $place['longitude'] ?? null,
+            ])
+            ->values()
+            ->all();
+    }
     public function searchByLocation(
         float $latitude,
         float $longitude,

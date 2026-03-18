@@ -39,31 +39,8 @@ class HotelController extends Controller
     public function suggest(Request $request)
     {
         $request->validate(['keyword' => 'required|string|max:255']);
-
-        $places = $this->hotelService->suggestPlaces($request->input('keyword'));
-        $countryNames = [
-            'IN' => 'India',
-            'US' => 'United States',
-            'GB' => 'United Kingdom',
-            'AE' => 'UAE',
-            'TH' => 'Thailand',
-            'SG' => 'Singapore',
-        ];
-
-        $data['data'] = collect($places)
-            ->filter(fn($place) => !empty($place['iata_city_code']) && !empty($place['city_name']))
-            ->unique('iata_city_code')
-            ->map(fn($place) => [
-                'code'      => $place['iata_city_code'],
-                'city'      => $place['city_name'],
-                'name'      => 'Hotels in ' . $place['city_name'],
-                'country'   => $countryNames[$place['iata_country_code'] ?? ''] ?? ($place['iata_country_code'] ?? ''),
-                'latitude'  => $place['latitude'] ?? null,
-                'longitude' => $place['longitude'] ?? null,
-            ])
-            ->values()
-            ->all();
-
-        return response()->json($data);
+        return response()->json([
+            'data' => $this->hotelService->suggestPlaces($request->input('keyword'))
+        ]);
     }
 }
