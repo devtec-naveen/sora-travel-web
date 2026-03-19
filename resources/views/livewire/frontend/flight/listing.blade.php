@@ -1,6 +1,6 @@
 <div wire:init="loadFlights">
     <div wire:loading.block
-        wire:target="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters">
+        wire:target="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline">
         <div class="container_loader _newlognsecv2">
             <span class="loader"></span>
             <div class="loadtxtfl">
@@ -31,7 +31,7 @@
                 <div class="md:hidden mb-6">
                     <button id="open-filter" class="w-full btn btn-primary flex items-center justify-center gap-2">
                         <i data-tabler="adjustments-horizontal" data-size="18"></i>
-                        Filter & Sort
+                        Filter & Sort 
                     </button>
                 </div>
 
@@ -54,7 +54,7 @@
                                 <div class="flex items-center gap-4">
                                     <button wire:click="clearFilters"
                                         class="text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors uppercase">
-                                        Clear All
+                                        Clear All {{request('trip_type')}}
                                     </button>
                                     <button id="close-filter" class="md:hidden text-slate-400 hover:text-slate-950">
                                         <i data-tabler="x" data-size="22"></i>
