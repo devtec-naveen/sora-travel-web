@@ -22,7 +22,7 @@ class AirportController extends Controller
 
     public function passengers()
     {
-        return view('flight.passengers');
+        return view('flight.passengers-info');
     }
 
     public function addon()

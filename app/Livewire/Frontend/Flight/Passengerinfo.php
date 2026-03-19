@@ -112,7 +112,7 @@ class PassengerInfo extends Component
         $baseFare = $price ? round((float) $price / max(1, $this->adults + $this->children + $this->infants), 2) : 0;
         $taxes    = $price ? round((float) $price - ($baseFare * ($this->adults + $this->children + $this->infants)), 2) : 0;
 
-        return view('livewire.frontend.flight.passengers', [
+        return view('livewire.frontend.flight.passengers-info', [
             'sf'       => $sf,
             'slice'    => $slice,
             'segment'  => $segment,
