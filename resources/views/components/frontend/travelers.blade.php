@@ -1,7 +1,8 @@
+<div>
 @props([
     'id',
     'adults' => request('adults',1),
-    'children' => request('children',0),
+    'children' => request('childrens',0),
     'infants' => request('infants',0),
     'cabinClass' => request('cabin_class','Economy'),
 ])
@@ -24,7 +25,7 @@
     </div>
     <input type="hidden" name="flightType" value="{{ $id }}">
     <input type="hidden" name="adults" id="{{ $id }}_inp_adults" value="{{ $adults }}">
-    <input type="hidden" name="children" id="{{ $id }}_inp_children" value="{{ $children }}">
+    <input type="hidden" name="childrens" id="{{ $id }}_inp_children" value="{{ $children }}">
     <input type="hidden" name="infants" id="{{ $id }}_inp_infants" value="{{ $infants }}">
     <input type="hidden" name="cabin_class" id="{{ $id }}_inp_class" value="{{ $cabinClass }}">
     <div id="{{ $id }}Dropdown" class="hidden absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 p-4">
@@ -155,3 +156,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 @endpush
+</div>

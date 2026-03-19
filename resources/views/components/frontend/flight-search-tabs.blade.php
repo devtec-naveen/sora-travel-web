@@ -1,9 +1,9 @@
+<div>
 @php
     $origins = Arr::wrap(request('origin') ?? []);
     $destinations = Arr::wrap(request('destination') ?? []);
     $originCities = Arr::wrap(request('origin_city') ?? []);
     $destinationCities = Arr::wrap(request('departure_city') ?? []);
-    // dd($origins,$destinations,$originCities,$destinationCities);
     $originValue = $origins[0] ?? 'JAI';
     $originCity = $originCities[0] ?? 'Jaipur';
     $destinationValue = $destinations[0] ?? 'BLR';
@@ -227,3 +227,4 @@
 <script>
       window.multiTotal = {{$totalRows}};
 </script>
+</div>
