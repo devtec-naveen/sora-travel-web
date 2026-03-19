@@ -1,5 +1,3 @@
-import './bootstrap';
-
 /**
  * app.js — Global Application Script
  * Sections:
@@ -520,6 +518,11 @@ function apInitField(fieldEl) {
     const cityHidden = fieldEl.querySelector('.ap-city-hidden');
     const localData  = type === 'hotel' ? HOTELS : AIRPORTS;
 
+    // purana listener cleanly remove karo
+    if (fieldEl._apAbort) fieldEl._apAbort.abort();
+    fieldEl._apAbort = new AbortController();
+    const signal = fieldEl._apAbort.signal;
+
     function openDropdown() {
         document.querySelectorAll('.ap-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
         dropdown.classList.add('open');
@@ -567,9 +570,9 @@ function apInitField(fieldEl) {
         });
     }
 
-    fieldEl.addEventListener('click', e => { if (!dropdown.contains(e.target)) openDropdown(); });
-    searchInp.addEventListener('input', () => { apDebounce(() => loadResults(searchInp.value.trim()), id); });
-    dropdown.addEventListener('click', e => e.stopPropagation());
+    fieldEl.addEventListener('click', e => { if (!dropdown.contains(e.target)) openDropdown(); }, { signal });
+    searchInp.addEventListener('input', () => { apDebounce(() => loadResults(searchInp.value.trim()), id); }, { signal });
+    dropdown.addEventListener('click', e => e.stopPropagation(), { signal });
 
     // Apply default selection if data-default is present
     const defCode = fieldEl.dataset.default;
@@ -656,6 +659,11 @@ function dtpInit(fieldEl) {
     const minD = dtpParseMin(fieldEl.dataset.minDate);
     const maxD = dtpParseMin(fieldEl.dataset.maxDate);
 
+    // purana AbortController hata do — listener cleanly remove hoga
+    if (fieldEl._dtpAbort) fieldEl._dtpAbort.abort();
+    fieldEl._dtpAbort = new AbortController();
+    const signal = fieldEl._dtpAbort.signal;
+
     _dtp[id] = { mode, minD, maxD, navYear: new Date().getFullYear(), navMonth: new Date().getMonth(), date: null, endDate: null, selecting: false };
 
     const hiddenInp = document.getElementById(`dtp_val_${id}`);
@@ -677,7 +685,7 @@ function dtpInit(fieldEl) {
     fieldEl.addEventListener('click', () => {
         if (_dtpOpen && _dtpOpen !== id) dtpClose(_dtpOpen);
         _dtpOpen === id ? dtpClose(id) : dtpOpen(id);
-    });
+    }, { signal });
 
     dtpRender(id);
 
@@ -849,7 +857,13 @@ function dtpRender(id) {
  * Initialise every `.dtp-field` element on the page.
  */
 function initAllDtpFields() {
-    document.querySelectorAll('.dtp-field:not([data-dtp-init])').forEach(el => {
+    document.querySelectorAll('.dtp-field').forEach(el => {
+        const id = el.dataset.dtpId;
+        if (!id) return;
+        // already init hai aur dropdown bhi working hai — skip
+        if (el.hasAttribute('data-dtp-init') && document.getElementById('dtp_dd_' + id)) return;
+        // state reset karo
+        if (_dtp[id]) delete _dtp[id];
         el.setAttribute('data-dtp-init', '1');
         dtpInit(el);
     });
@@ -1273,3 +1287,6 @@ window.applyHG             = applyHG;
 window.addMultiCity        = addMultiCity;
 window.removeMultiCity     = removeMultiCity;
 window.refreshButtons      = refreshButtons;
+
+// ── Hero toggle ──────────────────────────────────────────────
+// window.toggleHeroSection is already set inside initHeroToggle()
