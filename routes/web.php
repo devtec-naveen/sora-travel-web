@@ -25,6 +25,10 @@ Route::get('/', function () {
 
 Route::get('/flight-search',[AirportController::class,'index'])->name('front.flightSearch');
 Route::get('/airport-search',[AirportController::class, 'search'])->name('airport.search');
+Route::get('/passengers',[AirportController::class, 'passengers'])->name('airport.passengers');
+Route::get('/addon',[AirportController::class, 'addon'])->name('airport.addon');
+
+
 
 
 Route::get('/hotels-search',[HotelController::class, 'index'])->name('front.hotelsSearch');

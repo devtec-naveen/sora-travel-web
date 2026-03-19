@@ -130,6 +130,21 @@ class Listing extends Component
         $this->dispatch('open-modal', id: 'flight_details_modal');
     }
 
+    public function proceedToPassengers(): void
+    {
+        session([
+            'selected_flight' => [
+                'flight'     => $this->selectedFlight,
+                'adults'     => $this->adults,
+                'children'   => $this->children,
+                'infants'    => $this->infants,
+                'cabinClass' => $this->cabinClass,
+            ],
+        ]);
+
+        $this->redirect(route('airport.passengers'));
+    }
+
     public function closeModal(): void
     {
         $this->selectedFlight = [];

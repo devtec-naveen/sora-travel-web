@@ -533,7 +533,7 @@
                     <span class="font-semibold text-2xl text-blue-600">{{ $sfCurrency }} {{ $sfPrice }}</span>
                     <span class="font-normal text-sm text-slate-500">Total price for all travelers</span>
                 </div>
-                <button class="btn btn-primary">Continue</button>
+                <button wire:click="proceedToPassengers" class="btn btn-primary">Continue</button>
             </div>
         </x-frontend.modal>
     </div>

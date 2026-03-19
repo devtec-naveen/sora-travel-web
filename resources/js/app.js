@@ -1,3 +1,4 @@
+import './bootstrap';
 /**
  * app.js — Global Application Script
  * Sections:
@@ -649,6 +650,13 @@ function dtpLocalISO(d) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+function dtpWireSet(val, isoValue) {
+    if (!val) return;
+    val.value = isoValue;
+    val.dispatchEvent(new Event('input',  { bubbles: true }));
+    val.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
 /**
  * Initialise a single `.dtp-field` element.
  * @param {Element} fieldEl
@@ -682,6 +690,10 @@ function dtpInit(fieldEl) {
         _dtp[id].endDate = ed;
     }
 
+    // Initially hide the dropdown
+    const ddEl = document.getElementById(`dtp_dd_${id}`);
+    if (ddEl) ddEl.style.display = 'none';
+
     fieldEl.addEventListener('click', () => {
         if (_dtpOpen && _dtpOpen !== id) dtpClose(_dtpOpen);
         _dtpOpen === id ? dtpClose(id) : dtpOpen(id);
@@ -713,7 +725,8 @@ function dtpInit(fieldEl) {
  */
 function dtpOpen(id) {
     _dtpOpen = id;
-    document.getElementById(`dtp_dd_${id}`)?.classList.add('open');
+    const dd = document.getElementById(`dtp_dd_${id}`);
+    if (dd) { dd.classList.add('open'); dd.style.display = 'block'; }
     document.querySelectorAll('.ap-dropdown.open').forEach(d => d.classList.remove('open'));
     dtpRender(id);
 }
@@ -723,7 +736,8 @@ function dtpOpen(id) {
  * @param {string} id
  */
 function dtpClose(id) {
-    document.getElementById(`dtp_dd_${id}`)?.classList.remove('open');
+    const dd = document.getElementById(`dtp_dd_${id}`);
+    if (dd) { dd.classList.remove('open'); dd.style.display = 'none'; }
     if (_dtpOpen === id) _dtpOpen = null;
 }
 
@@ -810,8 +824,8 @@ function dtpRender(id) {
         const val    = document.getElementById(`dtp_val_${id}`);
         const endVal = document.getElementById(`dtp_end_${id}`);
         if (lbl) { lbl.textContent = s.mode === 'range' ? 'Select dates' : 'Select date'; lbl.style.cssText = 'color:#94a3b8;font-weight:400;'; }
-        if (val)    val.value    = '';
-        if (endVal) endVal.value = '';
+        dtpWireSet(val,    '');
+        dtpWireSet(endVal, '');
         dtpRender(id);
     };
 
@@ -823,14 +837,13 @@ function dtpRender(id) {
         if (s.mode === 'range') {
             if (!s.date || !s.endDate) return;
             if (lbl) { lbl.textContent = `${dtpFmt(s.date)} – ${dtpFmt(s.endDate)}`; lbl.style.cssText = 'color:#1e293b;font-weight:500;'; }
-            if (val)    val.value    = dtpLocalISO(s.date);
-            if (endVal) endVal.value = dtpLocalISO(s.endDate);
+            dtpWireSet(val,    dtpLocalISO(s.date));
+            dtpWireSet(endVal, dtpLocalISO(s.endDate));
             dtpClose(id);
         } else {
-            if (s.date) {
-                if (lbl) { lbl.textContent = dtpFmt(s.date); lbl.style.cssText = 'color:#1e293b;font-weight:500;'; }
-                if (val) val.value = dtpLocalISO(s.date);
-            }
+            if (!s.date) return;
+            if (lbl) { lbl.textContent = dtpFmt(s.date); lbl.style.cssText = 'color:#1e293b;font-weight:500;'; }
+            dtpWireSet(val, dtpLocalISO(s.date));
             dtpClose(id);
         }
     };

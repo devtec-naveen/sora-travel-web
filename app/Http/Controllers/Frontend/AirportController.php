@@ -20,6 +20,16 @@ class AirportController extends Controller
         return view('flight.listing');
     }
 
+    public function passengers()
+    {
+        return view('flight.passengers');
+    }
+
+    public function addon()
+    {
+        return view('flight.addons');
+    }
+
     public function search(Request $request)
     {
         $keyword = $request->keyword;
