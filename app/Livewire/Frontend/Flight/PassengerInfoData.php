@@ -4,7 +4,7 @@ namespace App\Livewire\Frontend\Flight;
 
 use Livewire\Component;
 
-class PassengerInfo extends Component
+class PassengerInfoData extends Component
 {
     public array  $selectedFlight = [];
     public int    $adults         = 1;
