@@ -44,6 +44,12 @@ class Listing extends Component
     public function mount(DuffelService $duffelService)
     {
         $this->duffelService = $duffelService;
+        session()->forget([
+            'passenger_info',
+            'addons_info',
+            'seats_info',
+            'booking_info',
+        ]);
     }
 
     public function updatedSortBy()

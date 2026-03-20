@@ -10,68 +10,56 @@ use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\SpecialOffersController;
 use App\Http\Controllers\Frontend\AirportController;
 use App\Http\Controllers\Frontend\HotelController;
+use App\Http\Middleware\BookingSessionMiddleware;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Process\Process;
-use App\Models\User;
-use Illuminate\Support\Facades\Http;
 
-
-//==================================================== Front-End Routes ======================================= 
+//==================================================== Front Routes ======================================= 
 
 Route::get('/', function () {
     return view('index');
 })->name('home');
 
+//================================= Auth Routes ================================= 
+
+Route::post('/logout', [App\Http\Controllers\frontend\AuthController::class, 'logout'])->name('logout');
+
+
+
+//================================= Flight and Airports Routes ================================= 
 
 Route::get('/flight-search',[AirportController::class,'index'])->name('front.flightSearch');
-Route::get('/airport-search',[AirportController::class, 'search'])->name('airport.search');
-Route::get('/passengers',[AirportController::class, 'passengers'])->name('airport.passengers');
-Route::get('/addon',[AirportController::class, 'addon'])->name('airport.addon');
-
-
-
+Route::middleware([BookingSessionMiddleware::class])->group(function () {
+    Route::get('/airport-search', [AirportController::class, 'search'])->name('airport.search');
+    Route::get('/passengers',     [AirportController::class, 'passengers'])->name('airport.passengers');
+    Route::get('/addon',          [AirportController::class, 'addon'])->name('airport.addon');
+    Route::get('/seats',          [AirportController::class, 'seats'])->name('airport.seats');
+    Route::get('/review',         [AirportController::class, 'review'])->name('airport.review');
+    Route::get('/payment',        [AirportController::class, 'payment'])->name('airport.payment');
+    Route::get('/confirmation',        [AirportController::class, 'confirmation'])->name('airport.confirmation');
+});
+ 
+//================================= Hotels Routes ================================= 
 
 Route::get('/hotels-search',[HotelController::class, 'index'])->name('front.hotelsSearch');
 Route::get('/hotels/suggestions', [HotelController::class, 'suggest'])->name('hotels.suggestions');
 Route::get('/hotels/details/{id}', [HotelController::class, 'details'])->name('hotels.details');
 
-
-
-
-
-
-
-
-
+//================================= Migration Routes ================================= 
 
 
 Route::get('/clear-all', function () {
-
     Artisan::call('cache:clear');
     Artisan::call('config:clear');
     Artisan::call('route:clear');
     Artisan::call('view:clear');
     Artisan::call('optimize:clear');
-
     return "All caches cleared successfully!";
 });
 
-Route::get('/run-migration', function () {
-    $process = new Process(['php', 'artisan', 'migrate', '--force']);
-    $process->setTimeout(null);
-    $process->start();
+//==================================================== Front End Routes ======================================= 
 
-    return response()->stream(function () use ($process) {
-        foreach ($process as $type => $data) {
-            echo nl2br($data);
-            flush();
-        }
-    }, 200, [
-        "Content-Type" => "text/html",
-        "Cache-Control" => "no-cache",
-        "X-Accel-Buffering" => "no" // nginx ke liye
-    ]);
-});
+
 // Route::get('/flight-test', function () {
 
 //     $baseUrl = config('services.amadeus.base_url');

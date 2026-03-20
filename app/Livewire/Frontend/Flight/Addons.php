@@ -3,67 +3,177 @@
 namespace App\Livewire\Frontend\Flight;
 
 use Livewire\Component;
+use App\Services\Common\Duffel\DuffelService;
+use Illuminate\Support\Facades\Log;
 
 class Addons extends Component
 {
-    public array  $selectedFlight = [];
-    public array  $passengers     = [];
-    public array  $contact        = [];
-    public int    $adults         = 1;
-    public int    $children       = 0;
-    public int    $infants        = 0;
-    public string $currency       = '';
-    public float  $baseTotal      = 0;
+    public array  $selectedFlight  = [];
+    public array  $passengers      = [];
+    public array  $contact         = [];
+    public int    $adults          = 1;
+    public int    $children        = 0;
+    public int    $infants         = 0;
+    public string $currency        = '';
+    public float  $baseTotal       = 0;
 
-    public array  $baggage        = [];
-    public array  $meals          = [];
+    public array $availableServices = [];
+    public array $selectedBaggage   = [];
 
-    public array  $baggageOptions = [
-        ['label' => 'No extra baggage', 'price' => 0,  'value' => '0kg'],
-        ['label' => '5 kg',             'price' => 15, 'value' => '5kg'],
-        ['label' => '10 kg',            'price' => 25, 'value' => '10kg'],
-        ['label' => '15 kg',            'price' => 35, 'value' => '15kg'],
-    ];
-
-    public array  $mealOptions = [
-        ['label' => 'No meal',              'price' => 0,  'value' => 'none'],
-        ['label' => 'Vegetarian Meal',      'price' => 15, 'value' => 'veg'],
-        ['label' => 'Non-Vegetarian Meal',  'price' => 25, 'value' => 'non-veg'],
-        ['label' => 'Vegan Meal',           'price' => 25, 'value' => 'vegan'],
-    ];
+    public bool $noServicesAvailable = false;
+    public bool $fetchError          = false;
 
     public function mount(): void
     {
         $session = session('passenger_info', []);
 
-        $this->selectedFlight = $session['flight']      ?? [];
-        $this->passengers     = $session['passengers']  ?? [];
-        $this->contact        = $session['contact']     ?? [];
+        $this->selectedFlight = $session['flight']     ?? [];
+        $this->passengers     = $session['passengers'] ?? [];
+        $this->contact        = $session['contact']    ?? [];
         $this->adults         = (int) ($session['adults']   ?? 1);
         $this->children       = (int) ($session['children'] ?? 0);
         $this->infants        = (int) ($session['infants']  ?? 0);
 
-        $sf             = $this->selectedFlight;
-        $this->currency = $sf['total_currency'] ?? '';
-        $this->baseTotal= (float) ($sf['total_amount'] ?? 0);
+        $sf              = $this->selectedFlight;
+        $this->currency  = $sf['total_currency'] ?? '';
+        $this->baseTotal = (float) ($sf['total_amount'] ?? 0);
 
-        // Default: no extra baggage, no meal for each passenger
-        foreach ($this->passengers as $idx => $pax) {
-            $this->baggage[$idx] = '0kg';
-            $this->meals[$idx]   = 'none';
+        $offerPassengers = $sf['passengers'] ?? [];
+        $offerPaxByType  = [];
+
+        foreach ($offerPassengers as $op) {
+            $type = $op['type'] ?? 'adult';
+            $normalizedType = str_starts_with($type, 'infant') ? 'infant' : $type;
+            $offerPaxByType[$normalizedType][] = $op['id'];
         }
+
+        $typeCounters = [];
+        foreach ($this->passengers as $idx => $pax) {
+            $type = $pax['type'] ?? 'adult';
+            if ($type === 'infant') continue;
+
+            $typeCounters[$type] = ($typeCounters[$type] ?? 0);
+            $paxId = $offerPaxByType[$type][$typeCounters[$type]] ?? "pax_{$idx}";
+            $typeCounters[$type]++;
+
+            $this->passengers[$idx]['id'] = $paxId;
+            $this->selectedBaggage[$paxId] = [];
+        }
+
+        $savedAddons = session('addons_info.addons', []);
+        foreach ($savedAddons as $paxId => $addon) {
+            if (! empty($addon['baggage_service_ids'])) {
+                $this->selectedBaggage[$paxId] = $addon['baggage_service_ids'];
+            }
+        }
+
+        $offerId = $sf['id'] ?? null;
+        if ($offerId) {
+            $this->fetchServices($offerId);
+        } else {
+            $this->noServicesAvailable = true;
+        }
+    }
+
+    protected function fetchServices(string $offerId): void
+    {
+        try {
+            $duffel = app(DuffelService::class);
+            $result = $duffel->getOfferWithServices($offerId);
+
+            if ($result['error']) {
+                Log::error('Duffel getOfferWithServices error', [
+                    'offer_id' => $offerId,
+                    'error'    => $result['error'],
+                ]);
+                $this->fetchError = true;
+                return;
+            }
+
+            $this->availableServices = $result['services'];
+
+            if (! empty($result['offer'])) {
+                $this->selectedFlight = $result['offer'];
+                $paxSession = session('passenger_info', []);
+                $paxSession['flight'] = $result['offer'];
+                session(['passenger_info' => $paxSession]);
+            }
+
+            if (empty($this->availableServices)) {
+                $this->noServicesAvailable = true;
+            }
+
+        } catch (\Throwable $e) {
+            Log::error('Addons fetchServices exception: ' . $e->getMessage());
+            $this->fetchError = true;
+        }
+    }
+
+    public function getServicesForPassenger(string $passengerDuffelId): array
+    {
+        $matched = collect($this->availableServices)
+            ->filter(fn($svc) => in_array($passengerDuffelId, $svc['passenger_ids'] ?? []))
+            ->values()
+            ->toArray();
+
+        if (! empty($matched)) {
+            return $matched;
+        }
+
+        $offerPassengers = $this->selectedFlight['passengers'] ?? [];
+        $paxIndex        = null;
+
+        foreach ($offerPassengers as $idx => $offerPax) {
+            if (($offerPax['id'] ?? '') === $passengerDuffelId) {
+                $paxIndex = $idx;
+                break;
+            }
+        }
+
+        if ($paxIndex !== null && isset($offerPassengers[$paxIndex])) {
+            $offerPaxId = $offerPassengers[$paxIndex]['id'] ?? null;
+            if ($offerPaxId) {
+                $matched = collect($this->availableServices)
+                    ->filter(fn($svc) => in_array($offerPaxId, $svc['passenger_ids'] ?? []))
+                    ->values()
+                    ->toArray();
+
+                if (! empty($matched)) {
+                    return $matched;
+                }
+            }
+        }
+
+        return collect($this->availableServices)->values()->toArray();
+    }
+
+    public function toggleBaggage(string $paxId, string $serviceId): void
+    {
+        $current = $this->selectedBaggage[$paxId] ?? [];
+
+        if (in_array($serviceId, $current)) {
+            $this->selectedBaggage[$paxId] = array_values(
+                array_filter($current, fn($id) => $id !== $serviceId)
+            );
+        } else {
+            $current[] = $serviceId;
+            $this->selectedBaggage[$paxId] = $current;
+        }
+    }
+
+    public function isSelected(string $paxId, string $serviceId): bool
+    {
+        return in_array($serviceId, $this->selectedBaggage[$paxId] ?? []);
     }
 
     public function getAddonsTotal(): float
     {
-        $total = 0;
-        foreach ($this->baggage as $val) {
-            $opt = collect($this->baggageOptions)->firstWhere('value', $val);
-            $total += $opt['price'] ?? 0;
-        }
-        foreach ($this->meals as $val) {
-            $opt = collect($this->mealOptions)->firstWhere('value', $val);
-            $total += $opt['price'] ?? 0;
+        $total = 0.0;
+        foreach ($this->selectedBaggage as $serviceIds) {
+            foreach ($serviceIds as $serviceId) {
+                $svc    = $this->availableServices[$serviceId] ?? null;
+                $total += $svc ? (float) ($svc['total_amount'] ?? 0) : 0;
+            }
         }
         return $total;
     }
@@ -72,14 +182,38 @@ class Addons extends Component
     {
         $addonsTotal = $this->getAddonsTotal();
 
-        // Build selected addons per passenger
+        $servicesToBook = [];
+        foreach ($this->selectedBaggage as $serviceIds) {
+            foreach ($serviceIds as $serviceId) {
+                $servicesToBook[] = ['id' => $serviceId, 'quantity' => 1];
+            }
+        }
+
         $selectedAddons = [];
-        foreach ($this->passengers as $idx => $pax) {
-            $baggageOpt = collect($this->baggageOptions)->firstWhere('value', $this->baggage[$idx] ?? '0kg');
-            $mealOpt    = collect($this->mealOptions)->firstWhere('value', $this->meals[$idx] ?? 'none');
-            $selectedAddons[$idx] = [
-                'baggage' => $baggageOpt,
-                'meal'    => $mealOpt,
+        foreach ($this->passengers as $pax) {
+            $paxId = $pax['id'] ?? null;
+            if (! $paxId || ($pax['type'] ?? '') === 'infant') continue;
+
+            $serviceIds = $this->selectedBaggage[$paxId] ?? [];
+            $labels     = [];
+            $totalPrice = 0.0;
+            $cur        = $this->currency;
+
+            foreach ($serviceIds as $serviceId) {
+                $svc = $this->availableServices[$serviceId] ?? null;
+                if (! $svc) continue;
+                $meta     = $svc['metadata'] ?? [];
+                $labels[] = trim(($meta['maximum_weight_kg'] ?? '') . 'kg ' . ucfirst(str_replace('_', ' ', $meta['baggage_type'] ?? 'bag')));
+                $totalPrice += (float) ($svc['total_amount'] ?? 0);
+                $cur         = $svc['total_currency'] ?? $this->currency;
+            }
+
+            $selectedAddons[$paxId] = [
+                'baggage_service_ids' => $serviceIds,
+                'baggage_label'       => empty($labels) ? 'No extra baggage' : implode(', ', $labels),
+                'baggage_price'       => $totalPrice,
+                'baggage_currency'    => $cur,
+                'baggage_service_id'  => $serviceIds[0] ?? null,
             ];
         }
 
@@ -92,13 +226,14 @@ class Addons extends Component
                 'children'    => $this->children,
                 'infants'     => $this->infants,
                 'addons'      => $selectedAddons,
+                'services'    => $servicesToBook,
                 'addonsTotal' => $addonsTotal,
                 'grandTotal'  => $this->baseTotal + $addonsTotal,
                 'currency'    => $this->currency,
             ],
         ]);
 
-        $this->redirect(route('front.flight.seats'), navigate: true);
+        $this->redirect(route('airport.seats'));
     }
 
     public function render()

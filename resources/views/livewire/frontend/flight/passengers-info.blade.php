@@ -134,9 +134,9 @@
                                                         class="form-input appearance-none pr-10 @error('passengers.' . $idx . '.gender') border-red-400 @enderror"
                                                         wire:model="passengers.{{ $idx }}.gender">
                                                         <option value="" disabled>Choose</option>
-                                                        <option value="male">Male</option>
-                                                        <option value="female">Female</option>
-                                                        <option value="other">Other</option>
+                                                        <option value="m">Male</option>
+                                                        <option value="f">Female</option>
+                                                        <option value="o">Other</option>
                                                     </select>
                                                     <div
                                                         class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
@@ -151,7 +151,7 @@
                                             <div class="form-control">
                                                 <span class="form-label">Date of Birth *</span>
                                                 <div class="dtp-field relative" data-dtp-id="{{ $dobId }}"
-                                                    data-mode="date" data-max-date="today">
+                                                    data-mode="date" data-max-date="today" data-min-year="1970" data-max-year="{{ date('Y') }}">
                                                     <div
                                                         class="form-input flex items-center justify-between cursor-pointer select-none gap-2">
                                                         <span id="dtp_lbl_{{ $dobId }}"

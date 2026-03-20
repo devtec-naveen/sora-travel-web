@@ -21,13 +21,26 @@ class PassengerInfo extends Component
     {
         $session = session('selected_flight', []);
 
-        $this->selectedFlight = $session['flight']      ?? [];
+        $this->selectedFlight = $session['flight']    ?? [];
         $this->adults         = (int) ($session['adults']    ?? request('adults',   1));
         $this->children       = (int) ($session['children']  ?? request('children', 0));
         $this->infants        = (int) ($session['infants']   ?? request('infants',  0));
-        $this->cabinClass     = $session['cabinClass']   ?? request('cabin_class', 'Economy');
+        $this->cabinClass     = $session['cabinClass'] ?? request('cabin_class', 'Economy');
 
-        $this->buildPassengers();
+
+        $saved = session('passenger_info', []);
+
+        if (! empty($saved['passengers'])) {
+            $this->passengers = $saved['passengers'];
+        } else {
+            $this->buildPassengers();
+        }
+
+        if (! empty($saved['contact'])) {
+            $this->email     = $saved['contact']['email']      ?? '';
+            $this->phoneCode = $saved['contact']['phone_code'] ?? '+91';
+            $this->phone     = $saved['contact']['phone']      ?? '';
+        }
     }
 
     private function buildPassengers(): void
@@ -48,15 +61,15 @@ class PassengerInfo extends Component
     private function emptyPassenger(string $type, int $num): array
     {
         return [
-            'type'           => $type,
-            'num'            => $num,
-            'title'          => 'Mr',
-            'first_name'     => '',
-            'last_name'      => '',
-            'gender'         => '',
-            'dob'            => '',
-            'passport_no'    => '',
-            'passport_expiry'=> '',
+            'type'            => $type,
+            'num'             => $num,
+            'title'           => 'Mr',
+            'first_name'      => '',
+            'last_name'       => '',
+            'gender'          => '',
+            'dob'             => '',
+            'passport_no'     => '',
+            'passport_expiry' => '',
         ];
     }
 
@@ -103,7 +116,7 @@ class PassengerInfo extends Component
     public function render()
     {
         $sf      = $this->selectedFlight;
-        $slice   = $sf['slices'][0]    ?? [];
+        $slice   = $sf['slices'][0]      ?? [];
         $segment = $slice['segments'][0] ?? [];
 
         $price    = $sf['total_amount']   ?? '';

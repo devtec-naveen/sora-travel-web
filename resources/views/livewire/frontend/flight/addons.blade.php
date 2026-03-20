@@ -1,6 +1,5 @@
 <div>
     <main class="bg-slate-50 min-h-[800px]">
-
         <div class="booking-progress-container py-6">
             <div class="container">
                 <div class="flex items-center justify-between max-w-5xl mx-auto">
@@ -46,137 +45,181 @@
             <div class="container">
                 <div class="flex flex-col lg:flex-row gap-8 lg:items-start">
 
+                    {{-- Left: Main Content --}}
                     <div class="flex-1 flex flex-col gap-4 md:gap-9">
                         <div class="flex flex-col items-center lg:items-start gap-2.5 px-4 lg:px-0">
                             <h1 class="font-semibold text-[24px] leading-[36px] text-slate-800">Enhance Your Journey</h1>
                             <span class="font-normal text-base text-slate-500">Select optional add-ons for a better travel experience</span>
                         </div>
 
-                        <div class="flex flex-col gap-6">
-
-                            {{-- Extra Baggage --}}
-                            <div class="card overflow-hidden">
-                                <div class="flex flex-col justify-center gap-1.5 p-5 border-b border-slate-100">
-                                    <div class="flex items-center gap-3">
-                                        <i data-tabler="luggage" class="text-slate-950" data-size="24"></i>
-                                        <span class="font-semibold text-[20px] leading-[32px] text-slate-950">Extra Baggage</span>
-                                    </div>
-                                    <span class="font-normal text-sm text-slate-500">Standard baggage: 1 x 7kg cabin bag included. Add extra baggage below.</span>
+                        {{-- API Fetch Error --}}
+                        @if ($fetchError)
+                            <div class="card p-5 flex items-start gap-3 border border-red-100 bg-red-50">
+                                <i data-tabler="alert-triangle" class="text-red-500 shrink-0 mt-0.5" data-size="20"></i>
+                                <div>
+                                    <p class="font-semibold text-sm text-red-700">Unable to load add-ons</p>
+                                    <p class="text-sm text-red-500 mt-1">Could not fetch available services from the airline. You can continue without add-ons.</p>
                                 </div>
-                                <div class="p-5 lg:p-6 flex flex-col gap-8">
-                                    @foreach ($passengers as $idx => $pax)
-                                        @if ($pax['type'] !== 'infant')
+                            </div>
+
+                        @elseif ($noServicesAvailable)
+                            <div class="card p-5 flex items-start gap-3 border border-amber-100 bg-amber-50">
+                                <i data-tabler="info-circle" class="text-amber-500 shrink-0 mt-0.5" data-size="20"></i>
+                                <div>
+                                    <p class="font-semibold text-sm text-amber-700">No add-ons available</p>
+                                    <p class="text-sm text-amber-600 mt-1">This airline does not offer additional baggage or services through our platform.</p>
+                                </div>
+                            </div>
+
+                        @else
+                            <div class="flex flex-col gap-6">
+
+                                {{-- Extra Baggage --}}
+                                <div class="card overflow-hidden">
+                                    <div class="flex flex-col justify-center gap-1.5 p-5 border-b border-slate-100">
+                                        <div class="flex items-center gap-3">
+                                            <i data-tabler="luggage" class="text-slate-950" data-size="24"></i>
+                                            <span class="font-semibold text-[20px] leading-[32px] text-slate-950">Extra Baggage</span>
+                                        </div>
+                                        <span class="font-normal text-sm text-slate-500">
+                                            Select one or more baggage options for each passenger.
+                                        </span>
+                                    </div>
+
+                                    <div class="p-5 lg:p-6 flex flex-col gap-8">
+
+                                        @foreach ($passengers as $pax)
                                             @php
-                                                $typeLabel = match($pax['type']) {
-                                                    'adult' => 'Adult',
-                                                    'child' => 'Child',
-                                                    default => 'Passenger',
+                                                $paxId = $pax['id'] ?? null;
+                                                if (! $paxId || ($pax['type'] ?? '') === 'infant') continue;
+
+                                                $typeLabel   = match($pax['type'] ?? 'adult') {
+                                                    'adult'  => 'Adult',
+                                                    'child'  => 'Child',
+                                                    default  => 'Passenger',
                                                 };
+                                                $paxServices = $this->getServicesForPassenger($paxId);
+                                                $name        = trim(($pax['given_name'] ?? $pax['first_name'] ?? '') . ' ' . ($pax['family_name'] ?? $pax['last_name'] ?? '')) ?: $typeLabel;
+                                                $paxSelected = $selectedBaggage[$paxId] ?? [];
                                             @endphp
-                                            <div class="flex flex-col gap-5">
-                                                <span class="font-semibold text-lg text-slate-900">
-                                                    Passenger {{ $idx + 1 }} ({{ $typeLabel }})
-                                                </span>
-                                                <div class="flex flex-col gap-3.5">
-                                                    @foreach ($baggageOptions as $opt)
-                                                        <label class="relative cursor-pointer group">
-                                                            <input type="radio"
-                                                                name="baggage_{{ $idx }}"
-                                                                value="{{ $opt['value'] }}"
-                                                                wire:model.live="baggage.{{ $idx }}"
-                                                                class="peer sr-only"
-                                                                @if(($baggage[$idx] ?? '0kg') === $opt['value']) checked @endif />
-                                                            <div class="flex justify-between items-center p-4 rounded-2xl border border-slate-200 group-has-[:checked]:border group-has-[:checked]:border-blue-600 transition-all">
+
+                                            <div class="flex flex-col gap-4">
+
+                                                {{-- Passenger header --}}
+                                                <div class="flex items-center justify-between">
+                                                    <div class="flex items-center gap-2">
+                                                        <i data-tabler="user" class="text-slate-400 shrink-0" data-size="18"></i>
+                                                        <span class="font-semibold text-base text-slate-900">
+                                                            {{ $name }}
+                                                            <span class="font-normal text-sm text-slate-400 ml-1">({{ $typeLabel }})</span>
+                                                        </span>
+                                                    </div>
+                                                    @if (! empty($paxSelected))
+                                                        <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                                                            {{ count($paxSelected) }} selected
+                                                        </span>
+                                                    @endif
+                                                </div>
+
+                                                <div class="flex flex-col gap-3">
+
+                                                    @if (empty($paxServices))
+                                                        <div class="text-sm text-slate-400 px-1 py-3 text-center border border-dashed border-slate-200 rounded-xl">
+                                                            No additional baggage options available for this passenger.
+                                                        </div>
+                                                    @else
+                                                        @foreach ($paxServices as $svc)
+                                                            @php
+                                                                $meta        = $svc['metadata'] ?? [];
+                                                                $weightKg    = $meta['maximum_weight_kg'] ?? null;
+                                                                $bagType     = $meta['baggage_type']      ?? 'checked';
+                                                                $maxQty      = $svc['maximum_quantity']   ?? 1;
+                                                                $svcCurrency = $svc['total_currency']     ?? $currency;
+                                                                $svcAmount   = (float) ($svc['total_amount'] ?? 0);
+                                                                $svcId       = $svc['id'];
+
+                                                                $typeLabel2  = ucfirst(str_replace('_', ' ', $bagType));
+                                                                $qtyLabel    = $maxQty > 1 ? "{$maxQty}× " : '';
+                                                                $fullLabel   = trim("{$qtyLabel}" . ($weightKg ? "{$weightKg}kg " : '') . "{$typeLabel2}");
+
+                                                                $isChecked   = $this->isSelected($paxId, $svcId);
+                                                            @endphp
+
+                                                            {{-- Checkbox card --}}
+                                                            <button
+                                                                wire:key="addon-{{ $paxId }}-{{ $svcId }}"
+                                                                wire:click="toggleBaggage('{{ $paxId }}', '{{ $svcId }}')"
+                                                                type="button"
+                                                                class="w-full flex justify-between items-center p-4 rounded-2xl border transition-all text-left
+                                                                    {{ $isChecked
+                                                                        ? 'border-blue-500 bg-blue-50'
+                                                                        : 'border-slate-200 bg-white hover:border-slate-300' }}">
+
                                                                 <div class="flex items-center gap-3.5">
-                                                                    <div class="w-5 h-5 rounded-full border border-slate-300 group-has-[:checked]:border-transparent group-has-[:checked]:bg-[#f3b515] flex items-center justify-center text-white transition-colors">
-                                                                        <i data-tabler="check" class="hidden group-has-[:checked]:block" data-size="16" data-stroke="2"></i>
+                                                                    {{-- Custom checkbox --}}
+                                                                    <div class="w-5 h-5 rounded flex items-center justify-center shrink-0 border transition-all
+                                                                        {{ $isChecked
+                                                                            ? 'bg-[#f3b515] border-[#f3b515]'
+                                                                            : 'bg-white border-slate-300' }}">
+                                                                        @if ($isChecked)
+                                                                            <i data-tabler="check" class="text-white" data-size="13" data-stroke="2.5"></i>
+                                                                        @endif
                                                                     </div>
-                                                                    <span class="font-medium text-base text-slate-950">{{ $opt['label'] }}</span>
+
+                                                                    <div class="flex flex-col gap-0.5">
+                                                                        <span class="font-medium text-sm text-slate-950">{{ $fullLabel }}</span>
+                                                                        @if ($weightKg)
+                                                                            <span class="text-xs text-slate-400">Max {{ $weightKg }}kg checked baggage</span>
+                                                                        @endif
+                                                                    </div>
                                                                 </div>
-                                                                <span class="font-bold text-base text-slate-950">
-                                                                    {{ $opt['price'] > 0 ? $currency . ' ' . $opt['price'] : 'FREE' }}
-                                                                </span>
-                                                            </div>
-                                                        </label>
-                                                    @endforeach
+
+                                                                <div class="flex flex-col items-end shrink-0 ml-3">
+                                                                    <span class="font-bold text-sm {{ $isChecked ? 'text-blue-600' : 'text-slate-950' }}">
+                                                                        + {{ $svcCurrency }} {{ number_format($svcAmount, 2) }}
+                                                                    </span>
+                                                                    @if ($isChecked)
+                                                                        <span class="text-[10px] text-blue-500 font-medium mt-0.5">Added ✓</span>
+                                                                    @endif
+                                                                </div>
+                                                            </button>
+                                                        @endforeach
+                                                    @endif
                                                 </div>
                                             </div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
+                                        @endforeach
 
-                            {{-- In-Flight Meals --}}
-                            <div class="card overflow-hidden">
-                                <div class="flex flex-col justify-center gap-1.5 p-5 border-b border-slate-100">
-                                    <div class="flex items-center gap-3">
-                                        <i data-tabler="tools-kitchen-2" class="text-slate-950" data-size="24"></i>
-                                        <span class="font-semibold text-[20px] leading-[32px] text-slate-950">In-Flight Meals</span>
                                     </div>
-                                    <span class="font-normal text-sm text-slate-500">Choose from our wide variety of delicious meals served on board.</span>
                                 </div>
-                                <div class="p-5 lg:p-6 flex flex-col gap-8">
-                                    @foreach ($passengers as $idx => $pax)
-                                        @if ($pax['type'] !== 'infant')
-                                            @php
-                                                $typeLabel = match($pax['type']) {
-                                                    'adult' => 'Adult',
-                                                    'child' => 'Child',
-                                                    default => 'Passenger',
-                                                };
-                                            @endphp
-                                            <div class="flex flex-col gap-5">
-                                                <span class="font-semibold text-lg text-slate-900">
-                                                    Passenger {{ $idx + 1 }} ({{ $typeLabel }})
-                                                </span>
-                                                <div class="flex flex-col gap-3.5">
-                                                    @foreach ($mealOptions as $opt)
-                                                        <label class="relative cursor-pointer group">
-                                                            <input type="radio"
-                                                                name="meals_{{ $idx }}"
-                                                                value="{{ $opt['value'] }}"
-                                                                wire:model.live="meals.{{ $idx }}"
-                                                                class="peer sr-only"
-                                                                @if(($meals[$idx] ?? 'none') === $opt['value']) checked @endif />
-                                                            <div class="flex justify-between items-center p-4 rounded-2xl border border-slate-200 group-has-[:checked]:border group-has-[:checked]:border-blue-600 transition-all">
-                                                                <div class="flex items-center gap-3.5">
-                                                                    <div class="w-5 h-5 rounded-full border border-slate-300 group-has-[:checked]:border-transparent group-has-[:checked]:bg-[#f3b515] flex items-center justify-center text-white transition-colors">
-                                                                        <i data-tabler="check" class="hidden group-has-[:checked]:block" data-size="16" data-stroke="2"></i>
-                                                                    </div>
-                                                                    <span class="font-medium text-base text-slate-950">{{ $opt['label'] }}</span>
-                                                                </div>
-                                                                <span class="font-bold text-base text-slate-950 uppercase">
-                                                                    {{ $opt['price'] > 0 ? $currency . ' ' . $opt['price'] : 'FREE' }}
-                                                                </span>
-                                                            </div>
-                                                        </label>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        @endif
-                                    @endforeach
+
+                                {{-- Meals note --}}
+                                <div class="card p-5 flex items-start gap-3 border border-slate-100 bg-slate-50">
+                                    <i data-tabler="tools-kitchen-2" class="text-slate-400 shrink-0 mt-0.5" data-size="20"></i>
+                                    <div>
+                                        <p class="font-semibold text-sm text-slate-700">In-Flight Meals</p>
+                                        <p class="text-sm text-slate-500 mt-1">
+                                            Meal preferences are managed directly by the airline. Please contact the airline after booking to request a specific meal type.
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
 
-                        </div>
-
-                        <div class="flex flex-col items-center gap-2.5 self-stretch mt-2">
-                            <div class="flex justify-between items-center self-stretch">
-                                <button onclick="history.back()" class="btn btn-white min-w-[140px]">Back</button>
-                                <button wire:click="continue" class="btn btn-primary min-w-[140px]">
-                                    <span wire:loading.remove wire:target="continue">Continue</span>
-                                    <span wire:loading wire:target="continue" class="loading loading-spinner loading-xs"></span>
-                                </button>
                             </div>
+                        @endif
+
+                        {{-- Navigation Buttons --}}
+                        <div class="flex justify-between items-center self-stretch mt-2">
+                            <button onclick="history.back()" class="btn btn-white min-w-[140px]">Back</button>
+                            <button wire:click="continue" class="btn btn-primary min-w-[140px]">
+                                <span wire:loading.remove wire:target="continue">Continue</span>
+                                <span wire:loading wire:target="continue" class="loading loading-spinner loading-xs"></span>
+                            </button>
                         </div>
                     </div>
 
                     {{-- Right Sidebar --}}
                     <div class="w-full lg:w-[304px] shrink-0 sticky top-24">
                         <div class="flex flex-col md:gap-7 gap-2">
-                            <div class="flex flex-col gap-2.5">
-                                <h3 class="font-semibold text-[24px] leading-[36px] text-slate-800">Price details</h3>
-                            </div>
+                            <h3 class="font-semibold text-[24px] leading-[36px] text-slate-800">Price details</h3>
 
                             @if (!empty($segment))
                                 @php
@@ -228,53 +271,62 @@
                                 </div>
                             @endif
 
+                            {{-- Price Breakdown --}}
                             <div class="card p-5 space-y-4">
-                                <div class="flex justify-between items-center self-stretch">
+                                <div class="flex justify-between items-center">
                                     <span class="font-normal text-sm text-slate-950">Base Fare</span>
                                     <span class="font-normal text-sm text-slate-500">{{ $currency }} {{ number_format($baseTotal, 2) }}</span>
                                 </div>
                                 @if ($addonsTotal > 0)
-                                    <div class="flex justify-between items-center self-stretch">
-                                        <span class="font-normal text-sm text-slate-950">Add-ons</span>
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-normal text-sm text-slate-950">Extra Baggage</span>
                                         <span class="font-normal text-sm text-slate-500">{{ $currency }} {{ number_format($addonsTotal, 2) }}</span>
                                     </div>
                                 @endif
                                 <hr class="border-slate-100">
-                                <div class="flex justify-between items-center self-stretch pt-2">
+                                <div class="flex justify-between items-center pt-2">
                                     <span class="font-semibold text-lg text-slate-950">Total</span>
                                     <span class="font-bold text-xl text-slate-950">{{ $currency }} {{ number_format($grandTotal, 2) }}</span>
                                 </div>
                             </div>
 
-                            {{-- Selected addons summary --}}
-                            @php $hasAddons = collect($baggage)->contains(fn($v) => $v !== '0kg') || collect($meals)->contains(fn($v) => $v !== 'none'); @endphp
-                            @if ($hasAddons)
-                                <div class="card p-4 space-y-3">
+                            {{-- Selected Addons Summary --}}
+                            @php
+                                $hasAny = collect($selectedBaggage)->contains(fn($ids) => ! empty($ids));
+                            @endphp
+                            @if ($hasAny)
+                                <div class="card p-4 space-y-4">
                                     <h4 class="font-semibold text-sm text-slate-950">Selected Add-ons</h4>
-                                    @foreach ($passengers as $idx => $pax)
-                                        @if ($pax['type'] !== 'infant')
-                                            @php
-                                                $bag  = collect($baggageOptions)->firstWhere('value', $baggage[$idx]  ?? '0kg');
-                                                $meal = collect($mealOptions)->firstWhere('value',    $meals[$idx]    ?? 'none');
-                                            @endphp
-                                            @if (($bag['price'] ?? 0) > 0 || ($meal['price'] ?? 0) > 0)
-                                                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mt-2">
-                                                    Pax {{ $idx + 1 }}
+                                    @foreach ($passengers as $pax)
+                                        @php
+                                            $paxId     = $pax['id'] ?? null;
+                                            if (! $paxId || ($pax['type'] ?? '') === 'infant') continue;
+                                            $serviceIds = $selectedBaggage[$paxId] ?? [];
+                                            if (empty($serviceIds)) continue;
+                                            $paxName = trim(($pax['given_name'] ?? $pax['first_name'] ?? '') . ' ' . ($pax['family_name'] ?? $pax['last_name'] ?? '')) ?: 'Passenger';
+                                        @endphp
+                                        <div class="flex flex-col gap-2">
+                                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">{{ $paxName }}</span>
+                                            @foreach ($serviceIds as $serviceId)
+                                                @php
+                                                    $svc = $availableServices[$serviceId] ?? null;
+                                                    if (! $svc) continue;
+                                                    $meta    = $svc['metadata'] ?? [];
+                                                    $weight  = $meta['maximum_weight_kg'] ?? '';
+                                                    $bagType = ucfirst(str_replace('_', ' ', $meta['baggage_type'] ?? 'bag'));
+                                                    $label   = trim("{$weight}kg {$bagType}");
+                                                    $amount  = (float) ($svc['total_amount'] ?? 0);
+                                                    $cur     = $svc['total_currency'] ?? $currency;
+                                                @endphp
+                                                <div class="flex justify-between items-center text-sm">
+                                                    <div class="flex items-center gap-1.5 text-slate-700">
+                                                        <i data-tabler="luggage" class="text-blue-500 shrink-0" data-size="13"></i>
+                                                        {{ $label }}
+                                                    </div>
+                                                    <span class="font-semibold text-slate-800">{{ $cur }} {{ number_format($amount, 2) }}</span>
                                                 </div>
-                                                @if (($bag['price'] ?? 0) > 0)
-                                                    <div class="flex justify-between text-sm text-slate-700">
-                                                        <span>{{ $bag['label'] }}</span>
-                                                        <span>{{ $currency }} {{ $bag['price'] }}</span>
-                                                    </div>
-                                                @endif
-                                                @if (($meal['price'] ?? 0) > 0)
-                                                    <div class="flex justify-between text-sm text-slate-700">
-                                                        <span>{{ $meal['label'] }}</span>
-                                                        <span>{{ $currency }} {{ $meal['price'] }}</span>
-                                                    </div>
-                                                @endif
-                                            @endif
-                                        @endif
+                                            @endforeach
+                                        </div>
                                     @endforeach
                                 </div>
                             @endif

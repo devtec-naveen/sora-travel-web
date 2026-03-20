@@ -153,4 +153,86 @@ class DuffelService
 
         return $passengers;
     }
+
+    public function getOfferWithServices(string $offerId): array
+    {
+        /** @var \Illuminate\Http\Client\Response $response */
+        $response = $this->auth
+            ->client()
+            ->get("/air/offers/{$offerId}", [
+                'return_available_services' => 'true',
+            ]);
+ 
+        if ($response->failed()) {
+            return [
+                'offer'    => [],
+                'services' => [],
+                'error'    => 'Failed to fetch offer services. Status: ' . $response->status(),
+            ];
+        }
+ 
+        $offer    = $response->json('data', []);
+        $allSvcs  = $offer['available_services'] ?? [];
+ 
+        // Sirf baggage type services lo
+        $baggage  = collect($allSvcs)
+            ->filter(fn($s) => ($s['type'] ?? '') === 'baggage')
+            ->keyBy('id')
+            ->toArray();
+ 
+        return [
+            'offer'    => $offer,
+            'services' => $baggage,
+            'error'    => null,
+        ];
+    }
+
+    public function getSeatMaps(string $offerId): array
+    {
+        /** @var \Illuminate\Http\Client\Response $response */
+        $response = $this->auth->client()->get('/air/seat_maps', [
+            'offer_id' => $offerId,
+        ]);
+ 
+        if ($response->failed()) {
+            return [
+                'seat_maps' => [],
+                'error'     => 'Failed to fetch seat maps. Status: ' . $response->status(),
+            ];
+        }
+ 
+        return [
+            'seat_maps' => $response->json('data', []),
+            'error'     => null,
+        ];
+    }
+
+    public function createOrder(array $data): array
+    {
+        
+        $offerId    = $data['offer_id'];
+        $passengers = $data['passengers'];
+        $services   = $data['services']  ?? [];
+        $amount     = $data['amount'];
+        $currency   = $data['currency'];
+ 
+        $payload = [
+            'data' => [
+                'type'             => 'instant',
+                'selected_offers'  => [$offerId],
+                'passengers'       => $passengers,
+                'payments'         => [[
+                    'type'     => 'balance',
+                    'currency' => $currency,
+                    'amount'   => $amount,
+                ]],
+            ],
+        ]; 
+        if (! empty($services)) {
+            $payload['data']['services'] = $services;
+        }
+        /** @var \Illuminate\Http\Client\Response $response */
+        $response = $this->auth->client()->post('/air/orders', $payload); 
+        return $response->json();
+    }
 }

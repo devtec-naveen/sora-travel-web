@@ -30,6 +30,27 @@ class AirportController extends Controller
         return view('flight.addons');
     }
 
+    public function seats()
+    {
+        return view('flight.seats');
+    }
+
+    public function review()
+    {
+        return view('flight.review');
+    }
+
+    public function payment()
+    {
+        return view('flight.payment');
+    }
+
+    public function confirmation()
+    {
+        return view('flight.confirmation');
+    }
+
+    
     public function search(Request $request)
     {
         $keyword = $request->keyword;
