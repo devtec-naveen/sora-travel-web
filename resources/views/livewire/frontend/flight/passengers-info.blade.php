@@ -186,7 +186,7 @@
                                                 <div class="form-control">
                                                     <span class="form-label">Passport Expiry Date</span>
                                                     <div class="dtp-field relative" data-dtp-id="{{ $expId }}"
-                                                        data-mode="date" data-min-date="today">
+                                                        data-mode="date" data-min-date="{{ \Carbon\Carbon::tomorrow()->format('Y-m-d') }}">
                                                         <div
                                                             class="form-input flex items-center justify-between cursor-pointer select-none gap-2">
                                                             <span id="dtp_lbl_{{ $expId }}"
