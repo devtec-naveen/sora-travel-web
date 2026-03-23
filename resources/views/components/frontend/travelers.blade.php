@@ -2,11 +2,11 @@
 @props([
     'id',
     'adults' => request('adults',1),
-    'children' => request('childrens',0),
+    'childrens' => request('childrens',0),
     'infants' => request('infants',0),
     'cabinClass' => request('cabin_class','Economy'),
 ])
-<div class="relative" id="{{ $id }}Wrapper">
+<div class="relative" id="{{ $id }}Wrapper" wire:ignore>
     <div id="{{ $id }}Btn"
         onclick="toggleTravelers('{{ $id }}')"
         class="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200 hover:border-blue-400 transition cursor-pointer">
@@ -143,7 +143,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const id = "{{ request('flightType','FlightOneway') }}";
     const adults = {{ request('adults',1) }};
-    const children = {{ request('children',0) }};
+    const children = {{ request('childrens',0) }};
     const infants = {{ request('infants',0) }};
     initPax(id, adults, children, infants);
     document.getElementById(id + "_adults-count").textContent = adults;
