@@ -49,11 +49,10 @@ RUN npm install && npm run build
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# 🔥 REMOVE DEFAULT NGINX CONFIG (VERY IMPORTANT)
-RUN rm -f /etc/nginx/conf.d/default.conf
-
+# 🔥 REMOVE default nginx config (IMPORTANT)
+RUN rm -f /etc/nginx/sites-available/default
 # Copy your nginx config
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx.conf /etc/nginx/sites-available/default
 
 EXPOSE 80
 
