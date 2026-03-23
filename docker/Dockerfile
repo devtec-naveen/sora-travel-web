@@ -36,19 +36,23 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Copy entire project
+# Copy project
 COPY --chown=www-data:www-data . .
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
 # Install node dependencies and build assets
-RUN npm install
-RUN npm run build
+RUN npm install && npm run build
 
-# Copy nginx config
-COPY docker/nginx.conf /etc/nginx/sites-available/default
+# Fix permissions (IMPORTANT)
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+# Fix nginx config path (IMPORTANT)
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
+# Start both services (simple way)
 CMD ["sh", "-c", "php-fpm & nginx -g 'daemon off;'"]
