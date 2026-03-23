@@ -12,9 +12,9 @@ class Listing extends Component
     public $departureDate;
     public $returnDate;
     public $adults               = 1;
-    public $children             = 0;
+    public $childrens             = 0;
     public $infants              = 0;
-    public $cabinClass           = 'economy';
+    public $cabin_class           = 'economy';
     public $page                 = 1;
 
     public $flights              = [];
@@ -36,7 +36,7 @@ class Listing extends Component
 
     protected $queryString = [
         'origin', 'destination', 'departureDate', 'returnDate',
-        'adults', 'children', 'infants', 'cabinClass', 'page',
+        'adults', 'childrens', 'infants', 'cabin_class', 'page',
     ];
 
     protected $duffelService;
@@ -142,9 +142,9 @@ class Listing extends Component
             'selected_flight' => [
                 'flight'     => $this->selectedFlight,
                 'adults'     => $this->adults,
-                'children'   => $this->children,
+                'children'   => $this->childrens,
                 'infants'    => $this->infants,
-                'cabinClass' => $this->cabinClass,
+                'cabinClass' => $this->cabin_class,
             ],
         ]);
 
@@ -166,9 +166,9 @@ class Listing extends Component
 
         $requestData = [
             'adults'   => $this->adults,
-            'children' => $this->children,
+            'children' => $this->childrens,
             'infants'  => $this->infants,
-            'cabin'    => $this->cabinClass,
+            'cabin'    => $this->cabin_class,
             'limit'    => 50,
         ];
 

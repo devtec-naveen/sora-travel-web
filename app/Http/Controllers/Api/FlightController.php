@@ -21,7 +21,7 @@ class FlightController extends Controller
                 'departureDate' => 'required|date',
                 'returnDate'    => 'nullable|date',
                 'adults'        => 'nullable|integer|min:1',
-                'children'      => 'nullable|integer|min:0',
+                'childrens'      => 'nullable|integer|min:0',
                 'infants'       => 'nullable|integer|min:0',
                 'cabin'         => 'nullable|string',
                 'max_price'     => 'nullable|numeric',

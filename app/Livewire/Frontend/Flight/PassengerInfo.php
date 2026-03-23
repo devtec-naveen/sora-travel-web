@@ -23,7 +23,7 @@ class PassengerInfo extends Component
 
         $this->selectedFlight = $session['flight']    ?? [];
         $this->adults         = (int) ($session['adults']    ?? request('adults',   1));
-        $this->children       = (int) ($session['children']  ?? request('children', 0));
+        $this->children       = (int) ($session['children']  ?? request('childrens', 0));
         $this->infants        = (int) ($session['infants']   ?? request('infants',  0));
         $this->cabinClass     = $session['cabinClass'] ?? request('cabin_class', 'Economy');
 
