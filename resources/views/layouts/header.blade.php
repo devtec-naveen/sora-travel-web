@@ -120,6 +120,10 @@
     <livewire:frontend.auth.register />
 </x-frontend.modal>
 
+<x-frontend.modal id="forgot_password_modal">
+    <livewire:frontend.auth.forgot-password />
+</x-frontend.modal>
+
 <x-booking-timeout-popup />
 
 <x-logout-popup />
