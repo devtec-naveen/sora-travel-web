@@ -223,44 +223,18 @@ class Listing extends Component
 
     public function applyFilters(): void
     {
-        $stops    = is_array($this->stops)    ? $this->stops    : [];
-        $airlines = is_array($this->airlines) ? $this->airlines : [];
-
-        $offers = collect($this->allOffers)
-            ->filter(fn($o) => (float) ($o['total_amount'] ?? 0) <= $this->maxPrice);
-
-        if (!empty($stops)) {
-            $selectedStops = array_map('intval', $stops);
-            $offers = $offers->filter(function ($o) use ($selectedStops) {
-                $count      = count($o['slices'][0]['segments'] ?? []) - 1;
-                $normalized = $count >= 2 ? 2 : $count;
-                return in_array($normalized, $selectedStops, true);
-            });
-        }
-
-        if (!empty($airlines)) {
-            $offers = $offers->filter(function ($o) use ($airlines) {
-                $name = $o['slices'][0]['segments'][0]['operating_carrier']['name'] ?? '';
-                return in_array($name, $airlines, true);
-            });
-        }
-
-        if ($this->refundableOnly) {
-            $offers = $offers->filter(
-                fn($o) => (bool) ($o['conditions']['refund_before_departure']['allowed'] ?? false)
-            );
-        }
-
-        $offers = match ($this->sortBy) {
-            'price_low_high' => $offers->sortBy(fn($o)     => (float) ($o['total_amount'] ?? 0)),
-            'price_high_low' => $offers->sortByDesc(fn($o) => (float) ($o['total_amount'] ?? 0)),
-            'duration'       => $offers->sortBy(fn($o)     => $o['slices'][0]['duration'] ?? 0),
-            default          => $offers,
-        };
-
-        $this->flights = $offers->values()->toArray();
-        $this->total   = count($this->flights);
+        $duffelService = $this->duffelService ?? app(DuffelService::class); 
+        $this->flights = $duffelService->filterAndSort($this->allOffers, [
+            'max_price'  => $this->maxPrice,
+            'stops'      => is_array($this->stops)   ? $this->stops   : [],
+            'airlines'   => is_array($this->airlines) ? $this->airlines : [],
+            'refundable' => $this->refundableOnly,
+            'sort'       => $this->sortBy,
+        ]);
+ 
+        $this->total = count($this->flights);
     }
+ 
 
     public function render()
     {

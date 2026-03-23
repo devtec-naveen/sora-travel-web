@@ -13,10 +13,6 @@ class DuffelService
         $this->auth = $auth;
     }
 
-    /**
-     * Main Flight Search
-     * Automatically detects One-way, Round-trip, Multi-city
-     */
     public function searchFlightsMain(array $data): array
     {
         // Multi-city
@@ -33,9 +29,6 @@ class DuffelService
         return $this->searchOneWay($data);
     }
 
-    /**
-     * One-way Flight Search
-     */
     private function searchOneWay(array $data): array
     {
         $params = [
@@ -59,11 +52,8 @@ class DuffelService
             ->post('/air/offer_requests?limit=50', $params);
 
         return $response->json();
-    }
+    }   
 
-    /**
-     * Round-trip Flight Search
-     */
     private function searchRoundTrip(array $data): array
     {
         $slices = [
@@ -96,9 +86,6 @@ class DuffelService
         return $response->json();
     }
 
-    /**
-     * Multi-city Flight Search
-     */
     private function searchMultiCity(array $data): array
     {
         $slices = [];
@@ -128,9 +115,6 @@ class DuffelService
         return $response->json();
     }
 
-    /**
-     * Build Passenger List
-     */
     private function buildPassengers(array $data): array
     {
         $passengers = [];
@@ -235,4 +219,74 @@ class DuffelService
         $response = $this->auth->client()->post('/air/orders', $payload); 
         return $response->json();
     }
+
+    public function filterAndSort(array $offers, array $filters = []): array
+    {
+        $maxPrice      = $filters['max_price']  ?? PHP_INT_MAX;
+        $stops         = $filters['stops']      ?? [];
+        $airlines      = $filters['airlines']   ?? [];
+        $refundable    = $filters['refundable'] ?? false;
+        $sort          = $filters['sort']        ?? '';
+ 
+        $collection = collect($offers);
+ 
+        $collection = $collection->filter(
+            fn($o) => (float) ($o['total_amount'] ?? 0) <= $maxPrice
+        );
+ 
+        if (! empty($stops)) {
+            $selectedStops = array_map('intval', $stops);
+            $collection = $collection->filter(function ($o) use ($selectedStops) {
+                $count      = count($o['slices'][0]['segments'] ?? []) - 1;
+                $normalized = $count >= 2 ? 2 : $count;
+                return in_array($normalized, $selectedStops, true);
+            });
+        }
+ 
+        if (! empty($airlines)) {
+            $collection = $collection->filter(function ($o) use ($airlines) {
+                $name = $o['slices'][0]['segments'][0]['operating_carrier']['name'] ?? '';
+                return in_array($name, $airlines, true);
+            });
+        }
+ 
+        if ($refundable) {
+            $collection = $collection->filter(
+                fn($o) => (bool) ($o['conditions']['refund_before_departure']['allowed'] ?? false)
+            );
+        }
+ 
+        $collection = match ($sort) {
+            'price_low_high'  => $collection->sortBy(fn($o)     => (float) ($o['total_amount'] ?? 0)),
+            'price_high_low'  => $collection->sortByDesc(fn($o) => (float) ($o['total_amount'] ?? 0)),
+            'duration'        => $collection->sortBy(fn($o)     => $o['slices'][0]['duration'] ?? 0),
+            'depart_earliest' => $collection->sortBy(fn($o)     => $o['slices'][0]['segments'][0]['departing_at'] ?? ''),
+            'arrive_earliest' => $collection->sortBy(function ($o) {
+                $segments = $o['slices'][0]['segments'] ?? [];
+                return $segments[count($segments) - 1]['arriving_at'] ?? '';
+            }),
+            default => $collection,
+        };
+ 
+        return $collection->values()->toArray();
+    }
+
+    public function extractFilterMeta(array $offers): array
+    {
+        $prices = collect($offers)->map(fn($o) => (float) ($o['total_amount'] ?? 0))->filter();
+ 
+        $airlines = collect($offers)
+            ->map(fn($o) => $o['slices'][0]['segments'][0]['operating_carrier']['name'] ?? null)
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+ 
+        return [
+            'min_price' => (int) ($prices->min() ?? 0),
+            'max_price' => (int) ($prices->max() ?? 0),
+            'airlines'  => $airlines,
+        ];
+    }
+
 }
