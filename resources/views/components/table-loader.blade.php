@@ -12,7 +12,7 @@
     <tr class="d-none" wire:loading.class.remove="d-none">
         @for ($j = 0; $j < $columns; $j++)
             <td>
-                <div wire:loading wire:target="deleteConfirmed,nextPage, previousPage, search, sortBy, resetFilters, gotoPage" class="skeleton"></div>
+                <div wire:loading wire:target="changeStatus, deleteConfirmed,nextPage, previousPage, search, sortBy, resetFilters, gotoPage" class="skeleton"></div>
             </td>
         @endfor
     </tr>

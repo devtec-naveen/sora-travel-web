@@ -25,9 +25,15 @@ class AuthService
         return $user;
     }
 
+
     public function login(array $data): bool
     {
         if (! Auth::attempt(['email' => $data['email'], 'password' => $data['password']])) {
+            return false;
+        }
+
+        if (Auth::user()->status !== 'active') {
+            Auth::logout();
             return false;
         }
 

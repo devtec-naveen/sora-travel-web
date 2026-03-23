@@ -69,12 +69,12 @@
                         <td>{{ $offer->end_date }}</td>
                         <td>
                             @if ($offer->status === 'active')
-                                <span onclick="confirmStatusChange({{ $offer->id }})"
+                                <span onclick="confirmStatusChange({{ $offer->id }},'{{ $this->getId() }}')"
                                     class="badge badge-success statusClass">
                                     Active
                                 </span>
                             @else
-                                <span onclick="confirmStatusChange({{ $offer->id }})"
+                                <span onclick="confirmStatusChange({{ $offer->id }},'{{ $this->getId() }}')"
                                     class="badge badge-danger statusClass">
                                     Inactive
                                 </span>

@@ -45,7 +45,7 @@ function confirmDelete(id) {
     });
 }
 
-function confirmStatusChange(id) {
+function confirmStatusChange(id, componentId) {
     Swal.fire({
         title: "Change status?",
         text: "Status will be updated.",
@@ -54,7 +54,7 @@ function confirmStatusChange(id) {
         confirmButtonText: "Yes, update it!",
     }).then((result) => {
         if (result.isConfirmed) {
-            Livewire.dispatch("changeStatus", { id: id });
+            Livewire.find(componentId).call('changeStatus', id)
         }
     });
 }
