@@ -45,14 +45,17 @@ RUN composer install --no-dev --optimize-autoloader
 # Install node dependencies and build assets
 RUN npm install && npm run build
 
-# Fix permissions (IMPORTANT)
+# Fix permissions
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Fix nginx config path (IMPORTANT)
+# 🔥 REMOVE DEFAULT NGINX CONFIG (VERY IMPORTANT)
+RUN rm -f /etc/nginx/conf.d/default.conf
+
+# Copy your nginx config
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
-# Start both services (simple way)
+# Start services
 CMD ["sh", "-c", "php-fpm & nginx -g 'daemon off;'"]
