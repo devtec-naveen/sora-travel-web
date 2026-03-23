@@ -122,14 +122,14 @@
                     onchange="updateTravelersLabel('{{ $id }}')">
                 <span class="text-sm">Business</span>
             </label>
-            <label class="flex items-center gap-3 cursor-pointer">
+            {{-- <label class="flex items-center gap-3 cursor-pointer">
                 <input type="radio"
                     name="{{ $id }}_cabinClass"
                     value="First Class"
                     {{ $cabinClass == 'First Class' ? 'checked' : '' }}
                     onchange="updateTravelersLabel('{{ $id }}')">
                 <span class="text-sm">First Class</span>
-            </label>
+            </label> --}}
         </div>
         <button type="button"
             onclick="closeTravelers('{{ $id }}')"

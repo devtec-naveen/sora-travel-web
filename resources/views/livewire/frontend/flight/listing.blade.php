@@ -179,7 +179,7 @@
                             </div>
                         </div>
                         <div class="space-y-3.5">
-                            @if ($total === 0 && count($allOffers) === 0)
+                            @if ($isLoading)
                                 @for ($i = 0; $i < 2; $i++)
                                     <div class="card p-4">
                                         <div class="flex flex-col gap-3">
