@@ -12,7 +12,7 @@ class DuffelService
     {
         $this->auth = $auth;
     }
-
+    
     public function searchFlightsMain(array $data): array
     {
         // Multi-city
@@ -288,5 +288,4 @@ class DuffelService
             'airlines'  => $airlines,
         ];
     }
-
 }

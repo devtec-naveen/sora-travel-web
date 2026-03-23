@@ -22,6 +22,7 @@ Route::controller(ContentController::class)->group(function () {
 
 Route::get('/airports/search', [AirportController::class, 'search']);
 Route::post('/flights/search', [FlightController::class, 'listing']);
+Route::post('/flights/seats', [FlightController::class, 'seats']);
 
 
 
