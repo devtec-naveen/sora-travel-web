@@ -8,16 +8,6 @@
             </div>
         </div>
     </div>
-    @if ($isLoading)
-        <div>
-            <div class="container_loader _newlognsecv2">
-                <span class="loader"></span>
-                <div class="loadtxtfl">
-                    Please Wait, We are searching for the flights on this route
-                </div>
-            </div>
-        </div>
-    @endif
     <main class="bg-slate-50">
         <section class="search-panel-inner py-5 bg-gradient-to-b from-[#075fc6] to-[#0d529b]">
             <div class="container">
@@ -31,7 +21,7 @@
                 <div class="md:hidden mb-6">
                     <button id="open-filter" class="w-full btn btn-primary flex items-center justify-center gap-2">
                         <i data-tabler="adjustments-horizontal" data-size="18"></i>
-                        Filter & Sort 
+                        Filter & Sort
                     </button>
                 </div>
 
@@ -54,7 +44,7 @@
                                 <div class="flex items-center gap-4">
                                     <button wire:click="clearFilters"
                                         class="text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors uppercase">
-                                        Clear All {{request('trip_type')}}
+                                        Clear All {{ request('trip_type') }}
                                     </button>
                                     <button id="close-filter" class="md:hidden text-slate-400 hover:text-slate-950">
                                         <i data-tabler="x" data-size="22"></i>
@@ -179,7 +169,8 @@
                             </div>
                         </div>
                         <div class="space-y-3.5">
-                            @if ($isLoading)
+                            <div wire:loading.block
+                                wire:target="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline">
                                 @for ($i = 0; $i < 2; $i++)
                                     <div class="card p-4">
                                         <div class="flex flex-col gap-3">
@@ -212,8 +203,9 @@
                                         </div>
                                     </div>
                                 @endfor
-                            @elseif ($total === 0)
-                                <div class="card p-10 text-center">
+                            </div>
+                            @if ($total === 0)
+                                <div class="card p-10 text-center" wire:loading.remove>
                                     <i data-tabler="plane-off" data-size="48"
                                         class="text-slate-300 mx-auto mb-4"></i>
                                     <p class="text-slate-500 font-medium">No flights match your filters.</p>
