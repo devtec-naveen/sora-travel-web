@@ -1,126 +1,93 @@
 <?php
 
 namespace App\Services\Api;
-
-use App\Jobs\SendEmail;
 use App\Repositories\Api\AuthRepository;
-use Illuminate\Support\Facades\DB;
-use Exception;
+use App\Services\Common\Auth\AuthService as CommonAuthService;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Exception;
 
 class AuthService
 {
     protected $authRepo;
+    protected $commonAuth;
 
-    public function __construct(AuthRepository $authRepo)
+    public function __construct(AuthRepository $authRepo, CommonAuthService $commonAuth)
     {
-        $this->authRepo = $authRepo;
+        $this->authRepo   = $authRepo;
+        $this->commonAuth = $commonAuth;
     }
 
-    public function register(array $data)
+    public function sendRegisterOtp(array $data): array
     {
-        DB::beginTransaction();
-        try {
-            $userCreate = $this->authRepo->create($data);
-            $token = $userCreate->createToken('auth_token')->plainTextToken;
-            DB::commit();
-            return [
-                'user' => [
-                    'name'  => $userCreate->name,
-                    'email' => $userCreate->email,
-                ],
-                'token' => $token,
-            ];
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
+        return $this->commonAuth->sendRegisterOtp($data);
     }
 
-    public function login(array $data)
+    public function verifyAndRegister(array $data)
+    {
+        $otpResult = $this->commonAuth->verifyRegisterOtp($data['email'], $data['otp'], 'api');
+        return $otpResult;
+    }
+
+    public function login(array $data): array
     {
         try {
             $user = $this->authRepo->findByEmailAndRole($data['email'], config('constant.roleText.user'));
+
             if (!$user || !Hash::check($data['password'], $user->password)) {
-                throw new Exception('Invalid credentials');
+                return [
+                    'status'  => false,
+                    'message' => 'Invalid credentials.',
+                ];
             }
+
+            if ($user->status !== 'active') {
+                return [
+                    'status'  => false,
+                    'message' => 'Your account is not active.',
+                ];
+            }
+
             $token = $user->createToken('auth_token')->plainTextToken;
+
             return [
-                'user' => $user->only(['name', 'email', 'role']),
-                'token' => $token,
+                'status'  => true,
+                'message' => 'Login successful.',
+                'user'    => $user->only(['name', 'email', 'role']),
+                'token'   => $token,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
     }
 
-    public function logout($user)
+    public function logout($user): array
     {
         try {
             if (!$user) {
-                throw new Exception('User not authenticated');
+                return [
+                    'status'  => false,
+                    'message' => 'User not authenticated.',
+                ];
             }
+
             $user->currentAccessToken()->delete();
-            return true;
+
+            return [
+                'status'  => true,
+                'message' => 'Logged out successfully.',
+            ];
         } catch (Exception $e) {
             throw $e;
         }
     }
 
-
-    public function forgotPassword(array $data)
+    public function forgotPassword(array $data): array
     {
-        try {
+        return $this->commonAuth->forgotPassword($data);
+    }
 
-            //===================== Check User Email =================
-            $user = $this->authRepo->findByEmailAndRole($data['email'], config('constant.roleText.user'));
-            if (!$user) {
-                return [
-                    'status' => false,
-                    'message' => 'Invalid email address.'
-                ];
-            }
-
-            //===================== Check Email Template =================
-            $emailTemplate = $this->authRepo->findBySlugEmailTemplate('forgot-password');
-            if (!$emailTemplate) {
-                return [
-                    'status' => false,
-                    'message' => 'Email template not found.'
-                ];
-            }
-
-            $plainToken = Str::random(64);
-            DB::table('password_reset_tokens')->updateOrInsert(
-                ['email' => $user->email],
-                [
-                    'token' => Hash::make($plainToken),
-                    'created_at' => now()
-                ]
-            );
-            $resetUrl = config('app.url') . '/reset-password?token=' . $plainToken . '&email=' . urlencode($user->email);
-            $expireMinutes = config('mail.expire_time', 60);
-            $replaceVaribale =    [
-                'name' => $user->name,
-                'reset_url' => $resetUrl,
-                'app_name' => config('app.name'),
-                'expire_time' => $expireMinutes,
-            ];
-
-            //===================== Send Email Process =================
-            SendEmail::dispatch(
-                $user->email,
-                $emailTemplate->subject,
-                $emailTemplate->body,
-                $replaceVaribale
-            );
-
-            return [
-                'status' => true,
-                'message' => 'Password reset link sent successfully.'
-            ];
-        } catch (Exception $e) {
-            throw $e;
-        }
+    public function verifyRegisterOtp(string $email, string $enteredOtp): array
+    {
+        return $this->commonAuth->verifyRegisterOtp($email, $enteredOtp);
     }
 }

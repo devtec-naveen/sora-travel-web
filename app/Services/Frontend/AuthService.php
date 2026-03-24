@@ -10,6 +10,7 @@ class AuthService
 {
     public function register(array $data): User
     {
+        dd($data);
         $user = User::create([
             'name'         => $data['name'],
             'email'        => $data['email'],
@@ -24,8 +25,7 @@ class AuthService
 
         return $user;
     }
-
-
+    
     public function login(array $data): bool
     {
         if (! Auth::attempt(['email' => $data['email'], 'password' => $data['password']])) {

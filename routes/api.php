@@ -9,7 +9,8 @@ use App\Http\Controllers\Api\FlightController;
 use App\Http\Controllers\Api\HotelController;
 
 Route::controller(AuthController::class)->group(function () {
-    Route::post('/register', 'register');
+    Route::post('/send-otp', 'sendRegisterOtp');
+    Route::post('/verify-otp', 'verifyAndRegister');
     Route::post('/login', 'login');
     Route::post('/forgot-password', 'forgotPassword');
 });

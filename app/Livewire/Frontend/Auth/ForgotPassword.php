@@ -3,7 +3,7 @@
 namespace App\Livewire\Frontend\Auth;
 
 use Livewire\Component;
-use App\Services\Api\AuthService;
+use App\Services\Common\Auth\AuthService;
 
 class ForgotPassword extends Component
 {
@@ -18,20 +18,21 @@ class ForgotPassword extends Component
         'email.email'    => 'Enter a valid email.',
     ];
 
-    public function sendResetLink(AuthService $authService)
+    public function sendResetLink(AuthService $authService): void
     {
         $this->validate();
 
-        $response = $authService->forgotPassword([
-            'email' => $this->email
+        $result = $authService->forgotPassword([
+            'email' => $this->email,
         ]);
 
-        if ($response['status']) {
-            $this->dispatch('auth-success', message: $response['message']);
-            $this->reset('email');
-        } else {
-            $this->addError('email', $response['message']);
+        if (!$result['status']) {
+            $this->addError('email', $result['message']);
+            return;
         }
+
+        $this->reset('email');
+        $this->dispatch('auth-success', message: $result['message']);
     }
 
     public function render()

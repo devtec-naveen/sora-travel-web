@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Validation\ValidationException;
 
-
 class AuthController extends Controller
 {
     use ApiResponse;
@@ -21,22 +20,66 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
-    public function register(Request $request)
+    public function sendRegisterOtp(Request $request)
     {
         try {
             $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required|string|min:6|same:confirm_password',
-                'confirm_password' => 'required|string|min:6',
-                'tc' => 'required|accepted'
+                'name'             => 'required|string|min:2|max:100',
+                'email'            => 'required|email',
+                'password'         => 'required|min:8|same:confirm_password',
+                'confirm_password' => 'required',
+                'phone_number'     => 'nullable|string|min:7|max:15',
+                'tc'               => 'accepted',
             ], [
-                'tc.required' => 'You must accept the Terms & Conditions.',
                 'tc.accepted' => 'You must accept the Terms & Conditions.',
             ]);
 
-            $result = $this->authService->register($request->all());
-            return $this->success('User registered successfully', $result, config('constant.httpCode.SUCCESS_CREATED'));
+            $result = $this->authService->sendRegisterOtp([
+                'name'         => $request->name,
+                'email'        => $request->email,
+                'password'     => $request->password,
+                'phone_number' => $request->phone_number,
+                'tc'           => $request->tc,
+            ]);
+
+            if (!$result['status']) {
+                return $this->error($result['message'], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+            }
+
+            return $this->success('OTP sent successfully.', [], config('constant.httpCode.SUCCESS_OK'));
+
+        } catch (ValidationException $e) {
+            return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+        } catch (Exception $e) {
+            return $this->error($e->getMessage(), config('constant.httpCode.INTERNAL_SERVER_ERROR'));
+        }
+    }
+
+    public function verifyAndRegister(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'otp'   => 'required|string|size:6',
+            ], [
+                'otp.size' => 'OTP must be exactly 6 digits.',
+            ]);
+
+            $result = $this->authService->verifyAndRegister([
+                'email' => $request->email,
+                'otp'   => $request->otp,
+            ]);
+
+            if (!$result['status']) {
+                return $this->error($result['message'], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+            }
+
+            return $this->success(
+                'User registered successfully.',
+                $result,
+                config('constant.httpCode.SUCCESS_CREATED')
+            );
+
         } catch (ValidationException $e) {
             return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
         } catch (Exception $e) {
@@ -48,12 +91,17 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'email' => 'required|email',
+                'email'    => 'required|email',
                 'password' => 'required',
             ]);
 
-            $result = $this->authService->login($request->all());
-            return $this->success('Login successfully', $result, config('constant.httpCode.SUCCESS_OK'));
+            $result = $this->authService->login($request->only(['email', 'password']));
+
+            if (!$result['status']) {
+                return $this->error($result['message'], config('constant.httpCode.UNAUTHORIZED'));
+            }
+
+            return $this->success('Login successfully.', $result, config('constant.httpCode.SUCCESS_OK'));
         } catch (ValidationException $e) {
             return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
         } catch (Exception $e) {
@@ -64,8 +112,8 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
-            $this->authService->logout($request->user());
-            return $this->success('Logged out successfully', [], config('constant.httpCode.SUCCESS_OK'));
+            $result = $this->authService->logout($request->user());
+            return $this->success('Logged out successfully.', [], config('constant.httpCode.SUCCESS_OK'));
         } catch (Exception $e) {
             return $this->error($e->getMessage(), config('constant.httpCode.UNAUTHORIZED'));
         }
@@ -78,9 +126,13 @@ class AuthController extends Controller
                 'email' => 'required|email',
             ]);
 
-            $result = $this->authService->forgotPassword($request->all());
-            return $this->success('If your email exists, a password reset link has been sent.', $result, config('constant.httpCode.SUCCESS_OK'));
+            $result = $this->authService->forgotPassword($request->only(['email']));
 
+            if (!$result['status']) {
+                return $this->error($result['message'], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+            }
+
+            return $this->success('If your email exists, a password reset link has been sent.', [], config('constant.httpCode.SUCCESS_OK'));
         } catch (ValidationException $e) {
             return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
         } catch (Exception $e) {

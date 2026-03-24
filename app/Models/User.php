@@ -25,6 +25,9 @@ class User extends Authenticatable
         'phone_number',
         'tc',
         'fcm_token',
+        'otp',
+        'status',
+        'otp_expires_at'
     ];
 
     /**

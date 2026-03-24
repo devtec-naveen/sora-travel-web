@@ -3,7 +3,7 @@
 namespace App\Livewire\Frontend\Auth;
 
 use Livewire\Component;
-use App\Services\Frontend\AuthService;
+use App\Services\Common\Auth\AuthService;
 
 class Login extends Component
 {
@@ -26,8 +26,14 @@ class Login extends Component
     {
         $this->validate();
 
-        if (! $auth->login(['email' => $this->email, 'password' => $this->password])) {
-            $this->addError('email', 'Invalid email or password.');
+        $result = $auth->login([
+            'email'    => $this->email,
+            'password' => $this->password,
+            'guard'    => 'web',
+        ]);
+
+        if (!$result['status']) {
+            $this->addError('email', $result['message']);
             return;
         }
 
