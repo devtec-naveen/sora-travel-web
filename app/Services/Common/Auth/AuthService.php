@@ -64,7 +64,6 @@ class AuthService
         $user = $this->authRepo->findByEmail($email);
 
         if (!$user) {
-            Log::warning('OTP verification failed - user not found', ['email' => $email]);
             return [
                 'status'  => false,
                 'message' => 'Invalid request.',
@@ -72,10 +71,6 @@ class AuthService
         }
 
         if ($user->status === 'active') {
-            Log::warning('OTP verification failed - user already active', [
-                'email'  => $email,
-                'userId' => $user->id,
-            ]);
             return [
                 'status'  => false,
                 'message' => 'Invalid request.',
@@ -83,10 +78,6 @@ class AuthService
         }
 
         if (!$user->otp || !$user->otp_expires_at) {
-            Log::warning('OTP verification failed - OTP not found in DB', [
-                'email'  => $email,
-                'userId' => $user->id,
-            ]);
             return [
                 'status'  => false,
                 'message' => 'OTP not found. Please request a new one.',
@@ -94,11 +85,6 @@ class AuthService
         }
 
         if (now()->isAfter($user->otp_expires_at)) {
-            Log::warning('OTP verification failed - OTP expired', [
-                'email'          => $email,
-                'userId'         => $user->id,
-                'otp_expires_at' => $user->otp_expires_at,
-            ]);
             return [
                 'status'  => false,
                 'message' => 'OTP has expired. Please request a new one.',
@@ -106,10 +92,6 @@ class AuthService
         }
 
         if ($enteredOtp !== $user->otp) {
-            Log::warning('OTP verification failed - invalid OTP entered', [
-                'email'  => $email,
-                'userId' => $user->id,
-            ]);
             return [
                 'status'  => false,
                 'message' => 'Invalid OTP. Please try again.',
@@ -120,19 +102,8 @@ class AuthService
         try {
             $user = $this->authRepo->activateUser($user);
             DB::commit();
-
-            Log::info('OTP verification successful - user activated', [
-                'email'  => $email,
-                'userId' => $user->id,
-                'guard'  => $guard,
-            ]);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('OTP activation failed - DB rollback', [
-                'email'   => $email,
-                'message' => $e->getMessage(),
-                'trace'   => $e->getTraceAsString(),
-            ]);
             throw $e;
         }
 
