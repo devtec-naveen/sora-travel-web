@@ -10,4 +10,3 @@ services:
       - "20007:80"
     volumes:
       - ./:/var/www
-      - /var/www/sorah-travel.devtechnosys.tech/public_html/public/uploads:/var/www/public/uploads
