@@ -33,13 +33,13 @@ class AuthRepository
 
         if ($user) {
             $user->update([
-                'name'         => $data['name'],
-                'password'     => Hash::make($data['password']),
-                'phone_number' => $data['phone_number'] ?? null,
-                'tc'           => $data['tc'] ?? false,
-                'otp'          => $otp,
+                'name'           => $data['name'],
+                'password'       => Hash::make($data['password']),
+                'phone_number'   => $data['phone_number'] ?? null,
+                'tc'             => $data['tc'] ?? false,
+                'otp'            => $otp,
                 'otp_expires_at' => now()->addMinutes($expireTime),
-                'status'       => 'inactive',
+                'status'         => 'inactive',
             ]);
         } else {
             $user = User::create([
@@ -66,6 +66,28 @@ class AuthRepository
         ]);
 
         return $user->fresh();
+    }
+
+    public function generateAndSaveOtp(User $user): User
+    {
+        $expireTime = config('mail.otp_expire_time', 10);
+        $otp        = (string) random_int(100000, 999999);
+
+        $user->update([
+            'otp'            => $otp,
+            'otp_expires_at' => now()->addMinutes($expireTime),
+        ]);
+
+        return $user->fresh();
+    }
+
+    public function updatePasswordAndClearOtp(User $user, string $password): void
+    {
+        $user->update([
+            'password'       => Hash::make($password),
+            'otp'            => null,
+            'otp_expires_at' => null,
+        ]);
     }
 
     public function findEmailTemplate(string $slug): ?object

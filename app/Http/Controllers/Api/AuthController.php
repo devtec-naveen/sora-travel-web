@@ -132,7 +132,65 @@ class AuthController extends Controller
                 return $this->error($result['message'], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
             }
 
-            return $this->success('If your email exists, a password reset link has been sent.', [], config('constant.httpCode.SUCCESS_OK'));
+            return $this->success('OTP sent successfully.', [], config('constant.httpCode.SUCCESS_OK'));
+        } catch (ValidationException $e) {
+            return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+        } catch (Exception $e) {
+            return $this->error($e->getMessage(), config('constant.httpCode.INTERNAL_SERVER_ERROR'));
+        }
+    }
+
+    public function verifyForgotOtp(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'otp'   => 'required|string|size:6',
+            ], [
+                'otp.size' => 'OTP must be exactly 6 digits.',
+            ]);
+
+            $result = $this->authService->verifyForgotOtp([
+                'email' => $request->email,
+                'otp'   => $request->otp,
+            ]);
+
+            if (!$result['status']) {
+                return $this->error($result['message'], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+            }
+
+            return $this->success('OTP verified successfully.', [], config('constant.httpCode.SUCCESS_OK'));
+        } catch (ValidationException $e) {
+            return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+        } catch (Exception $e) {
+            return $this->error($e->getMessage(), config('constant.httpCode.INTERNAL_SERVER_ERROR'));
+        }
+    }
+
+    public function resetPasswordWithOtp(Request $request)
+    {
+        try {
+            $request->validate([
+                'email'            => 'required|email',
+                'otp'              => 'required|string|size:6',
+                'password'         => 'required|min:8|same:confirm_password',
+                'confirm_password' => 'required',
+            ], [
+                'otp.size'        => 'OTP must be exactly 6 digits.',
+                'password.same'   => 'Passwords do not match.',
+            ]);
+
+            $result = $this->authService->resetPasswordWithOtp([
+                'email'    => $request->email,
+                'otp'      => $request->otp,
+                'password' => $request->password,
+            ]);
+
+            if (!$result['status']) {
+                return $this->error($result['message'], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+            }
+
+            return $this->success('Password reset successfully.', [], config('constant.httpCode.SUCCESS_OK'));
         } catch (ValidationException $e) {
             return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
         } catch (Exception $e) {

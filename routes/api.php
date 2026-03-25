@@ -12,7 +12,9 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/send-otp', 'sendRegisterOtp');
     Route::post('/verify-otp', 'verifyAndRegister');
     Route::post('/login', 'login');
-    Route::post('/forgot-password', 'forgotPassword');
+    Route::post('/forgot-password',   'forgotPassword');
+    Route::post('/verify-forgot-otp', 'verifyForgotOtp');
+    Route::post('/reset-password',    'resetPasswordWithOtp');
 });
 
 Route::controller(ContentController::class)->group(function () {
