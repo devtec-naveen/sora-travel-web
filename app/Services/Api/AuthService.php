@@ -90,4 +90,14 @@ class AuthService
     {
         return $this->commonAuth->verifyRegisterOtp($email, $enteredOtp);
     }
+
+    public function verifyForgotOtp(array $data): array
+    {
+        return $this->commonAuth->verifyForgotOtp($data);
+    }
+ 
+    public function resetPasswordWithOtp(array $data): array
+    {
+        return $this->commonAuth->resetPasswordWithOtp($data);
+    }
 }

@@ -4,9 +4,9 @@ namespace App\Services\Common\Auth;
 
 use App\Repositories\Common\Auth\AuthRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Jobs\SendEmail;
 use Exception;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 
@@ -136,7 +136,7 @@ class AuthService
         try {
             $user = $this->authRepo->findByEmail($data['email']);
 
-            if (!$user || !\Illuminate\Support\Facades\Hash::check($data['password'], $user->password)) {
+            if (!$user || !Hash::check($data['password'], $user->password)) {
                 return [
                     'status'  => false,
                     'message' => 'Invalid email or password.',
@@ -198,9 +198,8 @@ class AuthService
                 ];
             }
 
-            $plainToken    = $this->authRepo->upsertPasswordResetToken($user->email);
-            $expireMinutes = config('mail.expire_time', 60);
-            $resetUrl      = config('app.url') . '/reset-password?token=' . $plainToken . '&email=' . urlencode($user->email);
+            $user       = $this->authRepo->generateAndSaveOtp($user);
+            $expireTime = config('mail.otp_expire_time', 10);
 
             SendEmail::dispatch(
                 $user->email,
@@ -208,15 +207,107 @@ class AuthService
                 $emailTemplate->body,
                 [
                     'name'        => $user->name,
-                    'reset_url'   => $resetUrl,
+                    'otp_code'    => $user->otp,
                     'app_name'    => config('app.name'),
-                    'expire_time' => $expireMinutes,
+                    'expire_time' => $expireTime,
                 ]
             );
 
             return [
                 'status'  => true,
-                'message' => 'Password reset link sent successfully.',
+                'message' => 'OTP sent successfully.',
+            ];
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function verifyForgotOtp(array $data): array
+    {
+        try {
+            $user = $this->authRepo->findByEmailAndRole(
+                $data['email'],
+                config('constant.roleText.user')
+            );
+
+            if (!$user) {
+                return [
+                    'status'  => false,
+                    'message' => 'Invalid request.',
+                ];
+            }
+
+            if (!$user->otp || !$user->otp_expires_at) {
+                return [
+                    'status'  => false,
+                    'message' => 'OTP not found. Please request a new one.',
+                ];
+            }
+
+            if (now()->isAfter($user->otp_expires_at)) {
+                return [
+                    'status'  => false,
+                    'message' => 'OTP has expired. Please request a new one.',
+                ];
+            }
+
+            if ($data['otp'] !== $user->otp) {
+                return [
+                    'status'  => false,
+                    'message' => 'Invalid OTP. Please try again.',
+                ];
+            }
+
+            return [
+                'status'  => true,
+                'message' => 'OTP verified successfully.',
+            ];
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function resetPasswordWithOtp(array $data): array
+    {
+        try {
+            $user = $this->authRepo->findByEmailAndRole(
+                $data['email'],
+                config('constant.roleText.user')
+            );
+
+            if (!$user) {
+                return [
+                    'status'  => false,
+                    'message' => 'Invalid request.',
+                ];
+            }
+
+            if (!$user->otp || $data['otp'] !== $user->otp) {
+                return [
+                    'status'  => false,
+                    'message' => 'Invalid or expired OTP.',
+                ];
+            }
+
+            if (now()->isAfter($user->otp_expires_at)) {
+                return [
+                    'status'  => false,
+                    'message' => 'OTP has expired. Please start again.',
+                ];
+            }
+
+            DB::beginTransaction();
+            try {
+                $this->authRepo->updatePasswordAndClearOtp($user, $data['password']);
+                DB::commit();
+            } catch (Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+
+            return [
+                'status'  => true,
+                'message' => 'Password reset successfully.',
             ];
         } catch (Exception $e) {
             throw $e;
@@ -245,5 +336,10 @@ class AuthService
         } catch (Exception $e) {
             throw $e;
         }
+    }
+
+    public function findByEmail(string $email)
+    {
+        return $this->authRepo->findByEmail($email);
     }
 }

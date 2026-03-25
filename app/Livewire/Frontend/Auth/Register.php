@@ -23,7 +23,7 @@ class Register extends Component
 
     protected array $rules = [
         'name'                  => 'required|string|min:2|max:100',
-        'email'                 => 'required|email|unique:users,email',
+        'email'                 => 'required|email',
         'phone_number'          => 'nullable|string|min:7|max:15',
         'password'              => 'required|min:8|confirmed',
         'password_confirmation' => 'required',
@@ -33,7 +33,7 @@ class Register extends Component
     protected array $messages = [
         'name.required'      => 'Full name is required.',
         'email.required'     => 'Email is required.',
-        'email.unique'       => 'This email is already registered.',
+        'email.email'        => 'Enter a valid email address.',
         'password.required'  => 'Password is required.',
         'password.min'       => 'Password must be at least 8 characters.',
         'password.confirmed' => 'Passwords do not match.',
@@ -43,6 +43,13 @@ class Register extends Component
     public function register(AuthService $auth): void
     {
         $this->validate();
+
+        $existingUser = $auth->findByEmail($this->email);
+
+        if ($existingUser && $existingUser->status === 'active') {
+            $this->addError('email', 'This email is already registered.');
+            return;
+        }
 
         $result = $auth->sendRegisterOtp([
             'name'         => $this->name,
@@ -71,7 +78,7 @@ class Register extends Component
             return;
         }
 
-        $otpResult = $auth->verifyRegisterOtp($this->email, $entered,'web');
+        $otpResult = $auth->verifyRegisterOtp($this->email, $entered, 'web');
 
         if (!$otpResult['status']) {
             $this->addError('otp', $otpResult['message']);
@@ -91,7 +98,7 @@ class Register extends Component
         $result = $auth->sendRegisterOtp([
             'name'         => $this->name,
             'email'        => $this->email,
-            'password'     => $this->password, 
+            'password'     => $this->password,
             'phone_number' => $this->phone_number,
             'tc'           => $this->terms,
         ]);
