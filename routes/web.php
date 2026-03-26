@@ -12,7 +12,6 @@ use App\Http\Controllers\Frontend\AirportController;
 use App\Http\Controllers\Frontend\HotelController;
 use App\Http\Middleware\BookingSessionMiddleware;
 use Illuminate\Support\Facades\Artisan;
-use Symfony\Component\Process\Process;
 
 //==================================================== Front Routes ======================================= 
 
@@ -22,7 +21,7 @@ Route::get('/', function () {
 
 //================================= Auth Routes ================================= 
 
-Route::post('/logout', [App\Http\Controllers\frontend\AuthController::class, 'logout'])->name('logout');
+Route::post('/logout', [App\Http\Controllers\Frontend\AuthController::class, 'logout'])->name('logout');
 
 
 
