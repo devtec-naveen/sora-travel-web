@@ -45,6 +45,19 @@ Route::get('/hotels-search',[HotelController::class, 'index'])->name('front.hote
 Route::get('/hotels/suggestions', [HotelController::class, 'suggest'])->name('hotels.suggestions');
 Route::get('/hotels/details/{id}', [HotelController::class, 'details'])->name('hotels.details');
 
+
+Route::prefix('my-account')->group(function () {
+
+    Route::get('/personal-information', function () {
+        return view('myaccount.personal-information');
+    })->name('my-account.personal-information');
+
+});
+
+
+
+
+
 //================================= Migration Routes ================================= 
 
 
