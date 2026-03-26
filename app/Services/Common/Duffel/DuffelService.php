@@ -193,30 +193,51 @@ class DuffelService
 
     public function createOrder(array $data): array
     {
-        
-        $offerId    = $data['offer_id'];
-        $passengers = $data['passengers'];
-        $services   = $data['services']  ?? [];
-        $amount     = $data['amount'];
-        $currency   = $data['currency'];
- 
+        $offerId  = $data['offer_id'];
+        $services = $data['services'] ?? [];
+        $currency = $data['currency'];
+
+        /** @var \Illuminate\Http\Client\Response $offerResponse */
+        $offerResponse = $this->auth->client()->get("/air/offers/{$offerId}");
+
+        $offerData   = $offerResponse->json();
+        $offerAmount = (float) ($offerData['data']['total_amount'] ?? $data['amount']);
+
+        $servicesAmount = 0.0;
+
+        if (!empty($services)) {
+            foreach ($services as $service) {
+
+                /** @var \Illuminate\Http\Client\Response $svcResponse */
+                $svcResponse = $this->auth->client()->get("/air/available_services/{$service['id']}");
+
+                $svcData = $svcResponse->json();
+
+                $servicesAmount += (float) ($svcData['data']['total_amount'] ?? 0);
+            }
+        }
+
+        $totalAmount = number_format($offerAmount + $servicesAmount, 2, '.', '');
+
         $payload = [
             'data' => [
-                'type'             => 'instant',
-                'selected_offers'  => [$offerId],
-                'passengers'       => $passengers,
-                'payments'         => [[
+                'type'            => 'instant',
+                'selected_offers' => [$offerId],
+                'passengers'      => $data['passengers'],
+                'payments'        => [[
                     'type'     => 'balance',
                     'currency' => $currency,
-                    'amount'   => $amount,
+                    'amount'   => $totalAmount,
                 ]],
             ],
-        ]; 
-        if (! empty($services)) {
+        ];
+
+        if (!empty($services)) {
             $payload['data']['services'] = $services;
         }
+
         /** @var \Illuminate\Http\Client\Response $response */
-        $response = $this->auth->client()->post('/air/orders', $payload); 
+        $response = $this->auth->client()->post('/air/orders', $payload);
         return $response->json();
     }
 

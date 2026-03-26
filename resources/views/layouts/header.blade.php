@@ -70,8 +70,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="py-3 rounded-lg hover:bg-slate-50" href="javascript:void(0)">
-                                        <i data-tabler="settings" class="size-5"></i>Settings
+                                    <a class="py-3 rounded-lg hover:bg-slate-50" href="{{route('my-account.personal-information')}}">
+                                        <i data-tabler="user" class="size-5"></i>My Account
                                     </a>
                                 </li>
                                 <li>
