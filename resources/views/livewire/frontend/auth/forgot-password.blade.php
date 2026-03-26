@@ -1,4 +1,20 @@
-<div class="w-[100%]">
+<div x-data="{
+    countdown: 60,
+    timer: null,
+    start() {
+        this.countdown = 60;
+        this.timer = setInterval(() => {
+            if (this.countdown > 0) {
+                this.countdown--;
+            } else {
+                clearInterval(this.timer);
+            }
+        }, 1000);
+    }
+   }"
+   x-init="start()" 
+   @otp-sent.window="start()"
+   class="w-[100%]">
     {{-- ───────────── STEP 1 : EMAIL ───────────── --}}
     @if ($step === 'email')
         <form wire:submit.prevent="sendOtp">

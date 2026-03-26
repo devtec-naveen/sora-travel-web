@@ -97,7 +97,6 @@ class ForgotPassword extends Component
             return;
         }
 
-        dd($result);
         Auth::login($result['user']);
         $this->reset();
         $this->step = 'email';
