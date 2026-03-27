@@ -109,6 +109,15 @@ class Payment extends Component
 
         $typeCounters = [];
 
+        $infantIds = [];
+        $infantIndex = 0;
+
+        foreach ($offerPaxs as $pax) {
+            if (str_starts_with($pax['type'], 'infant')) {
+                $infantIds[] = $pax['id'];
+            }
+        }        
+
         foreach ($offerPaxs as $offerPax) {
             $offerType      = $offerPax['type'] ?? 'adult';
             $normalizedType = str_starts_with($offerType, 'infant') ? 'infant' : $offerType;
@@ -116,6 +125,10 @@ class Payment extends Component
             $typeCounters[$normalizedType] = $typeCounters[$normalizedType] ?? 0;
             $formPax = $formPaxByType[$normalizedType][$typeCounters[$normalizedType]] ?? null;
             $typeCounters[$normalizedType]++;
+
+            if (!$formPax) {
+               continue;
+            }
 
             $rawDob = $formPax['born_on'] ?? $formPax['dob'] ?? '';
             $bornOn = '';
@@ -142,6 +155,12 @@ class Payment extends Component
                 'phone_number' => ($this->contact['phone_code'] ?? '') . ($this->contact['phone'] ?? ''),
             ];
 
+            if ($normalizedType === 'adult' && isset($infantIds[$infantIndex])) {
+                $orderPax['infant_passenger_id'] = $infantIds[$infantIndex];
+                $infantIndex++;
+            }
+
+            $passportNo = $formPax['identity_documents'][0]['unique_identifier'] ?? $formPax['passport_no'] ?? null;
             $passportNo = $formPax['identity_documents'][0]['unique_identifier']    ?? $formPax['passport_no']     ?? null;
             $expiresOn  = $formPax['identity_documents'][0]['expires_on']           ?? $formPax['passport_expiry'] ?? null;
             $issuing    = $formPax['identity_documents'][0]['issuing_country_code'] ?? $formPax['nationality']     ?? null;
@@ -166,6 +185,7 @@ class Payment extends Component
             'offer_id'   => $offerId,
             'passengers' => $orderPassengers,
             'services'   => $this->services,
+            'services_amount' => $this->addonsTotal + $this->seatTotal,
             'amount'     => (string) $this->grandTotal,
             'currency'   => $this->currency,
             'contact'    => $this->contact,

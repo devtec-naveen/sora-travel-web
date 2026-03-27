@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Services\Common\Duffel;
-
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class DuffelService
 {
@@ -193,52 +193,68 @@ class DuffelService
 
     public function createOrder(array $data): array
     {
-        $offerId  = $data['offer_id'];
-        $services = $data['services'] ?? [];
-        $currency = $data['currency'];
+        $offerId    = $data['offer_id'];
+        $services   = $data['services']      ?? [];
+        $passengers = $data['passengers'];
+        $currency   = $data['currency'];
 
-        /** @var \Illuminate\Http\Client\Response $offerResponse */
+        /** @var Response $offerResponse */
         $offerResponse = $this->auth->client()->get("/air/offers/{$offerId}");
+        $offerJson     = $offerResponse->json();
+        $offerData     = $offerJson['data'] ?? [];
 
-        $offerData   = $offerResponse->json();
-        $offerAmount = (float) ($offerData['data']['total_amount'] ?? $data['amount']);
+        $offerAmount   = $offerData['total_amount']   ?? null;
+        $offerCurrency = $offerData['total_currency'] ?? $currency;
 
-        $servicesAmount = 0.0;
-
-        if (!empty($services)) {
-            foreach ($services as $service) {
-
-                /** @var \Illuminate\Http\Client\Response $svcResponse */
-                $svcResponse = $this->auth->client()->get("/air/available_services/{$service['id']}");
-
-                $svcData = $svcResponse->json();
-
-                $servicesAmount += (float) ($svcData['data']['total_amount'] ?? 0);
-            }
+        if (!$offerAmount) {
+            throw new \Exception('Duffel: Could not resolve offer amount.');
         }
 
-        $totalAmount = number_format($offerAmount + $servicesAmount, 2, '.', '');
+        $servicesAmount = (float) ($data['services_amount'] ?? 0.0);
+
+        $grandTotal = number_format(
+            (float) $offerAmount + $servicesAmount,
+            2, '.', ''
+        );
+
+        $normalizedServices = array_map(fn($s) => [
+            'id'       => $s['id'],
+            'quantity' => (int) ($s['quantity'] ?? 1),
+        ], array_filter($services, fn($s) => !empty($s['id'])));
+
 
         $payload = [
             'data' => [
                 'type'            => 'instant',
                 'selected_offers' => [$offerId],
-                'passengers'      => $data['passengers'],
+                'passengers'      => $passengers,
                 'payments'        => [[
                     'type'     => 'balance',
-                    'currency' => $currency,
-                    'amount'   => $totalAmount,
+                    'currency' => $offerCurrency,
+                    'amount'   => $grandTotal,
                 ]],
             ],
         ];
 
-        if (!empty($services)) {
-            $payload['data']['services'] = $services;
+        if (!empty($normalizedServices)) {
+            $payload['data']['services'] = array_values($normalizedServices);
         }
 
-        /** @var \Illuminate\Http\Client\Response $response */
+        /** @var Response $response */
         $response = $this->auth->client()->post('/air/orders', $payload);
-        return $response->json();
+        $result   = $response->json();
+
+        if (!empty($result['errors'])) {
+            Log::error('Duffel createOrder failed', [
+                'offer_id'        => $offerId,
+                'offer_amount'    => $offerAmount,
+                'services_amount' => $servicesAmount,
+                'grand_total'     => $grandTotal,
+                'errors'          => $result['errors'],
+            ]);
+        }
+
+        return $result;
     }
 
     public function filterAndSort(array $offers, array $filters = []): array
