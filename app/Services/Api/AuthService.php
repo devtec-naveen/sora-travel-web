@@ -52,7 +52,7 @@ class AuthService
             return [
                 'status'  => true,
                 'message' => 'Login successful.',
-                'user'    => $user->only(['name', 'email', 'role']),
+                'user'    => $user->only(['name', 'email', 'role','id']),
                 'token'   => $token,
             ];
         } catch (Exception $e) {

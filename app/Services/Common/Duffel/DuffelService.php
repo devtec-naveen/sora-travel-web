@@ -221,10 +221,10 @@ class DuffelService
             array_filter($services, fn($s) => !empty($s['id']))
         ));
 
-        [$payment, $order] = DB::transaction(function () use ($grandTotal, $offerCurrency) {
+        [$payment, $order] = DB::transaction(function () use ($grandTotal, $offerCurrency, $data) {
 
             $payment = PaymentModel::create([
-                'user_id'        => Auth::id(),
+                'user_id'        => $data['user_id'],
                 'payment_id'     => 'PENDING-' . Str::uuid(),
                 'payment_method' => 'balance',
                 'amount'         => $grandTotal,
@@ -233,7 +233,7 @@ class DuffelService
             ]);
 
             $order = OrderModel::create([
-                'user_id'      => Auth::id(),
+                'user_id'      => $data['user_id'],
                 'payment_id'   => $payment->id,
                 'order_number' => 'ORD-' . now()->format('Ymd') . '-' . strtoupper(Str::random(6)),
                 'type'         => 'flight',

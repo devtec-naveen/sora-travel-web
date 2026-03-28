@@ -223,6 +223,7 @@ class Payment extends Component
             'amount'     => (string) $this->grandTotal,
             'currency'   => $this->currency,
             'contact'    => $this->contact,
+            'user_id'    => Auth::id()
         ]);
 
         if (! empty($response['errors'])) {
