@@ -1,8 +1,13 @@
 <?php
 
 namespace App\Services\Common\Duffel;
-use Illuminate\Support\Facades\Http;
+
+use App\Models\OrderModel;
+use App\Models\PaymentModel;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class DuffelService
 {
@@ -194,15 +199,13 @@ class DuffelService
     public function createOrder(array $data): array
     {
         $offerId    = $data['offer_id'];
-        $services   = $data['services']      ?? [];
+        $services   = $data['services']   ?? [];
         $passengers = $data['passengers'];
         $currency   = $data['currency'];
 
-        /** @var Response $offerResponse */
+        /** @var \Illuminate\Http\Client\Response $offerResponse */
         $offerResponse = $this->auth->client()->get("/air/offers/{$offerId}");
-        $offerJson     = $offerResponse->json();
-        $offerData     = $offerJson['data'] ?? [];
-
+        $offerData     = $offerResponse->json('data', []);
         $offerAmount   = $offerData['total_amount']   ?? null;
         $offerCurrency = $offerData['total_currency'] ?? $currency;
 
@@ -211,50 +214,115 @@ class DuffelService
         }
 
         $servicesAmount = (float) ($data['services_amount'] ?? 0.0);
+        $grandTotal     = number_format((float) $offerAmount + $servicesAmount, 2, '.', '');
 
-        $grandTotal = number_format(
-            (float) $offerAmount + $servicesAmount,
-            2, '.', ''
-        );
+        $normalizedServices = array_values(array_map(
+            fn($s) => ['id' => $s['id'], 'quantity' => (int) ($s['quantity'] ?? 1)],
+            array_filter($services, fn($s) => !empty($s['id']))
+        ));
 
-        $normalizedServices = array_map(fn($s) => [
-            'id'       => $s['id'],
-            'quantity' => (int) ($s['quantity'] ?? 1),
-        ], array_filter($services, fn($s) => !empty($s['id'])));
+        [$payment, $order] = DB::transaction(function () use ($grandTotal, $offerCurrency) {
 
-
-        $payload = [
-            'data' => [
-                'type'            => 'instant',
-                'selected_offers' => [$offerId],
-                'passengers'      => $passengers,
-                'payments'        => [[
-                    'type'     => 'balance',
-                    'currency' => $offerCurrency,
-                    'amount'   => $grandTotal,
-                ]],
-            ],
-        ];
-
-        if (!empty($normalizedServices)) {
-            $payload['data']['services'] = array_values($normalizedServices);
-        }
-
-        /** @var Response $response */
-        $response = $this->auth->client()->post('/air/orders', $payload);
-        $result   = $response->json();
-
-        if (!empty($result['errors'])) {
-            Log::error('Duffel createOrder failed', [
-                'offer_id'        => $offerId,
-                'offer_amount'    => $offerAmount,
-                'services_amount' => $servicesAmount,
-                'grand_total'     => $grandTotal,
-                'errors'          => $result['errors'],
+            $payment = PaymentModel::create([
+                'user_id'        => Auth::id(),
+                'payment_id'     => 'PENDING-' . Str::uuid(),
+                'payment_method' => 'balance',
+                'amount'         => $grandTotal,
+                'currency'       => $offerCurrency,
+                'status'         => 'pending',
             ]);
-        }
 
-        return $result;
+            $order = OrderModel::create([
+                'user_id'      => Auth::id(),
+                'payment_id'   => $payment->id,
+                'order_number' => 'ORD-' . now()->format('Ymd') . '-' . strtoupper(Str::random(6)),
+                'type'         => 'flight',
+                'external_id'  => null, 
+                'amount'       => $grandTotal,
+                'currency'     => $offerCurrency,
+                'status'       => 'pending',
+            ]);
+
+            return [$payment, $order];
+        });
+
+        try {
+            $payload = [
+                'data' => [
+                    'type'            => 'instant',
+                    'selected_offers' => [$offerId],
+                    'passengers'      => $passengers,
+                    'payments'        => [[
+                        'type'     => 'balance',
+                        'currency' => $offerCurrency,
+                        'amount'   => $grandTotal,
+                    ]],
+                ],
+            ];
+
+            if (!empty($normalizedServices)) {
+                $payload['data']['services'] = $normalizedServices;
+            }
+
+            /** @var \Illuminate\Http\Client\Response $response */
+            $response   = $this->auth->client()->post('/air/orders', $payload);
+            $result     = $response->json();
+
+            if (!empty($result['errors'])) {
+                Log::error('Duffel createOrder failed', [
+                    'offer_id'   => $offerId,
+                    'grand_total'=> $grandTotal,
+                    'errors'     => $result['errors'],
+                ]);
+
+                $payment->update(['status' => 'failed']);
+                $order->update(['status'   => 'failed']);
+
+                return $result;
+            }
+
+            $orderData = $result['data'];
+
+            DB::transaction(function () use ($payment, $order, $orderData) {
+                $payment->update([
+                    'payment_id'       => $orderData['id'],
+                    'status'           => 'completed',
+                    'paid_at'          => now(),
+                    'gateway_response' => $orderData,
+                ]);
+
+                $order->update([
+                    'external_id'  => $orderData['id'],
+                    'status'       => 'confirmed',
+                    'booking_date' => $this->resolveBookingDate($orderData),
+                    'data'         => $orderData,
+                ]);
+            });
+
+            $result['db'] = [
+                'payment_id' => $payment->id,
+                'order_id'   => $order->id,
+            ];
+
+            return $result;
+
+        } catch (\Throwable $e) {
+            Log::error('createOrder unexpected error', [
+                'message'  => $e->getMessage(),
+                'order_id' => $order->id,
+            ]);
+
+            $payment->update(['status' => 'failed', 'failure_reason' => $e->getMessage()]);
+            $order->update(['status'   => 'failed']);
+
+            throw $e;
+        }
+    }
+
+    private function resolveBookingDate(array $orderData): ?string
+    {
+        $departing = $orderData['slices'][0]['segments'][0]['departing_at'] ?? null;
+        return $departing ? date('Y-m-d', strtotime($departing)) : null;
     }
 
     public function filterAndSort(array $offers, array $filters = []): array

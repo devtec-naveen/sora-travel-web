@@ -1,6 +1,5 @@
 <div>
     <main class="bg-slate-50 min-h-[800px]">
-
         <div class="booking-progress-container py-6">
             <div class="container">
                 <div class="flex items-center justify-between max-w-5xl mx-auto">
@@ -43,26 +42,21 @@
                 </div>
             </div>
         </div>
-
         <div class="back-btn container">
             <button onclick="history.back()" class="btn btn-white">
                 <i data-tabler="chevron-left" data-size="16"></i>Back
             </button>
         </div>
-
         <div class="booking-page-content py-10 lg:py-16">
             <div class="container">
                 <div class="flex flex-col lg:flex-row gap-8 lg:items-start">
-
                     <div class="flex-1 flex flex-col gap-4 md:gap-9">
                         <div class="flex flex-col items-center lg:items-start gap-2.5 px-4 lg:px-0">
                             <h1 class="font-semibold text-[24px] leading-[36px] text-slate-800">Passenger Details</h1>
                             <span class="font-normal text-base text-slate-500">Please provide details for all
                                 passengers</span>
                         </div>
-
                         <div class="flex flex-col gap-6">
-
                             @foreach ($passengers as $idx => $pax)
                                 @php
                                     $dobId = 'pax_dob_' . $idx;
@@ -74,7 +68,6 @@
                                         default => 'Passenger',
                                     };
                                 @endphp
-
                                 <div class="card">
                                     <div class="flex items-center gap-3 p-5 border-b border-slate-100">
                                         <i data-tabler="user" class="text-slate-500" data-size="22"></i>
@@ -113,7 +106,6 @@
                                                 @enderror
                                             </div>
                                         </div>
-
                                         <div class="form-control">
                                             <span class="form-label">Last Name * <span
                                                     class="text-slate-400 font-normal">(as per
@@ -125,7 +117,6 @@
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror
                                         </div>
-
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div class="form-control">
                                                 <span class="form-label">Gender *</span>
@@ -147,7 +138,6 @@
                                                     <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                                 @enderror
                                             </div>
-
                                             <div class="form-control">
                                                 <span class="form-label">Date of Birth *</span>
                                                 <div class="dtp-field relative" data-dtp-id="{{ $dobId }}"
@@ -174,7 +164,6 @@
                                                 @enderror
                                             </div>
                                         </div>
-
                                         @if ($pax['type'] !== 'infant')
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 <div class="form-control">
@@ -208,11 +197,9 @@
                                                 </div>
                                             </div>
                                         @endif
-
                                     </div>
                                 </div>
                             @endforeach
-
                             <div class="card">
                                 <div class="flex items-center gap-3 p-5 border-b border-slate-100">
                                     <i data-tabler="mail" class="text-slate-500" data-size="22"></i>
@@ -231,7 +218,6 @@
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror
                                         </div>
-
                                         <div class="form-control">
                                             <span class="form-label">Phone Number *</span>
                                             <div class="flex gap-0">
@@ -262,13 +248,10 @@
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
-
                         </div>
-
                         <div class="flex flex-col items-center gap-2.5 self-stretch mt-2">
                             <div class="flex justify-between items-center self-stretch">
                                 <button onclick="history.back()" class="btn btn-white min-w-[140px]">Back</button>
@@ -279,16 +262,12 @@
                                 </button>
                             </div>
                         </div>
-
                     </div>
-
                     <div class="w-full lg:w-[304px] shrink-0 sticky top-24">
                         <div class="flex flex-col md:gap-7 gap-2">
-
                             <div class="flex flex-col gap-2.5">
                                 <h3 class="font-semibold text-[24px] leading-[36px] text-slate-800">Price details</h3>
                             </div>
-
                             @if (!empty($segment))
                                 @php
                                     $dep = $segment['departing_at'] ?? null;
@@ -346,7 +325,6 @@
                                     </div>
                                 </div>
                             @endif
-
                             <div class="card p-5 space-y-4">
                                 @if ($this->adults > 0)
                                     <div class="flex justify-between items-center self-stretch">
@@ -408,10 +386,8 @@
                                     </div>
                                 @endif
                             </div>
-
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>

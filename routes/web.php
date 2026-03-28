@@ -45,6 +45,16 @@ Route::get('/hotels/suggestions', [HotelController::class, 'suggest'])->name('ho
 Route::get('/hotels/details/{id}', [HotelController::class, 'details'])->name('hotels.details');
 
 
+Route::get('/stripe/open', function () {
+    return 'Stripe Return Page';
+})->name('stripe.open');
+
+
+Route::get('/stripe/cancel', function () {
+    return 'Payment Cancelled';
+})->name('stripe.cancel');
+
+
 Route::prefix('my-account')->group(function () {
 
     Route::get('/personal-information', function () {

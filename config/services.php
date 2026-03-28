@@ -51,9 +51,9 @@ return [
         'base_url' => env('AMADEUS_BASE_URL'),
     ],
     'stripe' => [
+        'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
     ],
-
     'firebase' => [
         'project_id' => env('FIREBASE_PROJECT_ID'),
     ],

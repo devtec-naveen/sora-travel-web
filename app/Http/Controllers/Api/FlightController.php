@@ -7,6 +7,9 @@ use App\Services\Common\Duffel\DuffelService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Stripe\Refund;
+use Stripe\Stripe;
 
 class FlightController extends Controller
 {
@@ -174,26 +177,28 @@ class FlightController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'offer_id'                                          => 'required|string',
-                'passengers'                                        => 'required|array|min:1',
-                'passengers.*.id'                                   => 'required|string',
-                'passengers.*.title'                                => 'required|string|in:mr,ms,mrs,miss,dr',
-                'passengers.*.given_name'                           => 'required|string',
-                'passengers.*.family_name'                          => 'required|string',
-                'passengers.*.gender'                               => 'required|string|in:m,f',
-                'passengers.*.born_on'                              => 'required|date_format:Y-m-d',
-                'passengers.*.email'                                => 'required|email',
-                'passengers.*.phone_number'                         => 'required|string',
-                'passengers.*.identity_documents'                   => 'nullable|array',
+                'offer_id'                                               => 'required|string',
+                'passengers'                                             => 'required|array|min:1',
+                'passengers.*.id'                                        => 'required|string',
+                'passengers.*.title'                                     => 'required|string|in:mr,ms,mrs,miss,dr',
+                'passengers.*.given_name'                                => 'required|string',
+                'passengers.*.family_name'                               => 'required|string',
+                'passengers.*.gender'                                    => 'required|string|in:m,f',
+                'passengers.*.born_on'                                   => 'required|date_format:Y-m-d',
+                'passengers.*.email'                                     => 'required|email',
+                'passengers.*.phone_number'                              => 'required|string',
+                'passengers.*.identity_documents'                        => 'nullable|array',
                 'passengers.*.identity_documents.*.unique_identifier'    => 'required_with:passengers.*.identity_documents|string',
                 'passengers.*.identity_documents.*.expires_on'          => 'required_with:passengers.*.identity_documents|date_format:Y-m-d',
                 'passengers.*.identity_documents.*.issuing_country_code' => 'required_with:passengers.*.identity_documents|string|size:2',
                 'passengers.*.identity_documents.*.type'                 => 'required_with:passengers.*.identity_documents|string|in:passport,tax_id',
-                'services'                                          => 'nullable|array',
-                // 'services.*.id'                                     => 'required_with:services|string',
-                // 'services.*.quantity'                               => 'required_with:services|integer|min:1',
-                'currency'                                          => 'required|string|size:3',
-                'amount'                                            => 'required|numeric|min:0',
+                'services'                                               => 'nullable|array',
+                'currency'                                               => 'required|string|size:3',
+                'amount'                                                 => 'required|numeric|min:0',
+                'card.card_number'                                       => ['required', 'regex:/^(\d{4}\s?){3,4}\d{1,4}$/'],
+                'card.expiry'                                            => ['required', 'regex:/^(0[1-9]|1[0-2])\/\d{2}$/'],
+                'card.cvc'                                               => 'required|digits_between:3,4',
+                'card.card_holder'                                       => 'required|string|min:2',
             ]);
 
             if ($validator->fails()) {
@@ -204,35 +209,80 @@ class FlightController extends Controller
                 ], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
             }
 
+            [$month, $year] = explode('/', $request->input('card.expiry'));
+            $month = (int) $month;
+            $year  = (int) $year;
+
+            if ($year < (int) date('y') || ($year === (int) date('y') && $month < (int) date('m'))) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Card expiry date is invalid or expired.'
+                ], 422);
+            }
+
             $passengers = collect($request->input('passengers'))->map(function ($pax) {
                 $pax['born_on'] = Carbon::parse($pax['born_on'])->format('Y-m-d');
                 $pax['title']   = strtolower($pax['title']);
                 $pax['gender']  = strtolower($pax['gender']);
 
-                if (! empty($pax['identity_documents'])) {
-                    $pax['identity_documents'] = collect($pax['identity_documents'])->map(function ($doc) {
-                        $doc['expires_on']           = Carbon::parse($doc['expires_on'])->format('Y-m-d');
-                        $doc['issuing_country_code']  = strtoupper($doc['issuing_country_code']);
-                        return $doc;
-                    })->toArray();
+                if (!empty($pax['identity_documents'])) {
+                    $pax['identity_documents'] = collect($pax['identity_documents'])
+                        ->map(function ($doc) {
+                            $doc['expires_on']          = Carbon::parse($doc['expires_on'])->format('Y-m-d');
+                            $doc['issuing_country_code'] = strtoupper($doc['issuing_country_code']);
+                            return $doc;
+                        })->toArray();
                 }
 
                 return $pax;
             })->toArray();
 
-            $response = $this->duffelService->createOrder([
-                'offer_id'   => $request->input('offer_id'),
-                'passengers' => $passengers,
-                'services'   => $request->input('services', []),
-                'amount'     => (string) $request->input('amount'),
-                'currency'   => strtoupper($request->input('currency')),
+            $amount   = (float) $request->input('amount');
+            $currency = strtoupper($request->input('currency'));
+
+            // ─── STEP 1: Stripe payment pehle ─────────────────────────────
+            $stripeService = app(\App\Services\Common\Stripe\StripeService::class);
+            $paymentIntent = $stripeService->payWithCard([
+                'amount'      => $amount,
+                'currency'    => $currency,
+                'card_number' => str_replace(' ', '', $request->input('card.card_number')),
+                'exp_month'   => $month,
+                'exp_year'    => 2000 + $year,
+                'cvc'         => $request->input('card.cvc'),
+                'card_holder' => $request->input('card.card_holder'),
             ]);
 
-            if (! empty($response['errors'])) {
+            if ($paymentIntent->status !== 'succeeded') {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Payment could not be processed.'
+                ], 400);
+            }
+
+            // ─── STEP 2: Duffel order create ──────────────────────────────
+            $response = $this->duffelService->createOrder([
+                'offer_id'        => $request->input('offer_id'),
+                'passengers'      => $passengers,
+                'services'        => $request->input('services', []),
+                'amount'          => (string) $amount,
+                'currency'        => $currency,
+                'stripe_intent_id' => $paymentIntent->id,
+            ]);
+
+            if (!empty($response['errors'])) {
+                Stripe::setApiKey(config('services.stripe.secret'));
+                Refund::create([
+                    'payment_intent' => $paymentIntent->id,
+                ]);
+                Log::error('Duffel failed after Stripe charge — refund initiated', [
+                    'stripe_intent_id' => $paymentIntent->id,
+                    'errors'           => $response['errors'],
+                ]);
+
                 $error = $response['errors'][0] ?? [];
                 return response()->json([
                     'status'  => false,
-                    'message' => $error['message'] ?? 'Order creation failed.',
+                    'message' => $error['message'] ?? 'Order creation failed. Payment refunded.',
                     'code'    => $error['code']    ?? null,
                 ], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
             }
@@ -243,11 +293,23 @@ class FlightController extends Controller
                 'data'    => $response['data'] ?? [],
             ], config('constant.httpCode.SUCCESS_OK'));
         } catch (\Throwable $e) {
+            Log::error('createOrder controller exception', [
+                'message' => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'status'  => false,
                 'message' => 'Order creation failed',
                 'error'   => config('app.debug') ? $e->getMessage() : null
             ], config('constant.httpCode.INTERNAL_SERVER_ERROR'));
         }
+    }
+
+    public function refund(string $intentId): \Stripe\Refund
+    {
+        return \Stripe\Refund::create([
+            'payment_intent' => $intentId,
+        ]);
     }
 }

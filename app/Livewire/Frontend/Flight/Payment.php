@@ -4,6 +4,7 @@ namespace App\Livewire\Frontend\Flight;
 
 use Livewire\Component;
 use App\Services\Common\Duffel\DuffelService;
+use App\Services\Common\Stripe\StripeService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -23,7 +24,7 @@ class Payment extends Component
     public int    $children       = 0;
     public int    $infants        = 0;
 
-    public string $paymentMethod  = 'card';
+    public string $paymentMethod  = 'stripe';
     public string $cardNumber     = '';
     public string $cardHolder     = '';
     public string $cardExpiry     = '';
@@ -32,6 +33,17 @@ class Payment extends Component
     public bool   $isProcessing   = false;
     public bool   $paymentError   = false;
     public string $errorMessage   = '';
+
+    protected function rules(): array
+    {
+        $this->cardNumber = str_replace(' ', '', $this->cardNumber);
+        return [
+            'cardHolder' => 'required|string|min:2',
+            'cardNumber' => ['required', 'regex:/^(\d{4}\s?){3,4}\d{1,4}$/'],
+            'cardExpiry' => ['required','regex:/^(0[1-9]|1[0-2])\/\d{2}$/'],
+            'cardCvv'    => 'required|digits_between:3,4',
+        ];
+    }
 
     public function mount(): void
     {
@@ -64,11 +76,33 @@ class Payment extends Component
             return;
         }
 
+        $this->validate();
+        [$month, $year] = explode('/', $this->cardExpiry);
+        $currentYear = (int) date('y');
+        $currentMonth = (int) date('m');
+        if ((int)$year < $currentYear || ((int)$year === $currentYear && (int)$month < $currentMonth)) {
+            $this->paymentError = true;
+            $this->errorMessage = 'Card expiry date is invalid or expired.';
+            return;
+        }
+
         $this->isProcessing = true;
         $this->paymentError = false;
         $this->errorMessage = '';
 
         try {
+            $stripeService = app(StripeService::class);
+            $paymentIntent = $stripeService->payWithCard([
+                'amount'      => $this->grandTotal,
+                'currency'    => $this->currency ?: 'usd',
+                'card_number' => $this->cardNumber,
+                'exp_month'   => (int)$month,
+                'exp_year'    => 2000 + (int)$year,
+                'cvc'         => $this->cardCvv,
+            ]);
+            if ($paymentIntent->status !== 'succeeded') {
+                throw new \Exception('Payment could not be processed.');
+            }
             $this->createDuffelOrder();
         } catch (\Throwable $e) {
             Log::error('Payment failed', [
