@@ -262,6 +262,7 @@ class FlightController extends Controller
             // ─── STEP 2: Duffel order create ──────────────────────────────
             $response = $this->duffelService->createOrder([
                 'offer_id'        => $request->input('offer_id'),
+                'user_id'        => $request->input('user_id'),
                 'passengers'      => $passengers,
                 'services'        => $request->input('services', []),
                 'amount'          => (string) $amount,
