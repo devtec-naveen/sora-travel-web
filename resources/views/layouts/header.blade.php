@@ -65,7 +65,7 @@
                             <ul tabindex="0"
                                 class="dropdown-content menu bg-white rounded-lg shadow-lg border border-slate-200 z-[1] w-52 p-2 mt-2">
                                 <li>
-                                    <a class="py-3 rounded-lg hover:bg-slate-50" href="">
+                                    <a class="py-3 rounded-lg hover:bg-slate-50" href="{{route('my-account.my-booking')}}">
                                         <i data-tabler="calendar" class="size-5"></i>My Bookings
                                     </a>
                                 </li>

@@ -61,6 +61,10 @@ Route::prefix('my-account')->group(function () {
         return view('myaccount.personal-information');
     })->name('my-account.personal-information');
 
+    Route::get('/my-booking', function () {
+        return view('myaccount.my-booking.index');
+    })->name('my-account.my-booking');
+
 });
 
 
