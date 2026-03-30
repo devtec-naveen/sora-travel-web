@@ -10,7 +10,6 @@ class AuthService
 {
     public function register(array $data): User
     {
-        dd($data);
         $user = User::create([
             'name'         => $data['name'],
             'email'        => $data['email'],
