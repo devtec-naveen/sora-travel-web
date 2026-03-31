@@ -1,10 +1,8 @@
-<div>
-    <div id="Loader" class="container_loader _newlognsecv2">
-        <span class="loader"></span>
-        <div class="loadtxtfl">
-            Please Wait, We are searching for the Hotels on this City
-        </div>
-    </div>
+<div wire:init="loadHotels">
+    <x-loader 
+        message="Please Wait, We are searching for the flights on this route"
+        targets="loadHotels"
+    />
     <main class="bg-slate-50">
         <section class="search-panel-inner py-5 bg-gradient-to-b from-[#075fc6] to-[#0d529b]">
             <div class="container">

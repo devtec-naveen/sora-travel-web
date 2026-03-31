@@ -113,7 +113,6 @@
 
 <x-frontend.modal id="login_modal">
     <livewire:frontend.auth.login />
-
 </x-frontend.modal>
 
 <x-frontend.modal id="signup_modal">

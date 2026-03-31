@@ -1,4 +1,5 @@
 import "./bootstrap";
+import './modal.js';
 /**
  * app.js — Global Application Script
  * Sections:

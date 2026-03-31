@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
            'auth.admin' => \App\Http\Middleware\AdminAuth::class,
            'booking.session' => \App\Http\Middleware\BookingSessionMiddleware::class,
+           'user.auth' => \App\Http\Middleware\CheckUserLoggedIn::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

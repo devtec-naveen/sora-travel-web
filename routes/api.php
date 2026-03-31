@@ -38,6 +38,13 @@ Route::prefix('hotels')->group(function () {
 });
 
 
+Route::prefix('mybooking')->group(function () { 
+
+
+});
+
+
+
 
 
 Route::middleware('auth:sanctum')->group(function () {

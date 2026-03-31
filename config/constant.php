@@ -43,6 +43,11 @@ return [
         'SERVICE_UNAVAILABLE' => 503,
     ],
 
+    'duffel' => [
+        'offer_limit' => 10,
+    ],
+
+
 
     'airlines' => [
         'AI' => [

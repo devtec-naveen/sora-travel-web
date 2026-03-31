@@ -1,13 +1,6 @@
 <div wire:init="loadFlights">
-    <div wire:loading.block
-        wire:target="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline">
-        <div class="container_loader _newlognsecv2">
-            <span class="loader"></span>
-            <div class="loadtxtfl">
-                Please Wait, We are searching for the flights on this route
-            </div>
-        </div>
-    </div>
+    <x-loader message="Please Wait, We are searching for the flights on this route"
+        targets="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline" />
     <main class="bg-slate-50">
         <section class="search-panel-inner py-5 bg-gradient-to-b from-[#075fc6] to-[#0d529b]">
             <div class="container">
@@ -204,6 +197,7 @@
                                     </div>
                                 @endfor
                             </div>
+
                             @if ($total === 0)
                                 <div class="card p-10 text-center" wire:loading.remove>
                                     <i data-tabler="plane-off" data-size="48"
@@ -339,6 +333,22 @@
                                         </div>
                                     </div>
                                 @endforeach
+                                @if (count($flights) < $total)
+                                    <div x-data="{ loading: false }"
+                                        x-intersect="
+                                            if (!loading) {
+                                                loading = true;
+                                                $wire.loadMore().then(() => loading = false);
+                                            }
+                                        "
+                                        class="h-16 flex items-center justify-center">
+                                        <div class="flex justify-center items-center">
+                                            <div
+                                                class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin">
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             @endif
                         </div>
                     </div>
