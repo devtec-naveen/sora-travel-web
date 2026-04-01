@@ -1,6 +1,8 @@
 <div wire:init="loadFlights">
-    <x-loader message="Please Wait, We are searching for the flights on this route"
-        targets="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline" />
+    <x-loader 
+        message="Please Wait, We are searching for the flights on this route"
+        targets="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline"
+     />
     <main class="bg-slate-50">
         <section class="search-panel-inner py-5 bg-gradient-to-b from-[#075fc6] to-[#0d529b]">
             <div class="container">
@@ -17,16 +19,13 @@
                         Filter & Sort
                     </button>
                 </div>
-
                 <div class="flex flex-col md:flex-row gap-6">
                     <div id="filter-backdrop" class="fixed inset-0 bg-slate-900/40 z-[99] hidden md:hidden"></div>
-
                     <div id="filter-sidebar"
                         class="rounded-none shadow-sm border border-slate-200 lg:rounded-lg fixed inset-y-0 left-0 z-[100]
                                w-full h-screen translate-x-[-100%] transition-transform duration-300
                                md:relative md:translate-x-0 md:z-auto md:w-[317px] md:h-fit md:block
                                bg-white overflow-hidden">
-
                         <div class="flex flex-col h-full md:card md:p-5 md:block">
                             <div
                                 class="flex justify-between items-center p-5 border-b border-slate-100 md:p-0 md:border-none md:mb-6 shrink-0">
@@ -165,7 +164,7 @@
                             <div wire:loading.block
                                 wire:target="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline">
                                 @for ($i = 0; $i < 2; $i++)
-                                    <div class="card p-4">
+                                    <div class="card p-4 mt-5">
                                         <div class="flex flex-col gap-3">
                                             <div class="flex items-center gap-4">
                                                 <div class="skeleton w-11 h-11 rounded-xl shrink-0"></div>
@@ -229,7 +228,7 @@
                                             $flight['conditions']['refund_before_departure']['allowed'] ?? false;
                                     @endphp
 
-                                    <div class="card p-4 transition-all hover:shadow-md">
+                                    <div wire:loading.remove class="card p-4 transition-all hover:shadow-md">
                                         <div class="flex flex-col lg:flex-row gap-3 md:gap-6">
                                             <div class="flex-1 flex flex-col gap-3">
                                                 <div class="flex items-center gap-4">
@@ -334,7 +333,7 @@
                                     </div>
                                 @endforeach
                                 @if (count($flights) < $total)
-                                    <div x-data="{ loading: false }"
+                                    <div wire:loading.remove x-data="{ loading: false }"
                                         x-intersect="
                                             if (!loading) {
                                                 loading = true;
@@ -383,7 +382,6 @@
             $sfChangeFee = $sf['conditions']['change_before_departure']['penalty_amount'] ?? null;
             $sfChangeCurr = $sf['conditions']['change_before_departure']['penalty_currency'] ?? '';
         @endphp
-
         <x-frontend.modal :header="true" id="flight_details_modal" headerText="Flight Details">
             <div class="p-6 space-y-8 max-h-[70vh] overflow-y-auto">
                 <div class="flex items-center gap-4">

@@ -45,7 +45,7 @@ class FlightController extends Controller
             }
 
             $result = $this->duffelService->searchFlightsMain($request->all());
-            $offers = $result['data']['offers'] ?? [];
+            $offers = $result['offers'] ?? [];
 
             $meta = $this->duffelService->extractFilterMeta($offers);
 
