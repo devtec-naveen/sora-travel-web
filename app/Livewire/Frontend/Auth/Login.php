@@ -22,6 +22,37 @@ class Login extends Component
         'password.min'      => 'Password must be at least 6 characters.',
     ];
 
+    protected $listeners = [
+        'modal-opened' => 'handleOpen',
+        'modal-closed' => 'handleClose',
+    ];
+
+    public function resetForm()
+    {
+        $this->reset(['email', 'password']); 
+        $this->resetErrorBag();              
+        $this->resetValidation();            
+    }
+
+    public function handleClose($id = null): void
+    {
+        if ($id === 'login_modal') {
+            $this->resetForm();
+        }
+    }
+
+    public function switchToForgot(): void
+    {
+        $this->dispatch('close-modal', id: 'login_modal');
+        $this->dispatch('open-modal', id: 'forgot_password_modal');
+    }
+
+    public function switchToSignup(): void
+    {
+        $this->dispatch('close-modal', id: 'login_modal');
+        $this->dispatch('open-modal', id: 'signup_modal');
+    }
+
     public function login(AuthService $auth): void
     {
         $this->validate();
@@ -37,7 +68,13 @@ class Login extends Component
             return;
         }
 
+        $this->resetForm();
         $this->dispatch('auth-success');
+    }
+
+    public function updated($field): void
+    {
+        $this->validateOnly($field);
     }
 
     public function render()

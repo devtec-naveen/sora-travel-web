@@ -1,11 +1,12 @@
 @if (!$header)
-    <dialog id="{{ $id }}" class="modal" wire:ignore.self>
-        <div class="modal-box max-w-lg p-5 md:p-10 relative rounded-3xl">
-            <form method="dialog">
-                <button class="absolute right-4 top-4">
-                    <img src="{{ asset('assets/images/close.svg') }}" alt="close" />
-                </button>
-            </form>
+<dialog id="{{ $id }}" class="modal" wire:ignore.self>
+    <div class="modal-box max-w-lg p-5 md:p-10 relative rounded-3xl">
+            <button 
+                type="button"
+                wire:click="closeModal('{{ $id }}')"
+                class="absolute right-4 top-4">
+                <img src="{{ asset('assets/images/close.svg') }}" alt="close" />
+            </button>
             <div class="flex flex-col items-center">
                 @if ($logo)
                     <a class="mb-2">

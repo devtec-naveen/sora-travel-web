@@ -35,7 +35,7 @@
 
         <p class="mt-5 font-normal text-base text-[#4a5565]">
             Remember your password?
-            <a href="javascript:void(0)" wire:click="$dispatch('open-login')"
+            <a href="javascript:void(0)" wire:click="switchToLogin"
                 class="font-semibold text-base text-blue-600">Sign in</a>
         </p>
     @endif
@@ -112,7 +112,7 @@
                 </p>
 
                 <p class="text-center text-sm">
-                    <button wire:click="$set('step', 'email')" class="text-blue-600 font-medium hover:underline">
+                    <button wire:click="backToEmail" class="text-blue-600 font-medium hover:underline">
                         ← Back to Email
                     </button>
                 </p>
@@ -123,28 +123,95 @@
     @if ($step === 'password')
         <form wire:submit.prevent="resetPassword">
             <div class="w-full space-y-4 mt-7">
+
+                {{-- New Password --}}
                 <div class="form-control w-full">
-                    <label class="form-label">New Password</label>
-                    <input type="password" placeholder="Enter new password" class="form-input"
-                        wire:model.defer="password" />
+                    <label class="form-label">New Password <span class="text-red-500">*</span></label>
+                    <div class="relative" x-data="{ show: false }">
+                        <input
+                            :type="show ? 'text' : 'password'"
+                            wire:model.live.debounce.500ms="password"
+                            placeholder="Enter new password"
+                            class="form-input pr-10 w-full @error('password') border-red-400 @enderror" />
+                        <button type="button" @click="show = !show"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            <i x-show="!show" data-tabler="eye" class="size-5"></i>
+                            <i x-show="show" data-tabler="eye-off" class="size-5"></i>
+                        </button>
+                    </div>
                     @error('password')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                        <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
                     @enderror
+
+                    {{-- Strength --}}
+                    @if($this->passwordStrength['show'])
+                        <div class="mt-2 space-y-1.5">
+                            <div class="flex gap-1">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <div class="h-1 flex-1 rounded-full transition-all duration-300
+                                        {{ $i <= $this->passwordStrength['score']
+                                            ? $this->passwordStrength['barColor']
+                                            : 'bg-slate-200' }}">
+                                    </div>
+                                @endfor
+                            </div>
+                            <p class="text-xs font-medium {{ $this->passwordStrength['textColor'] }}">
+                                Password strength: {{ $this->passwordStrength['label'] }}
+                            </p>
+                            <ul class="text-xs space-y-0.5">
+                                @foreach([
+                                    'uppercase' => 'One uppercase letter',
+                                    'number'    => 'One number',
+                                    'special'   => 'One special character',
+                                    'length'    => 'Minimum 8 characters',
+                                ] as $key => $label)
+                                    <li class="flex items-center gap-1 {{ $this->passwordStrength['hints'][$key] ? 'text-green-500' : 'text-slate-400' }}">
+                                        <i data-tabler="{{ $this->passwordStrength['hints'][$key] ? 'circle-check' : 'circle-x' }}" class="size-3.5"></i>
+                                        {{ $label }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 </div>
+
+                {{-- Confirm Password --}}
                 <div class="form-control w-full">
-                    <label class="form-label">Confirm Password</label>
-                    <input type="password" placeholder="Confirm new password" class="form-input"
-                        wire:model.defer="password_confirmation" />
-                    @error('password_confirmation')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
+                    <label class="form-label">Confirm Password <span class="text-red-500">*</span></label>
+                    <div class="relative" x-data="{ show: false }">
+                        <input
+                            :type="show ? 'text' : 'password'"
+                            wire:model.live.debounce.500ms="password_confirmation"
+                            placeholder="Confirm new password"
+                            class="form-input pr-10 w-full" />
+                        <button type="button" @click="show = !show"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            <i x-show="!show" data-tabler="eye" class="size-5"></i>
+                            <i x-show="show" data-tabler="eye-off" class="size-5"></i>
+                        </button>
+                    </div>
+
+                    {{-- Match Indicator --}}
+                    @if($this->passwordMatch['show'])
+                        @if($this->passwordMatch['match'])
+                            <p class="mt-1.5 text-xs text-green-500 flex items-center gap-1">
+                                <i data-tabler="circle-check" class="size-3.5"></i> Passwords match
+                            </p>
+                        @else
+                            <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                                <i data-tabler="circle-x" class="size-3.5"></i> Passwords do not match
+                            </p>
+                        @endif
+                    @endif
                 </div>
+
             </div>
-            <button type="submit" class="btn btn-primary w-full mt-6" wire:loading.attr="disabled">
+
+            <button type="submit" class="btn btn-primary w-full mt-6"
+                wire:loading.attr="disabled" wire:target="resetPassword">
                 <span wire:loading.remove wire:target="resetPassword">Reset Password</span>
-                <span wire:loading wire:target="resetPassword">Resetting...</span>
+                <span wire:loading wire:target="resetPassword" class="loading loading-spinner loading-xs"></span>
             </button>
         </form>
     @endif
-
 </div>

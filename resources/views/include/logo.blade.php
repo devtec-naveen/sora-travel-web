@@ -1,4 +1,5 @@
-   @if (request()->routeIs('home'))
+   @php $home = $home ?? false; @endphp
+   @if ($home)
        <svg class="w-full" width="140" height="66" viewBox="0 0 140 66" fill="none"
            xmlns="http://www.w3.org/2000/svg">
            <path

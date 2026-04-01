@@ -7,7 +7,7 @@
         <div class="form-control w-full">
             <label class="form-label">Email</label>
             <input type="email"
-                wire:model="email"
+                wire:model.live.debounce.500ms="email"
                 placeholder="Enter email address"
                 class="form-input @error('email') border-red-400 @enderror"
                 wire:keydown.enter="login" />
@@ -19,7 +19,7 @@
         <div class="form-control w-full">
             <label class="form-label">Password</label>
             <input type="password"
-                wire:model="password"
+                wire:model.live.debounce.500ms="password"
                 placeholder="Enter your password"
                 class="form-input @error('password') border-red-400 @enderror"
                 wire:keydown.enter="login" />
@@ -30,7 +30,7 @@
 
         <div class="w-full flex justify-center mt-2">
             <a href="javascript:void(0)"
-                onclick="login_modal.close(); forgot_password_modal.showModal()"
+                wire:click="switchToForgot"
                 class="font-semibold text-base text-center text-blue-600">
                 Forgot password?
             </a>
@@ -48,7 +48,7 @@
         <p class="mt-5 text-center font-normal text-base text-[#4a5565]">
             Don't have an account?
             <a href="javascript:void(0)"
-                onclick="login_modal.close(); signup_modal.showModal()"
+                 wire:click="switchToSignup"
                 class="font-semibold text-base text-blue-600">Sign Up</a>
         </p>
 

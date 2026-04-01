@@ -25,8 +25,8 @@ x-on:otp-sent.window="startCountdown()">
         <div class="w-full space-y-4 mt-7">
 
             <div class="form-control w-full">
-                <label class="form-label">Full Name</label>
-                <input type="text" wire:model="name" placeholder="John Doe"
+                <label class="form-label">Full Name <span class="text-red-500">*</span></label>
+                <input type="text" wire:model.live.debounce.500ms="name" placeholder="John Doe"
                     class="form-input @error('name') border-red-400 @enderror" />
                 @error('name')
                     <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
@@ -34,8 +34,8 @@ x-on:otp-sent.window="startCountdown()">
             </div>
 
             <div class="form-control w-full">
-                <label class="form-label">Email</label>
-                <input type="email" wire:model="email" placeholder="Enter email address"
+                <label class="form-label">Email <span class="text-red-500">*</span></label>
+                <input type="email" wire:model.live.debounce.500ms="email" placeholder="Enter email address"
                     class="form-input @error('email') border-red-400 @enderror" />
                 @error('email')
                     <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
@@ -43,22 +43,86 @@ x-on:otp-sent.window="startCountdown()">
             </div>
 
             <div class="form-control w-full">
-                <label class="form-label">Password</label>
-                <input type="password" wire:model="password" placeholder="Create a password (min 8 chars)"
-                    class="form-input @error('password') border-red-400 @enderror" />
+                <label class="form-label">Password <span class="text-red-500">*</span></label>
+                <div class="relative" x-data="{ show: false }">
+                    <input
+                        :type="show ? 'text' : 'password'"
+                        wire:model.live.debounce.500ms="password"
+                        placeholder="Create a password (min 8 chars)"
+                        class="form-input pr-10 w-full @error('password') border-red-400 @enderror" />
+                    <button type="button" @click="show = !show"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        <i x-show="!show" data-tabler="eye" class="size-5"></i>
+                        <i x-show="show" data-tabler="eye-off" class="size-5"></i>
+                    </button>
+                </div>
                 @error('password')
                     <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
                 @enderror
+
+                {{-- Password Strength --}}
+                @if($this->passwordStrength['show'])
+                    <div class="mt-2 space-y-1.5">
+                        <div class="flex gap-1">
+                            @for($i = 1; $i <= 5; $i++)
+                                <div class="h-1 flex-1 rounded-full transition-all duration-300
+                                    {{ $i <= $this->passwordStrength['score']
+                                        ? $this->passwordStrength['barColor']
+                                        : 'bg-slate-200' }}">
+                                </div>
+                            @endfor
+                        </div>
+                        <p class="text-xs font-medium {{ $this->passwordStrength['textColor'] }}">
+                            Password strength: {{ $this->passwordStrength['label'] }}
+                        </p>
+                        <ul class="text-xs space-y-0.5">
+                            @foreach([
+                                'uppercase' => 'One uppercase letter',
+                                'number'    => 'One number',
+                                'special'   => 'One special character',
+                                'length'    => 'Minimum 8 characters',
+                            ] as $key => $label)
+                                <li class="flex items-center gap-1 {{ $this->passwordStrength['hints'][$key] ? 'text-green-500' : 'text-slate-400' }}">
+                                    <i data-tabler="{{ $this->passwordStrength['hints'][$key] ? 'circle-check' : 'circle-x' }}" class="size-3.5"></i>
+                                    {{ $label }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
             </div>
 
             <div class="form-control w-full">
-                <label class="form-label">Confirm Password</label>
-                <input type="password" wire:model="password_confirmation" placeholder="Confirm your password"
-                    class="form-input" />
+                <label class="form-label">Confirm Password <span class="text-red-500">*</span></label>
+                <div class="relative" x-data="{ show: false }">
+                    <input
+                        :type="show ? 'text' : 'password'"
+                        wire:model.live.debounce.500ms="password_confirmation"
+                        placeholder="Confirm your password"
+                        class="form-input pr-10 w-full" />
+                    <button type="button" @click="show = !show"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        <i x-show="!show" data-tabler="eye" class="size-5"></i>
+                        <i x-show="show" data-tabler="eye-off" class="size-5"></i>
+                    </button>
+                </div>
+
+                {{-- Match Indicator --}}
+                @if($this->passwordMatch['show'])
+                    @if($this->passwordMatch['match'])
+                        <p class="mt-1.5 text-xs text-green-500 flex items-center gap-1">
+                            <i data-tabler="circle-check" class="size-3.5"></i> Passwords match
+                        </p>
+                    @else
+                        <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                            <i data-tabler="circle-x" class="size-3.5"></i> Passwords do not match
+                        </p>
+                    @endif
+                @endif
             </div>
 
             <div class="flex items-start gap-2">
-                <input type="checkbox" wire:model="terms" class="checkbox checkbox-sm checkbox-primary mt-0.5" />
+                <input type="checkbox" wire:model.live.debounce.500ms="terms" class="checkbox checkbox-sm checkbox-primary mt-0.5" />
                 <span class="text-xs sm:text-sm text-slate-500">
                     I agree to the
                     <a href="#" class="text-blue-600 font-medium">Terms & Conditions</a>
@@ -78,7 +142,7 @@ x-on:otp-sent.window="startCountdown()">
 
             <p class="mt-5 font-normal text-base text-[#4a5565]">
                 Already have an account?
-                <a href="javascript:void(0)" onclick="signup_modal.close(); login_modal.showModal()"
+                <a href="javascript:void(0)" wire:click="switchToLogin"
                     class="font-semibold text-base text-blue-600">Log In</a>
             </p>
 
@@ -111,7 +175,7 @@ x-on:otp-sent.window="startCountdown()">
                         maxlength="1"
                         inputmode="numeric"
                         pattern="[0-9]"
-                        wire:model="otp.{{ $i }}"
+                        wire:model.live.debounce.500ms="otp.{{ $i }}"
                         id="otp_{{ $i }}"
                         class="w-11 h-12 text-center text-lg font-semibold border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 @error('otp') border-red-400 @enderror"
                         oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length===1){ let next=document.getElementById('otp_{{ $i + 1 }}'); if(next) next.focus(); }"
