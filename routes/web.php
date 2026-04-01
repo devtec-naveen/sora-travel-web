@@ -57,7 +57,7 @@ Route::prefix('my-account')->group(function () {
 
 Route::middleware(['user.auth'])->group(function () {
     Route::get('/my-booking', function () {
-        return view('mybooking.index');
+        return view('mybooking.listing');
     })->name('my-booking');
 });
 

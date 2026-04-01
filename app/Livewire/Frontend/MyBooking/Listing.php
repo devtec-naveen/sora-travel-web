@@ -54,7 +54,6 @@ class Listing extends Component
             );
 
         } catch (\Throwable $e) {
-            dd('111');
             $this->dispatch('notify', type: 'danger', message: $e->getMessage());
         }
     }
