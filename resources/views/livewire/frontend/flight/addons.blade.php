@@ -1,4 +1,8 @@
-<div>
+<div wire:init="loadData">
+    <x-loader 
+        message="Please Wait..."
+        targets="loadData"
+     />
     <main class="bg-slate-50 min-h-[800px]">
         <div class="booking-progress-container py-6">
             <div class="container">

@@ -22,11 +22,18 @@ class Addons extends Component
 
     public bool $noServicesAvailable = false;
     public bool $fetchError          = false;
+    public bool $isLoading = true;
 
     public function mount(): void
     {
-        $session = session('passenger_info', []);
 
+    }
+
+    public function loadData(): void
+    {
+        sleep(1);
+        
+        $session = session('passenger_info', []);
         $this->selectedFlight = $session['flight']     ?? [];
         $this->passengers     = $session['passengers'] ?? [];
         $this->contact        = $session['contact']    ?? [];
@@ -73,6 +80,8 @@ class Addons extends Component
         } else {
             $this->noServicesAvailable = true;
         }
+
+        $this->isLoading = false; 
     }
 
     protected function fetchServices(string $offerId): void

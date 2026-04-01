@@ -142,7 +142,7 @@
 
                         {{-- Actions --}}
                         <div class="w-full flex flex-col sm:flex-row gap-3 pt-2">
-                            <a href="" class="btn btn-white flex-1">
+                            <a href="{{route('my-booking')}}" class="btn btn-white flex-1">
                                 <i data-tabler="calendar" data-size="16"></i>
                                 View My Bookings
                             </a>

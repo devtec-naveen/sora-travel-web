@@ -23,16 +23,15 @@ class Payment extends Component
     public int    $adults         = 1;
     public int    $children       = 0;
     public int    $infants        = 0;
-
     public string $paymentMethod  = 'stripe';
     public string $cardNumber     = '';
     public string $cardHolder     = '';
     public string $cardExpiry     = '';
     public string $cardCvv        = '';
-
     public bool   $isProcessing   = false;
     public bool   $paymentError   = false;
     public string $errorMessage   = '';
+    public bool $isLoading = true;
 
     protected function rules(): array
     {
@@ -45,8 +44,14 @@ class Payment extends Component
         ];
     }
 
-    public function mount(): void
+    public function mount():void 
     {
+
+    }
+
+    public function loadData(): void
+    {
+        sleep(1);
         $bookingInfo = session('booking_info', []);
         $seatsInfo   = session('seats_info',   []);
         $addonsInfo  = session('addons_info',  []);
@@ -67,6 +72,11 @@ class Payment extends Component
         $this->addonsTotal = (float) ($source['addonsTotal'] ?? 0);
         $this->seatTotal   = (float) ($source['seatTotal']   ?? 0);
         $this->grandTotal  = (float) ($source['grandTotal']  ?? ($this->baseTotal + $this->addonsTotal + $this->seatTotal));
+    }
+
+    public function updated(string $field): void
+    {
+        $this->validateOnly($field);
     }
 
     public function pay(): void

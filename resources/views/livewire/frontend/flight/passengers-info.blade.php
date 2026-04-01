@@ -1,4 +1,8 @@
-<div>
+<div wire:init="loadData">
+    <x-loader 
+        message="Please Wait..."
+        targets="loadData"
+     />
     <main class="bg-slate-50 min-h-[800px]">
         <div class="booking-progress-container py-6">
             <div class="container">
@@ -82,7 +86,7 @@
                                                 <span class="form-label">Title *</span>
                                                 <div class="relative group">
                                                     <select class="form-input appearance-none pr-10"
-                                                        wire:model="passengers.{{ $idx }}.title">
+                                                        wire:model.live.debounce.500ms="passengers.{{ $idx }}.title">
                                                         <option>Mr</option>
                                                         <option>Ms</option>
                                                         <option>Mrs</option>
@@ -100,7 +104,7 @@
                                                         passport/ID)</span></span>
                                                 <input type="text" placeholder="Enter name"
                                                     class="form-input @error('passengers.' . $idx . '.first_name') border-red-400 @enderror"
-                                                    wire:model="passengers.{{ $idx }}.first_name" />
+                                                    wire:model.live.debounce.500ms="passengers.{{ $idx }}.first_name" />
                                                 @error('passengers.' . $idx . '.first_name')
                                                     <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                                 @enderror
@@ -112,7 +116,7 @@
                                                     passport/ID)</span></span>
                                             <input type="text" placeholder="Enter name"
                                                 class="form-input @error('passengers.' . $idx . '.last_name') border-red-400 @enderror"
-                                                wire:model="passengers.{{ $idx }}.last_name" />
+                                                wire:model.live.debounce.500ms="passengers.{{ $idx }}.last_name" />
                                             @error('passengers.' . $idx . '.last_name')
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror
@@ -123,7 +127,7 @@
                                                 <div class="relative group">
                                                     <select
                                                         class="form-input appearance-none pr-10 @error('passengers.' . $idx . '.gender') border-red-400 @enderror"
-                                                        wire:model="passengers.{{ $idx }}.gender">
+                                                        wire:model.live.debounce.500ms="passengers.{{ $idx }}.gender">
                                                         <option value="" disabled>Choose</option>
                                                         <option value="m">Male</option>
                                                         <option value="f">Female</option>
@@ -181,7 +185,7 @@
                                                     </div>
                                                 </div>
                                                 <input type="hidden" id="dtp_val_{{ $dobId }}"
-                                                    wire:model="passengers.{{ $idx }}.dob"
+                                                    wire:model.live.debounce.500ms="passengers.{{ $idx }}.dob"
                                                     value="{{ $pax['dob'] ?? '' }}" />
                                                 @error('passengers.' . $idx . '.dob')
                                                     <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
@@ -194,7 +198,7 @@
                                                     <span class="form-label">Passport Number</span>
                                                     <input type="text" placeholder="Enter Passport Number"
                                                         class="form-input"
-                                                        wire:model="passengers.{{ $idx }}.passport_no" />
+                                                        wire:model.live.debounce.500ms="passengers.{{ $idx }}.passport_no" />
                                                 </div>
                                                 <div class="form-control">
                                                     <span class="form-label">Passport Expiry Date</span>
@@ -217,7 +221,7 @@
                                                         </div>
                                                     </div>
                                                     <input type="hidden" id="dtp_val_{{ $expId }}"
-                                                        wire:model="passengers.{{ $idx }}.passport_expiry"
+                                                        wire:model.live.debounce.500ms="passengers.{{ $idx }}.passport_expiry"
                                                         value="{{ $pax['passport_expiry'] ?? '' }}" />
                                                 </div>
                                             </div>
@@ -238,7 +242,7 @@
                                             <span class="form-label">Email Address *</span>
                                             <input type="email" placeholder="Enter email address"
                                                 class="form-input @error('email') border-red-400 @enderror"
-                                                wire:model="email" />
+                                                wire:model.live.debounce.500ms="email" />
                                             @error('email')
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror
@@ -249,7 +253,7 @@
                                                 <div class="w-24 shrink-0 relative group">
                                                     <select
                                                         class="form-input appearance-none pr-10 rounded-r-none border-r-0"
-                                                        wire:model="phoneCode">
+                                                        wire:model.live.debounce.500ms="phoneCode">
                                                         <option value="+91">+91</option>
                                                         <option value="+1">+1</option>
                                                         <option value="+44">+44</option>
@@ -267,7 +271,7 @@
                                                 </div>
                                                 <input type="tel" placeholder="Phone number"
                                                     class="form-input flex-1 rounded-l-none @error('phone') border-red-400 @enderror"
-                                                    wire:model="phone" />
+                                                    wire:model.live.debounce.500ms="phone" />
                                             </div>
                                             @error('phone')
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>

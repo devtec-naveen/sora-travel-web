@@ -11,25 +11,56 @@ class PassengerInfo extends Component
     public int    $children       = 0;
     public int    $infants        = 0;
     public string $cabinClass     = 'Economy';
-
     public array  $passengers     = [];
     public string $email          = '';
     public string $phoneCode      = '+91';
     public string $phone          = '';
+    public bool   $isLoading      = true;
 
     public function mount(): void
     {
-        $session = session('selected_flight', []);
+        
+    }
 
+    protected function rules()
+    {
+        return [
+            'passengers.*.first_name' => 'required|string',
+            'passengers.*.last_name'  => 'required|string',
+            'passengers.*.gender'     => 'required|string',
+            'passengers.*.dob'        => 'required|string',
+            'email'                   => 'required|email',
+            'phone'                   => 'required|string|min:7|max:15',
+        ];
+    }
+
+    protected function messages()
+    {
+        return [
+            'passengers.*.first_name.required' => 'First name is required for all passengers.',
+            'passengers.*.last_name.required'  => 'Last name is required for all passengers.',
+            'passengers.*.gender.required'     => 'Gender is required for all passengers.',
+            'passengers.*.dob.required'        => 'Date of birth is required for all passengers.',
+
+            'email.required' => 'Email address is required.',
+            'email.email'    => 'Please enter a valid email address.',
+
+            'phone.required' => 'Phone number is required.',
+            'phone.min'      => 'Phone number must be at least 7 digits.',
+            'phone.max'      => 'Phone number must not exceed 15 digits.',
+        ];
+    }
+
+    public function loadData(): void 
+    {
+        sleep(1);
+        $session = session('selected_flight', []);
         $this->selectedFlight = $session['flight']    ?? [];
         $this->adults         = (int) ($session['adults']    ?? request('adults',   1));
         $this->children       = (int) ($session['children']  ?? request('childrens', 0));
         $this->infants        = (int) ($session['infants']   ?? request('infants',  0));
         $this->cabinClass     = $session['cabinClass'] ?? request('cabin_class', 'Economy');
-
-
         $saved = session('passenger_info', []);
-
         if (! empty($saved['passengers'])) {
             $this->passengers = $saved['passengers'];
         } else {
@@ -41,6 +72,8 @@ class PassengerInfo extends Component
             $this->phoneCode = $saved['contact']['phone_code'] ?? '+91';
             $this->phone     = $saved['contact']['phone']      ?? '';
         }
+
+        $this->isLoading = false;
     }
 
     private function buildPassengers(): void
@@ -75,25 +108,8 @@ class PassengerInfo extends Component
 
     public function continue(): void
     {
-        $this->validate([
-            'passengers.*.first_name'  => 'required|string',
-            'passengers.*.last_name'   => 'required|string',
-            'passengers.*.gender'      => 'required|string',
-            'passengers.*.dob'         => 'required|string',
-            'email'                    => 'required|email',
-            'phone'                    => 'required|string|min:7|max:15',
-        ], [
-            'passengers.*.first_name.required' => 'First name is required for all passengers.',
-            'passengers.*.last_name.required'  => 'Last name is required for all passengers.',
-            'passengers.*.gender.required'     => 'Gender is required for all passengers.',
-            'passengers.*.dob.required'        => 'Date of birth is required for all passengers.',
-            'email.required'                   => 'Email address is required.',
-            'email.email'                      => 'Please enter a valid email address.',
-            'phone.required'                   => 'Phone number is required.',
-            'phone.min'                        => 'Phone number must be at least 7 digits.',
-            'phone.max'                        => 'Phone number must not exceed 15 digits.',
-        ]);
-
+        $this->validate();
+        
         session([
             'passenger_info' => [
                 'flight'     => $this->selectedFlight,
@@ -111,6 +127,11 @@ class PassengerInfo extends Component
         ]);
 
         $this->redirect(route('airport.addon'));
+    }
+
+    public function updated(string $field): void
+    {
+        $this->validateOnly($field);
     }
 
     public function render()

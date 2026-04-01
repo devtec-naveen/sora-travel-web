@@ -1,9 +1,7 @@
 <?php
 
 namespace App\Livewire\Frontend\Flight;
-
 use Livewire\Component;
-
 class Review extends Component
 {
     public array  $selectedFlight = [];
@@ -19,14 +17,20 @@ class Review extends Component
     public float  $grandTotal     = 0;
     public array  $addons         = [];  
     public array  $selectedSeats  = [];   
-    public array  $services       = [];   
+    public array  $services       = [];
+    public bool $isLoading = true;
 
-    public function mount(): void
+    public function mount():void 
     {
+
+    }
+
+    public function loadData(): void
+    {
+        sleep(1);
         $seatsInfo  = session('seats_info',  []);
         $addonsInfo = session('addons_info', []);
         $paxInfo    = session('passenger_info', []);
-
         $source = $seatsInfo ?: $addonsInfo;
 
         $this->selectedFlight = $source['flight']     ?? $paxInfo['flight']     ?? [];

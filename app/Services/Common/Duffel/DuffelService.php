@@ -381,7 +381,7 @@ class DuffelService
 
             // 3️⃣ Request cancellation from Duffel
             $response = $this->auth->client()->post("/air/order_cancellations", [
-                'json' => [
+                'data' => [
                     'order_id' => $orderId,
                 ],
             ]);

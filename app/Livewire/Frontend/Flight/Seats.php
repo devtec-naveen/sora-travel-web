@@ -18,24 +18,27 @@ class Seats extends Component
     public float  $baseTotal      = 0;
     public float  $addonsTotal    = 0;
     public array  $addonsInfo     = [];
-
     public array $seatMaps        = [];
     public int   $activeMapIndex  = 0;
-
     public array $selectedSeats   = [];
-
     public bool   $noSeatsAvailable  = false;
     public bool   $fetchError        = false;
     public string $activePassengerKey = '';
-
-
+    public bool $isLoading = true;
     public array $passengerMeta = [];
+
 
     public function mount(): void
     {
+
+    }
+
+    public function loadData(): void
+    {
+        sleep(1);
+
         $session    = session('passenger_info', []);
         $addonsInfo = session('addons_info', []);
-
         $this->selectedFlight = $addonsInfo['flight']     ?? $session['flight']     ?? [];
         $this->passengers     = $addonsInfo['passengers'] ?? $session['passengers'] ?? [];
         $this->contact        = $addonsInfo['contact']    ?? $session['contact']    ?? [];
@@ -49,14 +52,13 @@ class Seats extends Component
         $this->baseTotal   = (float) ($sf['total_amount']       ?? 0);
         $this->addonsTotal = (float) ($addonsInfo['addonsTotal'] ?? 0);
 
-
         foreach ($this->passengers as $idx => $pax) {
             if (($pax['type'] ?? '') === 'infant') continue;
 
-            $duffelId  = $pax['id'] ?? null;
-            $paxKey    = $duffelId ?: "pax_{$idx}";
-            $name      = trim(($pax['first_name'] ?? $pax['given_name'] ?? '') . ' ' . ($pax['last_name'] ?? $pax['family_name'] ?? ''))
-                         ?: ucfirst($pax['type'] ?? 'Passenger') . ' ' . ($idx + 1);
+            $duffelId = $pax['id'] ?? null;
+            $paxKey   = $duffelId ?: "pax_{$idx}";
+            $name     = trim(($pax['first_name'] ?? $pax['given_name'] ?? '') . ' ' . ($pax['last_name'] ?? $pax['family_name'] ?? ''))
+                        ?: ucfirst($pax['type'] ?? 'Passenger') . ' ' . ($idx + 1);
 
             $this->passengerMeta[$paxKey] = [
                 'name'      => $name,
@@ -68,9 +70,9 @@ class Seats extends Component
 
         $this->activePassengerKey = array_key_first($this->passengerMeta) ?? '';
 
-        $savedSeats = session('seats_info.selectedSeats', []);
-
+        $savedSeats   = session('seats_info.selectedSeats', []);
         $segmentCount = count($sf['slices'] ?? []);
+
         foreach (range(0, max($segmentCount - 1, 0)) as $si) {
             $this->selectedSeats[$si] = [];
             foreach (array_keys($this->passengerMeta) as $paxKey) {
@@ -84,6 +86,8 @@ class Seats extends Component
         } else {
             $this->noSeatsAvailable = true;
         }
+
+        $this->isLoading = false;
     }
 
     protected function fetchSeatMaps(string $offerId): void
