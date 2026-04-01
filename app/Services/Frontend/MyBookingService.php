@@ -78,11 +78,15 @@ class MyBookingService
     ): Collection {
         return $this->getOrders($type, $status, $dateRange)
             ->map(function (OrderModel $order) use ($type) {
+                $data = is_array($order->data)
+                    ? $order->data
+                    : json_decode($order->data, true);
+
                 return [
                     'order'  => $order,
                     'flags'  => $this->getStatusFlags($order),
-                    'parsed' => $type === 'flight' && $order->data
-                        ? $this->parseFlightOrder($order->data)
+                    'parsed' => $type === 'flight' && $data
+                        ? $this->parseFlightOrder($data)
                         : null,
                 ];
             });

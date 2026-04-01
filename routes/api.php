@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\AirportController;
 use App\Http\Controllers\Api\FlightController;
 use App\Http\Controllers\Api\HotelController;
+use App\Http\Controllers\Api\MyBookingController;
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('/send-otp', 'sendRegisterOtp');
@@ -38,15 +39,11 @@ Route::prefix('hotels')->group(function () {
 });
 
 
-Route::prefix('mybooking')->group(function () { 
-
-
-});
-
 
 
 
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/mybooking', [MyBookingController::class, 'index']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
