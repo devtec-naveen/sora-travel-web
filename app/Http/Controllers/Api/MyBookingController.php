@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api; 
 
 use App\Http\Controllers\Controller;
-use App\Services\Frontend\MyBookingService;     
+use App\Services\Common\MyBookingService;     
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Validation\ValidationException;

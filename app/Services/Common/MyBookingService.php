@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\Frontend;
+namespace App\Services\Common;
 
 use App\Models\OrderModel;
-use App\Repositories\Frontend\MyBookingRepository;
+use App\Repositories\Common\MyBookingRepository;
 use Illuminate\Support\Collection;
 use App\Services\Common\Duffel\DuffelService;
 

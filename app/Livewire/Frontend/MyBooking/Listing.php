@@ -3,7 +3,7 @@
 namespace App\Livewire\Frontend\MyBooking;
 
 use Livewire\Component;
-use App\Services\Frontend\MyBookingService;
+use App\Services\Common\MyBookingService;
 use Illuminate\Support\Facades\Auth;
 
 class Listing extends Component
