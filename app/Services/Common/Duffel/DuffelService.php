@@ -74,22 +74,22 @@ class DuffelService
     {
         $slices = [
             [
-                "origin" => $data['origin'],
-                "destination" => $data['destination'],
+                "origin"         => $data['origin'],
+                "destination"    => $data['destination'],
                 "departure_date" => $data['departureDate']
             ],
             [
-                "origin" => $data['destination'],
-                "destination" => $data['origin'],
+                "origin"         => $data['destination'],
+                "destination"    => $data['origin'],
                 "departure_date" => $data['returnDate']
             ]
         ];
 
         $params = [
             "data" => [
-                "slices" => $slices,
-                "passengers" => $this->buildPassengers($data),
-                "cabin_class" => strtolower($data['cabin'] ?? 'economy'),
+                "slices"          => $slices,
+                "passengers"      => $this->buildPassengers($data),
+                "cabin_class"     => strtolower($data['cabin'] ?? 'economy'),
                 "max_connections" => 0
             ]
         ];
@@ -99,7 +99,11 @@ class DuffelService
             ->client()
             ->post('/air/offer_requests', $params);
 
-        return $response->json();
+        $result = $response->json();
+
+        return [
+            'offer_request_id' => $result['data']['id'] ?? null,
+        ];
     }
 
     private function searchMultiCity(array $data): array
@@ -108,17 +112,17 @@ class DuffelService
 
         foreach ($data['trips'] as $trip) {
             $slices[] = [
-                "origin" => $trip['origin'],
-                "destination" => $trip['destination'],
+                "origin"         => $trip['origin'],
+                "destination"    => $trip['destination'],
                 "departure_date" => $trip['departureDate']
             ];
         }
 
         $params = [
             "data" => [
-                "slices" => $slices,
-                "passengers" => $this->buildPassengers($data),
-                "cabin_class" => strtolower($data['cabin'] ?? 'economy'),
+                "slices"          => $slices,
+                "passengers"      => $this->buildPassengers($data),
+                "cabin_class"     => strtolower($data['cabin'] ?? 'economy'),
                 "max_connections" => 0
             ]
         ];
@@ -128,7 +132,11 @@ class DuffelService
             ->client()
             ->post('/air/offer_requests', $params);
 
-        return $response->json();
+        $result = $response->json();
+
+        return [
+            'offer_request_id' => $result['data']['id'] ?? null,
+        ];
     }
 
     private function buildPassengers(array $data): array
