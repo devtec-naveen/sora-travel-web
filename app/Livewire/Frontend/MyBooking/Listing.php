@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Frontend\MyBooking;
+namespace App\Livewire\Frontend\Mybooking;
 
 use Livewire\Component;
 use App\Services\Common\MyBookingService;
