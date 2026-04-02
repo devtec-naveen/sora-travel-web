@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Frontend\Mybooking;
+namespace App\Livewire\Frontend\Booking;
 
 use Livewire\Component;
 use App\Services\Common\MyBookingService;
@@ -72,7 +72,7 @@ class Listing extends Component
 
     public function render()
     {
-        return view('livewire.frontend.mybooking.listing', [
+        return view('livewire.frontend.booking.listing', [
             'parsedOrders' => $this->service->getParsedOrders(
                 $this->activeType,
                 $this->activeStatus,
