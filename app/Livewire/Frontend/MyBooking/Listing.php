@@ -5,6 +5,7 @@ namespace App\Livewire\Frontend\Mybooking;
 use Livewire\Component;
 use App\Services\Common\MyBookingService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class Listing extends Component
 {
@@ -71,6 +72,11 @@ class Listing extends Component
 
     public function render()
     {
+            Log::info('MyBooking Listing component render called', [
+                'namespace' => __NAMESPACE__,
+                'class' => __CLASS__,
+            ]);
+
         return view('livewire.frontend.mybooking.listing', [
             'parsedOrders' => $this->service->getParsedOrders(
                 $this->activeType,
