@@ -11,6 +11,7 @@ use App\Http\Controllers\Backend\SpecialOffersController;
 use App\Http\Controllers\Frontend\AirportController;
 use App\Http\Controllers\Frontend\HotelController;
 use App\Http\Middleware\BookingSessionMiddleware;
+use App\Http\Controllers\frontend\BookingController;
 use Illuminate\Support\Facades\Artisan;
 
 //==================================================== Front Routes ======================================= 
@@ -56,9 +57,8 @@ Route::prefix('my-account')->group(function () {
 
 
 Route::middleware(['user.auth'])->group(function () {
-    Route::get('/my-booking', function () {
-        return view('booking.listing');
-    })->name('my-booking');
+    Route::get('/my-booking', [BookingController::class, 'myBooking'])->name('my-booking');
+    Route::get('/my-booking/flight/{id}', [BookingController::class, 'myFlightViewBooking'])->name('booking.flight.show');
 });
 
 //================================= Frontend Protected Routes End ================================= 

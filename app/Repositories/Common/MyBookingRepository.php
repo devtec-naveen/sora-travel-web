@@ -32,4 +32,15 @@ class MyBookingRepository
             ->latest('booking_date')
             ->get();
     }
+
+    public function getOrderById(int|string $id): ?OrderModel
+    {
+        return OrderModel::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->whereNull('deleted_at')
+            ->first();
+    }
+
+
+
 }

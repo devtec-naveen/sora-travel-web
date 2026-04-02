@@ -38,17 +38,17 @@ class AuthService
             $user       = $this->authRepo->createOrUpdatePendingUser($data);
             $expireTime = config('mail.otp_expire_time', 10);
 
-            SendEmail::dispatch(
-                $user->email,
-                $emailTemplate->subject,
-                $emailTemplate->body,
-                [
-                    'name'        => $user->name,
-                    'otp_code'    => $user->otp,
-                    'app_name'    => config('app.name'),
-                    'expire_time' => $expireTime,
-                ]
-            );
+            // SendEmail::dispatch(
+            //     $user->email,
+            //     $emailTemplate->subject,
+            //     $emailTemplate->body,
+            //     [
+            //         'name'        => $user->name,
+            //         'otp_code'    => $user->otp,
+            //         'app_name'    => config('app.name'),
+            //         'expire_time' => $expireTime,
+            //     ]
+            // );
 
             return [
                 'status'  => true,

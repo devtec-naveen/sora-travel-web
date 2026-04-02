@@ -4,6 +4,7 @@ namespace App\Services\Common\Duffel;
 
 use App\Models\OrderModel;
 use App\Models\PaymentModel;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;

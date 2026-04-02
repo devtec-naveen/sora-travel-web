@@ -5,22 +5,27 @@ namespace App\Livewire\Frontend\Booking;
 use Livewire\Component;
 use App\Services\Common\MyBookingService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class Listing extends Component
 {
     public string $activeType   = 'flight';
     public string $activeStatus = 'upcoming';
     public string $dateRange    = '';
-
     public bool $showCancelModal = false;
     public $cancelOrderId = null;
+    public bool $isLoading = true;
 
     protected MyBookingService $service;
 
     public function boot(MyBookingService $service): void
     {
         $this->service = $service;
+    }
+
+    public function loadData(): void
+    {
+        sleep(1);
+        $this->isLoading = false;
     }
 
     public function openModal($orderId): void
@@ -38,14 +43,12 @@ class Listing extends Component
     public function confirmCancel(): void
     {
         if (!$this->cancelOrderId) return;
-        
+
         try {
             $result = $this->service->cancelOrder([
                 'order_id' => $this->cancelOrderId,
                 'user_id'  => Auth::id(),
             ]);
-                
-                dd($result);
 
             $this->closeModal();
 
@@ -63,21 +66,29 @@ class Listing extends Component
     {
         $this->activeType   = $type;
         $this->activeStatus = 'upcoming';
+        $this->isLoading = true;
+        $this->loadData();
     }
 
     public function setStatus(string $status): void
     {
+        sleep(1);
         $this->activeStatus = $status;
+    }
+
+    public function updatedDateRange()
+    {
+        sleep(1);
+        $this->isLoading = true;
+        $this->isLoading = false;
     }
 
     public function render()
     {
         return view('livewire.frontend.booking.listing', [
-            'parsedOrders' => $this->service->getParsedOrders(
-                $this->activeType,
-                $this->activeStatus,
-                $this->dateRange,
-            ),
+            'parsedOrders' => $this->isLoading
+                ? []
+                : $this->service->getParsedOrders($this->activeType, $this->activeStatus, $this->dateRange),
         ]);
     }
 }

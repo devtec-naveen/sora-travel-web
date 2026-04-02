@@ -96,4 +96,92 @@ class MyBookingService
     {
         return $this->suffelService->cancelOrder($data);
     }
+
+    public function getOrderDetail(int|string $id): ?array
+    {
+        $order = $this->repository->getOrderById($id);
+
+        if (! $order) {
+            return null;
+        }
+
+        $data = is_array($order->data)
+            ? $order->data
+            : json_decode($order->data, true);
+
+        $flags  = $this->getStatusFlags($order);
+        $parsed = $data ? $this->parseFlightOrder($data) : null;
+
+        $passengers = collect($data['passengers'] ?? [])->map(function ($pax) use ($data) {
+            $doc = collect($data['documents'] ?? [])
+                ->firstWhere(fn($d) => in_array($pax['id'], $d['passenger_ids'] ?? []) && $d['type'] === 'electronic_ticket');
+
+            return [
+                'id'              => $pax['id']            ?? null,
+                'type'            => $pax['type']           ?? 'adult',
+                'title'           => $pax['title']          ?? null,
+                'first_name'      => $pax['given_name']     ?? null,
+                'last_name'       => $pax['family_name']    ?? null,
+                'gender'          => $pax['gender']         ?? null,
+                'born_on'         => $pax['born_on']        ?? null,
+                'nationality'     => $pax['nationality']    ?? null,
+                'passport_number' => $pax['identity_documents'][0]['unique_identifier'] ?? null,
+                'ticket_number'   => $doc['unique_identifier'] ?? null,
+                'email'           => $pax['email']          ?? null,
+                'phone'           => $pax['phone_number']   ?? null,
+            ];
+        })->toArray();
+
+        $firstPax = $data['passengers'][0] ?? [];
+        $contact  = [
+            'email' => $firstPax['email']        ?? null,
+            'phone' => $firstPax['phone_number'] ?? null,
+        ];
+
+        $conditions = [];
+        $rawCond    = $data['conditions'] ?? [];
+
+        if (! empty($rawCond['change_before_departure'])) {
+            $c = $rawCond['change_before_departure'];
+            if ($c['allowed'] ?? false) {
+                $penalty = $c['penalty_amount']
+                    ? "Change fee: {$c['penalty_currency']} {$c['penalty_amount']}"
+                    : 'Changes allowed with no penalty';
+                $conditions[] = $penalty;
+            } else {
+                $conditions[] = 'Changes not allowed before departure';
+            }
+        }
+
+        if (! empty($rawCond['refund_before_departure'])) {
+            $r = $rawCond['refund_before_departure'];
+            if ($r['allowed'] ?? false) {
+                $penalty = $r['penalty_amount']
+                    ? "Refund fee: {$r['penalty_currency']} {$r['penalty_amount']}"
+                    : 'Full refund allowed before departure';
+                $conditions[] = $penalty;
+            } else {
+                $conditions[] = 'Non-refundable ticket';
+            }
+        }
+
+        $services = collect($data['services'] ?? [])->map(fn($svc) => [
+            'id'          => $svc['id']             ?? null,
+            'type'        => $svc['type']            ?? null,
+            'quantity'    => $svc['quantity']        ?? 1,
+            'weight_kg'   => $svc['metadata']['maximum_weight_kg'] ?? null,
+            'amount'      => $svc['total_amount']    ?? null,
+            'currency'    => $svc['total_currency']  ?? null,
+        ])->toArray();
+
+        return [
+            'order'      => $order,
+            'flags'      => $flags,
+            'parsed'     => $parsed,
+            'passengers' => $passengers,
+            'contact'    => $contact,
+            'conditions' => $conditions,
+            'services'   => $services,
+        ];
+    }
 }
