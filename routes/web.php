@@ -11,7 +11,7 @@ use App\Http\Controllers\Backend\SpecialOffersController;
 use App\Http\Controllers\Frontend\AirportController;
 use App\Http\Controllers\Frontend\HotelController;
 use App\Http\Middleware\BookingSessionMiddleware;
-use App\Http\Controllers\frontend\BookingController;
+use App\Http\Controllers\Frontend\BookingController;
 use Illuminate\Support\Facades\Artisan;
 
 //==================================================== Front Routes ======================================= 
