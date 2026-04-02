@@ -77,6 +77,14 @@ class Listing extends Component
                 'class' => __CLASS__,
             ]);
 
+                dd([
+        'namespace' => __NAMESPACE__,
+        'class' => __CLASS__,
+        'view_path' => 'livewire.frontend.mybooking.listing',
+        'file_exists' => file_exists(resource_path('views/livewire/frontend/mybooking/listing.blade.php')),
+    ]);
+
+
         return view('livewire.frontend.mybooking.listing', [
             'parsedOrders' => $this->service->getParsedOrders(
                 $this->activeType,
