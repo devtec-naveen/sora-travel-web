@@ -1,3 +1,3 @@
 <x-frontend.main-layout>
-     <livewire:frontend.mybooking.listing/>
+     <livewire:frontend.Mybooking.listing/>
 </x-frontend.main-layout>
