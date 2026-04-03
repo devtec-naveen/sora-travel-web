@@ -63,19 +63,19 @@
 
                                 <div class="space-y-4">
                                     <div class="flex justify-between items-center">
-                                        <span class="form-label">Max Price</span>
-                                        <span class="text-sm font-bold text-primary-950">
-                                            {{ $maxPossiblePrice > 0 ? number_format($maxPrice) : '—' }}
-                                        </span>
+                                        <span class="form-label">Pricing</span>
+                                        {{-- <span class="text-sm font-bold text-primary-950">
+                                            &dollar; {{ $maxPossiblePrice > 0 ? number_format($maxPrice) : '—' }}
+                                        </span> --}}
                                     </div>
                                     <div class="px-1">
                                         <input type="range" min="{{ $minPossiblePrice }}"
                                             max="{{ $maxPossiblePrice }}" wire:model.live.debounce.400ms="maxPrice"
                                             class="range range-xs range-primary w-full" />
                                     </div>
-                                    <div class="flex justify-between text-xs text-slate-400">
-                                        <span>{{ number_format($minPossiblePrice) }}</span>
-                                        <span>{{ number_format($maxPossiblePrice) }}</span>
+                                    <div class="flex justify-between text-sm font-bold text-primary-950">
+                                        <span> &dollar; {{ number_format($minPossiblePrice) }}</span>
+                                        <span> &dollar; {{ number_format($maxPossiblePrice) }}</span>
                                     </div>
                                 </div>
 

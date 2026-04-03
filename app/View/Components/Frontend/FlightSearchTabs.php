@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use Illuminate\Support\Arr;
+use Carbon\Carbon;
 
 class FlightSearchTabs extends Component
 {
@@ -38,7 +39,7 @@ class FlightSearchTabs extends Component
                 'depCities'     => Arr::wrap(request('departure_city', [])),
                 'depDates'      => Arr::wrap(request('departure_date', [])),
                 'departureDate' => request('departureDate', now()->format('Y-m-d')),
-                'returnDate'    => request('returnDate', ''),
+                'returnDate'    => request('returnDate', Carbon::now()->addDay()->format('Y-m-d')),
             ];
             session(['flight_search_tabs' => $data]);
         } else {

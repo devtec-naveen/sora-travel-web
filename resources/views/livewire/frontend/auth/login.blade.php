@@ -15,11 +15,22 @@
         </div>
         <div class="form-control w-full">
             <label class="form-label">Password</label>
-            <input type="password"
-                wire:model.live.debounce.500ms="password"
-                placeholder="Enter your password"
-                class="form-input @error('password') border-red-400 @enderror"
-                wire:keydown.enter="login" />
+            <div class="relative" x-data="{ show: false }">
+                <input
+                    :type="show ? 'text' : 'password'"
+                    wire:model.live.debounce.500ms="password"
+                    placeholder="Enter your password"
+                    class="form-input pr-10 @error('password') border-red-400 @enderror"
+                    wire:keydown.enter="login" />
+
+                <button
+                    type="button"
+                    @click="show = !show"
+                    class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors">
+                    <i x-show="!show" data-tabler="eye" class="size-5"></i>
+                    <i x-show="show" data-tabler="eye-off" class="size-5"></i>
+                </button>
+            </div>
             @error('password')
                 <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
             @enderror
