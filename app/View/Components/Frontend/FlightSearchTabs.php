@@ -51,7 +51,7 @@ class FlightSearchTabs extends Component
                 'depCities'     => [],
                 'depDates'      => [],
                 'departureDate' => now()->format('Y-m-d'),
-                'returnDate'    => '',
+                'returnDate'    => Carbon::now()->addDay()->format('Y-m-d'),
             ]);
         }
 
