@@ -29,14 +29,11 @@ class View extends Component
     public function loadData(): void
     {
         sleep(1);
-
         $result = $this->service->getOrderDetail($this->bookingId);
-
         if (!$result) {
             $this->redirect(route('booking.index'));
             return;
         }
-
         $this->order     = $result;
         $this->isLoading = false;
     }
@@ -67,11 +64,19 @@ class View extends Component
         $flags      = null;
         $p          = null;
         $priceColor = null;
+        $services   = [];
+        $passengers = [];
+        $contact    = [];
+        $conditions = [];
 
         if (! $this->isLoading && ! empty($this->order)) {
-            $o     = $this->order['order'];
-            $flags = $this->order['flags'];
-            $p     = $this->order['parsed'];
+            $o          = $this->order['order'];
+            $flags      = $this->order['flags'];
+            $p          = $this->order['parsed'];
+            $services   = $this->order['services']    ?? [];
+            $passengers = $this->order['passengers']  ?? [];
+            $contact    = $this->order['contact']     ?? [];
+            $conditions = $this->order['conditions']  ?? [];
 
             $priceColor = $flags['isCancelled']
                 ? 'text-red-600'
@@ -83,6 +88,10 @@ class View extends Component
             'flags'      => $flags,
             'p'          => $p,
             'priceColor' => $priceColor,
+            'services'   => $services,
+            'passengers' => $passengers,
+            'contact'    => $contact,
+            'conditions' => $conditions,
         ]);
     }
 }
