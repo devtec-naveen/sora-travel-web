@@ -170,7 +170,6 @@ class Listing extends Component
         $this->isLoading = true;
 
         $duffelService = $this->duffelService ?? app(DuffelService::class);
-
         $requestData = [
             'origin'        => $this->origin,
             'destination'   => $this->destination,

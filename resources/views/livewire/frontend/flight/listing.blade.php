@@ -290,10 +290,19 @@
 
                                                 <div class="flex flex-wrap gap-2.5">
                                                     @foreach ($bags as $bag)
-                                                        <div class="tag tag-gray">
-                                                            <img src="{{ asset('assets/images/bag.svg') }}"
-                                                                alt="icon" class="w-[15px]" />
-                                                            <span>{{ $bag['quantity'] }} {{ $bag['type'] }}</span>
+                                                        @php
+                                                            $label = $bag['type'] === 'checked' 
+                                                                ? 'Bag for Check-in' 
+                                                                : ($bag['type'] === 'carry_on' ? 'Cabin Bag' : ucfirst($bag['type']));
+
+                                                            $icon = $bag['type'] === 'checked'
+                                                                ? asset('assets/images/checked_bag.svg') 
+                                                                : asset('assets/images/carry_on.svg');
+                                                        @endphp
+
+                                                        <div class="tag tag-gray flex items-center gap-1.5">
+                                                            <img src="{{ $icon }}" alt="icon" class="w-[22px]" />
+                                                            <span>{{ $bag['quantity'] }} {{ $label }}</span>
                                                         </div>
                                                     @endforeach
                                                     @if ($aircraft)
