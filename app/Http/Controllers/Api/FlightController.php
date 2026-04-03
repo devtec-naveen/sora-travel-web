@@ -192,23 +192,24 @@ class FlightController extends Controller
                 'passengers.*.identity_documents.*.expires_on'          => 'required_with:passengers.*.identity_documents|date_format:Y-m-d',
                 'passengers.*.identity_documents.*.issuing_country_code' => 'required_with:passengers.*.identity_documents|string|size:2',
                 'passengers.*.identity_documents.*.type'                 => 'required_with:passengers.*.identity_documents|string|in:passport,tax_id',
-
-                'services'            => 'nullable|array',
-                'services.*.id'       => 'required_with:services|string',
-                'services.*.quantity' => 'nullable|integer|min:1',
-
-                'seats'               => 'nullable|array',
-                'seats.*.service_id'  => 'required_with:seats|string',
-                'seats.*.quantity'    => 'nullable|integer|min:1',
-
-                'currency'            => 'required|string|size:3',
-                'card.card_number'    => ['required', 'regex:/^(\d{4}\s?){3,4}\d{1,4}$/'],
-                'card.expiry'         => ['required', 'regex:/^(0[1-9]|1[0-2])\/\d{2}$/'],
-                'card.cvc'            => 'required|digits_between:3,4',
-                'card.card_holder'    => 'required|string|min:2',
+                'services'                                               => 'nullable|array',
+                'services.*.id'                                          => 'required_with:services|string',
+                'services.*.quantity'                                    => 'nullable|integer|min:1',
+                'seats'                                                  => 'nullable|array',
+                'seats.*.service_id'                                     => 'required_with:seats|string',
+                'seats.*.quantity'                                       => 'nullable|integer|min:1',
+                'currency'                                               => 'required|string|size:3',
+                'card.card_number'                                       => ['required', 'regex:/^(\d{4}\s?){3,4}\d{1,4}$/'],
+                'card.expiry'                                            => ['required', 'regex:/^(0[1-9]|1[0-2])\/\d{2}$/'],
+                'card.cvc'                                               => 'required|digits_between:3,4',
+                'card.card_holder'                                       => 'required|string|min:2',
             ]);
 
             if ($validator->fails()) {
+                Log::warning('[createOrder] Validation failed', [
+                    'errors' => $validator->errors()->toArray(),
+                    'input'  => $request->except(['card']),
+                ]);
                 return response()->json([
                     'status'  => false,
                     'message' => 'Validation failed',
@@ -216,11 +217,26 @@ class FlightController extends Controller
                 ], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
             }
 
+            Log::info('[createOrder] STEP 0 — Request received', [
+                'offer_id'         => $request->input('offer_id'),
+                'currency'         => $request->input('currency'),
+                'client_amount'    => $request->input('amount'),
+                'services_count'   => count($request->input('services', [])),
+                'seats_count'      => count($request->input('seats', [])),
+                'passengers_count' => count($request->input('passengers', [])),
+                'services'         => $request->input('services', []),
+                'seats'            => $request->input('seats', []),
+            ]);
+
             [$month, $year] = explode('/', $request->input('card.expiry'));
             $month = (int) $month;
             $year  = (int) $year;
 
             if ($year < (int) date('y') || ($year === (int) date('y') && $month < (int) date('m'))) {
+                Log::warning('[createOrder] Card expired', [
+                    'exp_month' => $month,
+                    'exp_year'  => $year,
+                ]);
                 return response()->json([
                     'status'  => false,
                     'message' => 'Card expiry date is invalid or expired.'
@@ -245,11 +261,28 @@ class FlightController extends Controller
                 return $pax;
             })->toArray();
 
+            Log::info('[createOrder] STEP 1 — Passengers normalized', [
+                'passengers' => collect($passengers)->map(fn($p) => [
+                    'id'         => $p['id'],
+                    'given_name' => $p['given_name'],
+                    'has_docs'   => !empty($p['identity_documents']),
+                ])->toArray(),
+            ]);
+
             $currency = strtoupper($request->input('currency'));
+
+            // ─── Duffel offer fetch ────────────────────────────────────────
+            Log::info('[createOrder] STEP 2 — Fetching offer from Duffel', [
+                'offer_id' => $request->input('offer_id'),
+            ]);
 
             $offerResult = $this->duffelService->getOfferWithServices($request->input('offer_id'));
 
             if (!empty($offerResult['error']) || empty($offerResult['offer'])) {
+                Log::error('[createOrder] STEP 2 FAILED — Offer fetch failed', [
+                    'error'    => $offerResult['error'] ?? 'empty offer',
+                    'offer_id' => $request->input('offer_id'),
+                ]);
                 return response()->json([
                     'status'  => false,
                     'message' => 'Could not verify offer. Please try again.',
@@ -260,73 +293,123 @@ class FlightController extends Controller
             $offerAmount   = (float) ($offerData['total_amount']   ?? 0);
             $offerCurrency = $offerData['total_currency'] ?? $currency;
 
+            Log::info('[createOrder] STEP 2 OK — Offer fetched', [
+                'offer_id'       => $offerData['id']       ?? null,
+                'offer_amount'   => $offerAmount,
+                'offer_currency' => $offerCurrency,
+                'base_amount'    => $offerData['base_amount'] ?? null,
+                'tax_amount'     => $offerData['tax_amount']  ?? null,
+            ]);
+
             if (!$offerAmount) {
+                Log::error('[createOrder] STEP 2 FAILED — offer amount is 0', [
+                    'offer_data' => $offerData,
+                ]);
                 return response()->json([
                     'status'  => false,
                     'message' => 'Could not verify offer amount. Please try again.',
                 ], 422);
             }
 
-            $requestedServices  = $request->input('services', []);
-            $baggageAmount      = 0.0;
+            // ─── Baggage amount calculate ──────────────────────────────────
+            $requestedServices = $request->input('services', []);
+            $baggageAmount     = 0.0;
+
+            Log::info('[createOrder] STEP 3 — Calculating baggage amount', [
+                'requested_services'  => $requestedServices,
+                'available_services'  => array_keys($offerResult['services'] ?? []),
+            ]);
 
             if (!empty($requestedServices)) {
                 $availableServices = $offerResult['services'] ?? [];
                 foreach ($requestedServices as $svc) {
                     $svcId     = $svc['id'] ?? null;
                     $available = $availableServices[$svcId] ?? null;
-                    if ($available) {
-                        $qty            = (int) ($svc['quantity'] ?? 1);
-                        $baggageAmount += (float) ($available['total_amount'] ?? 0) * $qty;
-                    }
+                    $qty       = (int) ($svc['quantity'] ?? 1);
+                    $unitAmt   = (float) ($available['total_amount'] ?? 0);
+                    $lineAmt   = $unitAmt * $qty;
+                    $baggageAmount += $lineAmt;
+
+                    Log::info('[createOrder] Baggage line item', [
+                        'service_id'  => $svcId,
+                        'found'       => $available !== null,
+                        'unit_amount' => $unitAmt,
+                        'quantity'    => $qty,
+                        'line_total'  => $lineAmt,
+                    ]);
                 }
             }
 
+            Log::info('[createOrder] STEP 3 OK — Baggage total', [
+                'baggage_amount' => $baggageAmount,
+            ]);
+
+            // ─── Seats amount calculate ────────────────────────────────────
             $requestedSeats = $request->input('seats', []);
             $seatsAmount    = 0.0;
+
+            Log::info('[createOrder] STEP 4 — Calculating seats amount', [
+                'requested_seats' => $requestedSeats,
+                'available_seats' => collect($offerResult['seats'] ?? [])->pluck('service_id')->toArray(),
+            ]);
 
             if (!empty($requestedSeats)) {
                 $availableSeats = collect($offerResult['seats'] ?? [])->keyBy('service_id');
                 foreach ($requestedSeats as $seat) {
-                    $serviceId      = $seat['service_id'] ?? null;
-                    $available      = $availableSeats[$serviceId] ?? null;
-                    if ($available) {
-                        $qty         = (int) ($seat['quantity'] ?? 1);
-                        $seatsAmount += (float) ($available['amount'] ?? 0) * $qty;
-                    }
+                    $serviceId = $seat['service_id'] ?? null;
+                    $available = $availableSeats[$serviceId] ?? null;
+                    $qty       = (int) ($seat['quantity'] ?? 1);
+                    $unitAmt   = (float) ($available['amount'] ?? 0);
+                    $lineAmt   = $unitAmt * $qty;
+                    $seatsAmount += $lineAmt;
+
+                    Log::info('[createOrder] Seat line item', [
+                        'service_id'  => $serviceId,
+                        'found'       => $available !== null,
+                        'unit_amount' => $unitAmt,
+                        'quantity'    => $qty,
+                        'line_total'  => $lineAmt,
+                    ]);
                 }
             }
 
+            Log::info('[createOrder] STEP 4 OK — Seats total', [
+                'seats_amount' => $seatsAmount,
+            ]);
+
+            // ─── Merge all services for Duffel ────────────────────────────
             $allServices = [];
 
             foreach ($requestedServices as $svc) {
                 if (!empty($svc['id'])) {
-                    $allServices[] = [
-                        'id'       => $svc['id'],
-                        'quantity' => (int) ($svc['quantity'] ?? 1),
-                    ];
+                    $allServices[] = ['id' => $svc['id'], 'quantity' => (int) ($svc['quantity'] ?? 1)];
                 }
             }
 
             foreach ($requestedSeats as $seat) {
                 if (!empty($seat['service_id'])) {
-                    $allServices[] = [
-                        'id'       => $seat['service_id'],
-                        'quantity' => (int) ($seat['quantity'] ?? 1),
-                    ];
+                    $allServices[] = ['id' => $seat['service_id'], 'quantity' => (int) ($seat['quantity'] ?? 1)];
                 }
             }
 
             $servicesAmount = round($baggageAmount + $seatsAmount, 2);
             $actualTotal    = round($offerAmount + $servicesAmount, 2);
 
-            Log::info('createOrder amount verification', [
+            Log::info('[createOrder] STEP 5 — Final amount summary', [
                 'offer_amount'    => $offerAmount,
                 'baggage_amount'  => $baggageAmount,
                 'seats_amount'    => $seatsAmount,
                 'services_total'  => $servicesAmount,
                 'actual_total'    => $actualTotal,
                 'client_sent'     => $request->input('amount'),
+                'difference'      => round(abs((float) $request->input('amount', 0) - $actualTotal), 2),
+                'all_services'    => $allServices,
+            ]);
+
+            // ─── STEP 1: Stripe payment ────────────────────────────────────
+            Log::info('[createOrder] STEP 6 — Initiating Stripe payment', [
+                'amount'   => $actualTotal,
+                'currency' => $offerCurrency,
             ]);
 
             $stripeService = app(\App\Services\Common\Stripe\StripeService::class);
@@ -340,31 +423,51 @@ class FlightController extends Controller
                 'card_holder' => $request->input('card.card_holder'),
             ]);
 
+            Log::info('[createOrder] STEP 6 — Stripe response', [
+                'status'            => $paymentIntent->status,
+                'payment_intent_id' => $paymentIntent->id,
+                'amount_charged'    => $actualTotal,
+            ]);
+
             if ($paymentIntent->status !== 'succeeded') {
+                Log::error('[createOrder] STEP 6 FAILED — Stripe payment not succeeded', [
+                    'status'            => $paymentIntent->status,
+                    'payment_intent_id' => $paymentIntent->id,
+                ]);
                 return response()->json([
                     'status'  => false,
                     'message' => 'Payment could not be processed.'
                 ], 400);
             }
 
+            // ─── STEP 2: Duffel order create ──────────────────────────────
+            Log::info('[createOrder] STEP 7 — Creating Duffel order', [
+                'offer_id'        => $request->input('offer_id'),
+                'services_count'  => count($allServices),
+                'services'        => $allServices,
+                'services_amount' => $servicesAmount,
+                'grand_total'     => $actualTotal,
+            ]);
+
             $response = $this->duffelService->createOrder([
                 'offer_id'         => $request->input('offer_id'),
                 'user_id'          => $request->input('user_id'),
                 'passengers'       => $passengers,
-                'services'         => $allServices,        
+                'services'         => $allServices,
                 'services_amount'  => $servicesAmount,
                 'currency'         => $offerCurrency,
                 'stripe_intent_id' => $paymentIntent->id,
             ]);
 
             if (!empty($response['errors'])) {
-                Stripe::setApiKey(config('services.stripe.secret'));
-                Refund::create(['payment_intent' => $paymentIntent->id]);
-
-                Log::error('Duffel failed after Stripe charge — refund initiated', [
+                Log::error('[createOrder] STEP 7 FAILED — Duffel order failed, initiating refund', [
                     'stripe_intent_id' => $paymentIntent->id,
                     'errors'           => $response['errors'],
+                    'amount_refunded'  => $actualTotal,
                 ]);
+
+                Stripe::setApiKey(config('services.stripe.secret'));
+                Refund::create(['payment_intent' => $paymentIntent->id]);
 
                 $error = $response['errors'][0] ?? [];
                 return response()->json([
@@ -374,6 +477,14 @@ class FlightController extends Controller
                 ], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
             }
 
+            Log::info('[createOrder] STEP 7 OK — Duffel order created successfully', [
+                'duffel_order_id'   => $response['data']['id']                ?? null,
+                'booking_reference' => $response['data']['booking_reference'] ?? null,
+                'total_amount'      => $response['data']['total_amount']      ?? null,
+                'db_order_id'       => $response['db']['order_id']            ?? null,
+                'db_payment_id'     => $response['db']['payment_id']          ?? null,
+            ]);
+
             return response()->json([
                 'status'  => true,
                 'message' => 'Order created successfully',
@@ -381,8 +492,10 @@ class FlightController extends Controller
             ], config('constant.httpCode.SUCCESS_OK'));
 
         } catch (\Throwable $e) {
-            Log::error('createOrder controller exception', [
+            Log::error('[createOrder] EXCEPTION', [
                 'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
                 'trace'   => $e->getTraceAsString(),
             ]);
 
