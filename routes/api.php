@@ -44,6 +44,7 @@ Route::prefix('hotels')->group(function () {
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/mybooking', [MyBookingController::class, 'index']);
+    Route::get('/mybooking', [MyBookingController::class, 'indexFlight']);
+    Route::get('/mybooking/flight/{id}', [MyBookingController::class, 'viewFlight']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });

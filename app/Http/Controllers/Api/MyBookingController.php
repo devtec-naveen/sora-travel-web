@@ -14,7 +14,7 @@ class MyBookingController extends Controller
         protected MyBookingService $bookingService
     ) {}
 
-    public function index(Request $request)
+    public function indexFlight(Request $request)
     {
         try {
             $request->validate([
@@ -45,4 +45,30 @@ class MyBookingController extends Controller
             ], config('constant.httpCode.INTERNAL_SERVER_ERROR'));
         }
     }
+
+    public function viewFlight(string $id)
+    {
+        try {
+            $result = $this->bookingService->getOrderDetail($id);
+
+            if (!$result) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking not found.',
+                ], config('constant.httpCode.NOT_FOUND'));
+            }
+
+            return response()->json([
+                'success' => true,
+                'data'    => $result,
+            ], config('constant.httpCode.SUCCESS_OK'));
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching booking detail.',
+            ], config('constant.httpCode.INTERNAL_SERVER_ERROR'));
+        }
+    }
+
 }
