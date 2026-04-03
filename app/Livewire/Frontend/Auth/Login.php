@@ -7,12 +7,14 @@ use App\Services\Common\Auth\AuthService;
 
 class Login extends Component
 {
-    public string $email    = '';
-    public string $password = '';
+    public string $email      = '';
+    public string $password   = '';
+    public bool   $rememberMe = false;
 
     protected array $rules = [
-        'email'    => 'required|email',
-        'password' => 'required|min:6',
+        'email'      => 'required|email',
+        'password'   => 'required|min:6',
+        'rememberMe' => 'boolean',
     ];
 
     protected array $messages = [
@@ -27,11 +29,11 @@ class Login extends Component
         'modal-closed' => 'handleClose',
     ];
 
-    public function resetForm()
+    public function resetForm(): void
     {
-        $this->reset(['email', 'password']); 
-        $this->resetErrorBag();              
-        $this->resetValidation();            
+        $this->reset(['email', 'password', 'rememberMe']);
+        $this->resetErrorBag();
+        $this->resetValidation();
     }
 
     public function handleClose($id = null): void
@@ -58,9 +60,10 @@ class Login extends Component
         $this->validate();
 
         $result = $auth->login([
-            'email'    => $this->email,
-            'password' => $this->password,
-            'guard'    => 'web',
+            'email'       => $this->email,
+            'password'    => $this->password,
+            'guard'       => 'web',
+            'remember'    => $this->rememberMe,
         ]);
 
         if (!$result['status']) {
