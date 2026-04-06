@@ -406,6 +406,12 @@ class FlightController extends Controller
                 'all_services'    => $allServices,
             ]);
 
+            Log::info('FINAL DEBUG', [
+                'offerAmount'    => $offerAmount,
+                'servicesAmount' => $servicesAmount,
+                'actualTotal'    => $actualTotal
+            ]);
+
             // ─── STEP 1: Stripe payment ────────────────────────────────────
             Log::info('[createOrder] STEP 6 — Initiating Stripe payment', [
                 'amount'   => $actualTotal,
