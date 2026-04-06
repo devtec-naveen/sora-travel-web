@@ -435,6 +435,20 @@ class FlightController extends Controller
                 'amount_charged'    => $actualTotal,
             ]);
 
+            dd([
+                'offer_data'        => $offerData,
+                'offer_amount'      => $offerAmount,
+                'baggage_amount'    => $baggageAmount,
+                'seats_amount'      => $seatsAmount,
+                'services_total'    => $servicesAmount,
+                'actual_total'      => $actualTotal,
+                'client_amount'     => $request->input('amount'),
+                'all_services'      => $allServices,
+                'passengers'        => $passengers,
+                'stripe_status'     => $paymentIntent->status,
+                'stripe_id'         => $paymentIntent->id,
+            ]);
+
             if ($paymentIntent->status !== 'succeeded') {
                 Log::error('[createOrder] STEP 6 FAILED — Stripe payment not succeeded', [
                     'status'            => $paymentIntent->status,
