@@ -24,7 +24,7 @@ class MyBookingRepository
                 ->where('booking_date', '<', now()->startOfDay())
             )
             ->when($status === 'cancelled', fn($q) => $q
-                ->whereIn('status', ['cancelled', 'failed'])
+                ->whereIn('status', ['cancelled'])
             )
             ->when($dateRange === '7days',   fn($q) => $q->where('created_at', '>=', now()->subDays(7)))
             ->when($dateRange === '30days',  fn($q) => $q->where('created_at', '>=', now()->subDays(30)))
@@ -40,7 +40,5 @@ class MyBookingRepository
             ->whereNull('deleted_at')
             ->first();
     }
-
-
 
 }
