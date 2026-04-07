@@ -9,7 +9,6 @@ use App\Jobs\SendEmail;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-
 class AuthService
 {
     public function __construct(protected AuthRepository $authRepo) {}
@@ -207,7 +206,7 @@ class AuthService
                 $emailTemplate->subject,
                 $emailTemplate->body,
                 [
-                    'name'        => $user->name,
+                    'name'        => ucfirst($user->name),
                     'otp_code'    => $user->otp,
                     'app_name'    => config('app.name'),
                     'expire_time' => $expireTime,

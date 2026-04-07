@@ -7,10 +7,11 @@ use Illuminate\Foundation\Queue\Queueable;
 use App\Traits\TemplateParser;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\View;
 
 class SendEmail implements ShouldQueue
 {
-    use Dispatchable , Queueable , TemplateParser;
+    use Dispatchable, Queueable, TemplateParser;
 
     protected $email;
     protected $subject;
@@ -34,9 +35,14 @@ class SendEmail implements ShouldQueue
     public function handle()
     {
         $subject = $this->replaceVariables($this->subject, $this->variables);
-        $body = $this->replaceVariables($this->body, $this->variables);
+        $body    = $this->replaceVariables($this->body, $this->variables);
 
-        Mail::html($body, function ($message) use ($subject) {
+        $html = View::make('emails.layout', [
+            'subject' => $subject,
+            'body'    => $body,
+        ])->render();
+
+        Mail::html($html, function ($message) use ($subject) {
             $message->from(config('mail.from.address'), config('mail.from.name'))
                     ->to($this->email)
                     ->subject($subject);
