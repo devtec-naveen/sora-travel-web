@@ -17,11 +17,11 @@ class MyBookingRepository
             ->where('type', $type)
             ->when($status === 'upcoming', fn($q) => $q
                 ->whereIn('status', ['pending', 'confirmed'])
-                ->where('booking_date', '>=', now()->startOfDay())
+                ->where('booking_date', '>=', now())
             )
             ->when($status === 'completed', fn($q) => $q
                 ->where('status', 'confirmed')
-                ->where('booking_date', '<', now()->startOfDay())
+                ->where('booking_date', '<', now())
             )
             ->when($status === 'cancelled', fn($q) => $q
                 ->whereIn('status', ['cancelled'])
