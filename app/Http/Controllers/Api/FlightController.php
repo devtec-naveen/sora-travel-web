@@ -189,7 +189,7 @@ class FlightController extends Controller
                 'passengers.*.phone_number'                              => 'required|string',
                 'passengers.*.identity_documents'                        => 'nullable|array',
                 'passengers.*.identity_documents.*.unique_identifier'    => 'required_with:passengers.*.identity_documents|string',
-                'passengers.*.identity_documents.*.expires_on'          => 'required_with:passengers.*.identity_documents|date_format:Y-m-d',
+                'passengers.*.identity_documents.*.expires_on'          => 'required_with:passengers.*.identity_documents|date_format:Y-m-d|after:today',
                 'passengers.*.identity_documents.*.issuing_country_code' => 'required_with:passengers.*.identity_documents|string|size:2',
                 'passengers.*.identity_documents.*.type'                 => 'required_with:passengers.*.identity_documents|string|in:passport,tax_id',
                 'services'                                               => 'nullable|array',
