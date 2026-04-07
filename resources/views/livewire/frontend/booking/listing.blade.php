@@ -50,7 +50,7 @@
                                                         {{-- Order Number & Ref --}}
                                                         <div class="text-slate-500 text-base font-normal leading-6">
                                                             {{ $order->order_number }}
-                                                            @if ($p['booking_reference'])
+                                                            @if ($p['booking_reference'] ?? null)
                                                                 &nbsp;·&nbsp; Ref:
                                                                 <strong>{{ $p['booking_reference'] }}</strong>
                                                             @endif

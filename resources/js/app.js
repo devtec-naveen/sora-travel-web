@@ -1433,7 +1433,7 @@ function addMultiCity() {
     });
     clone
         .querySelectorAll(".ap-hidden, .ap-city-hidden")
-        .forEach((el) => (el.value = ""));
+        .forEach((el)   => (el.value = ""));
     clone
         .querySelectorAll(".ap-dropdown")
         .forEach((el) => el.classList.remove("open"));
