@@ -5,6 +5,7 @@ namespace App\Livewire\Frontend\Flight;
 use Livewire\Component;
 use App\Services\Common\Duffel\DuffelService;
 use Illuminate\Support\Facades\Auth;
+
 class Listing extends Component
 {
     public $origin;
@@ -34,6 +35,12 @@ class Listing extends Component
     public $limit;
     private $allFlights = [];
 
+    public string $tripType = 'one_way';
+    public array $trips = [
+        ['origin' => '', 'destination' => '', 'departureDate' => ''],
+        ['origin' => '', 'destination' => '', 'departureDate' => ''],
+    ];
+
     protected $queryString = [
         'origin',
         'destination',
@@ -44,6 +51,8 @@ class Listing extends Component
         'infants',
         'cabin_class',
         'page',
+        'tripType',
+        'trips',
     ];
 
     protected $duffelService;
@@ -52,12 +61,37 @@ class Listing extends Component
     {
         $this->limit = config('constant.duffel.offer_limit');
         $this->duffelService = $duffelService;
+
         session()->forget([
             'passenger_info',
             'addons_info',
             'seats_info',
             'booking_info',
         ]);
+
+        $rawTripType = request()->query('trip_type', 'oneway');
+
+        if ($rawTripType === 'multicity') {
+            $this->tripType = 'multi_city';
+
+            $origins      = request()->query('origin', []);
+            $destinations = request()->query('destination', []);
+            $dates        = request()->query('departure_date', []);
+
+            $this->trips = [];
+            foreach ($origins as $i => $origin) {
+                $this->trips[] = [
+                    'origin'        => $origin,
+                    'destination'   => $destinations[$i] ?? '',
+                    'departureDate' => $dates[$i] ?? '',
+                ];
+            }
+
+        } elseif ($rawTripType === 'roundtrip') {
+            $this->tripType = 'round_trip';
+        } else {
+            $this->tripType = 'one_way';
+        }
     }
 
     public function updatedSortBy()
@@ -153,6 +187,7 @@ class Listing extends Component
                 'children'   => $this->childrens,
                 'infants'    => $this->infants,
                 'cabinClass' => $this->cabin_class,
+                'tripType'   => $this->tripType,
             ],
         ]);
 
@@ -170,16 +205,27 @@ class Listing extends Component
         $this->isLoading = true;
 
         $duffelService = $this->duffelService ?? app(DuffelService::class);
-        $requestData = [
-            'origin'        => $this->origin,
-            'destination'   => $this->destination,
-            'departureDate' => $this->departureDate,
-            'returnDate'    => $this->returnDate,
-            'adults'        => $this->adults,
-            'children'      => $this->childrens,
-            'infants'       => $this->infants,
-            'cabin'         => $this->cabin_class,
-        ];
+
+        if ($this->tripType === 'multi_city') {
+            $requestData = [
+                'trips'    => $this->trips,
+                'adults'   => $this->adults,
+                'children' => $this->childrens,
+                'infants'  => $this->infants,
+                'cabin'    => $this->cabin_class,
+            ];
+        } else {
+            $requestData = [
+                'origin'        => $this->origin,
+                'destination'   => $this->destination,
+                'departureDate' => $this->departureDate,
+                'returnDate'    => $this->tripType === 'round_trip' ? $this->returnDate : null,
+                'adults'        => $this->adults,
+                'children'      => $this->childrens,
+                'infants'       => $this->infants,
+                'cabin'         => $this->cabin_class,
+            ];
+        }
 
         $response = $duffelService->searchFlightsMain($requestData);
 
@@ -203,6 +249,7 @@ class Listing extends Component
         $this->allFlights = $allOffers;
         session(['allFlights' => $allOffers]);
         $this->total = count($this->allFlights);
+
         $this->availableAirlines = collect($this->allFlights)
             ->map(fn($o) => $o['slices'][0]['segments'][0]['operating_carrier']['name'] ?? null)
             ->filter()
@@ -222,7 +269,6 @@ class Listing extends Component
         }
 
         $this->page = 1;
-
         $this->applyFilters();
 
         $this->isLoading = false;

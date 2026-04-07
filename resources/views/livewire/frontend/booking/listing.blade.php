@@ -1,8 +1,5 @@
 <div wire:init="loadData">
-    <x-loader 
-        message="Please Wait..."
-        targets="loadData,setType,setStatus,dateRange"
-     />
+    <x-loader message="Please Wait..." targets="loadData,setType,setStatus,dateRange" />
     <div class="py-6 lg:py-12">
         <div class="container">
             <div class="justify-start text-slate-950 text-2xl font-semibold leading-9 mb-6">My Bookings</div>
@@ -24,8 +21,7 @@
                         @foreach (['upcoming' => 'Upcoming', 'completed' => 'Completed', 'cancelled' => 'Cancelled'] as $statusKey => $statusLabel)
                             <label class="tab tabs flex-1 md:flex-none">
                                 <input type="radio" name="flight_status_tabs"
-                                    wire:click="setStatus('{{ $statusKey }}')"
-                                    @checked($activeStatus === $statusKey && $activeType === 'flight')>
+                                    wire:click="setStatus('{{ $statusKey }}')" @checked($activeStatus === $statusKey && $activeType === 'flight')>
                                 {{ $statusLabel }}
                             </label>
                             <div class="tab-content">
@@ -43,9 +39,11 @@
                                                         : 'text-blue-600');
                                             @endphp
 
-                                            <div class="card p-4 transition-all hover:shadow-md {{ $flags['isCancelled'] ? 'opacity-75' : '' }}">
+                                            <div
+                                                class="card p-4 transition-all hover:shadow-md {{ $flags['isCancelled'] ? 'opacity-75' : '' }}">
                                                 <div class="flex flex-col lg:flex-row gap-3 md:gap-6">
 
+                                                    {{-- Left: Flight Details --}}
                                                     {{-- Left: Flight Details --}}
                                                     <div class="flex-1 flex flex-col gap-3 min-w-0">
 
@@ -58,126 +56,232 @@
                                                             @endif
                                                         </div>
 
-                                                        {{-- Airline --}}
-                                                        <div class="flex items-center gap-4">
-                                                            <div class="w-11 h-11 rounded-xl bg-slate-50 overflow-hidden border border-slate-100 flex items-center justify-center p-1.5">
-                                                                @if ($p['carrier']['logo_symbol_url'] ?? null)
-                                                                    <img src="{{ $p['carrier']['logo_symbol_url'] }}"
-                                                                        alt="{{ $p['carrier']['name'] ?? '' }}"
-                                                                        class="w-full h-full object-contain">
-                                                                @else
-                                                                    <span class="text-xs font-bold text-slate-400">
-                                                                        {{ $p['carrier']['iata_code'] ?? '?' }}
+                                                        {{-- All slices --}}
+                                                        @php
+                                                            $orderData = $order->data ?? [];
+                                                            $allSlices = $orderData['slices'] ?? [];
+                                                            $sliceCount = count($allSlices);
+                                                        @endphp
+
+                                                        @foreach ($allSlices as $sIdx => $sSlice)
+                                                            @php
+                                                                $sSeg = $sSlice['segments'][0] ?? [];
+                                                                $sCarrier = $sSeg['operating_carrier'] ?? [];
+                                                                $sOrigin = $sSeg['origin'] ?? [];
+                                                                $sDest = $sSeg['destination'] ?? [];
+                                                                $sDep = $sSeg['departing_at'] ?? null;
+                                                                $sArr = $sSeg['arriving_at'] ?? null;
+                                                                $sDur =
+                                                                    $sSeg['duration'] ?? ($sSlice['duration'] ?? '');
+                                                                $sStops = count($sSlice['segments'] ?? []) - 1;
+                                                                $sLogo = $sCarrier['logo_symbol_url'] ?? '';
+                                                                $sAirline = $sCarrier['name'] ?? '—';
+                                                                $sFno =
+                                                                    ($sCarrier['iata_code'] ?? '') .
+                                                                    ($sSeg['operating_carrier_flight_number'] ?? '');
+                                                                $sAircraft = $sSeg['aircraft']['name'] ?? null;
+                                                                $sCabin =
+                                                                    $sSeg['passengers'][0][
+                                                                        'cabin_class_marketing_name'
+                                                                    ] ?? null;
+                                                                $sFareBrand = $sSlice['fare_brand_name'] ?? null;
+
+                                                                $sPaxBaggages =
+                                                                    $sSeg['passengers'][0]['baggages'] ?? [];
+                                                                $sCabinBag = collect($sPaxBaggages)->firstWhere(
+                                                                    'type',
+                                                                    'carry_on',
+                                                                );
+                                                                $sCheckedBag = collect($sPaxBaggages)->firstWhere(
+                                                                    'type',
+                                                                    'checked',
+                                                                );
+
+                                                                // Slice label
+                                                                if ($sliceCount === 1) {
+                                                                    $sLabel = null;
+                                                                } elseif (
+                                                                    $order->trip_type === 'multi_city' ||
+                                                                    $sliceCount > 2
+                                                                ) {
+                                                                    $sLabel =
+                                                                        'Flight ' .
+                                                                        ($sIdx + 1) .
+                                                                        ' · ' .
+                                                                        ($sOrigin['iata_code'] ?? '') .
+                                                                        ' → ' .
+                                                                        ($sDest['iata_code'] ?? '');
+                                                                } else {
+                                                                    $sLabel = $sIdx === 0 ? 'Outbound' : 'Return';
+                                                                }
+                                                            @endphp
+
+                                                            <div
+                                                                class="flex flex-col gap-3 @if (!$loop->last) pb-3 border-b border-slate-100 @endif">
+
+                                                                {{-- Slice label --}}
+                                                                @if ($sLabel)
+                                                                    <span
+                                                                        class="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-2.5 py-0.5 w-fit">
+                                                                        <i data-tabler="plane-departure"
+                                                                            data-size="11"></i>
+                                                                        {{ $sLabel }}
                                                                     </span>
                                                                 @endif
-                                                            </div>
-                                                            <div class="flex flex-col">
-                                                                <span class="font-semibold text-base text-slate-950">
-                                                                    {{ $p['carrier']['name'] ?? '—' }}
-                                                                </span>
-                                                                <span class="font-normal text-sm text-slate-500">
-                                                                    {{ $p['flight_number'] }}
-                                                                    @if ($p['aircraft'])
-                                                                        &nbsp;·&nbsp; {{ $p['aircraft'] }}
-                                                                    @endif
-                                                                </span>
-                                                            </div>
-                                                        </div>
 
-                                                        {{-- Route --}}
-                                                        <div class="flex flex-row items-center justify-between gap-6 sm:gap-4">
-
-                                                            {{-- Departure --}}
-                                                            <div class="flex flex-col items-start">
-                                                                <span class="font-semibold text-sm lg:text-xl text-slate-950">
-                                                                    {{ $p['dep_at']->format('d M, g:i A') }}
-                                                                </span>
-                                                                <span class="font-normal text-sm text-slate-500">
-                                                                    {{ $p['origin']['city_name'] ?? '' }}
-                                                                    ({{ $p['origin']['iata_code'] ?? '' }})
-                                                                    @if ($p['origin_terminal'])
-                                                                        · T{{ $p['origin_terminal'] }}
-                                                                    @endif
-                                                                </span>
-                                                            </div>
-
-                                                            {{-- Duration --}}
-                                                            <div class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
-                                                                <span class="font-normal text-xs text-slate-500">
-                                                                    {{ $p['duration'] }}
-                                                                </span>
-                                                                <div class="relative w-full flex items-center justify-center h-4">
-                                                                    <div class="absolute w-full h-px bg-slate-200"></div>
-                                                                    <div class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200"></div>
-                                                                    <div class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200"></div>
-                                                                    <div class="relative z-10 bg-white px-2 leading-none">
-                                                                        <i data-tabler="plane" class="text-slate-400" data-size="18"></i>
+                                                                {{-- Airline --}}
+                                                                <div class="flex items-center gap-4">
+                                                                    <div
+                                                                        class="w-11 h-11 rounded-xl bg-slate-50 overflow-hidden border border-slate-100 flex items-center justify-center p-1.5 shrink-0">
+                                                                        @if ($sLogo)
+                                                                            <img src="{{ $sLogo }}"
+                                                                                alt="{{ $sAirline }}"
+                                                                                class="w-full h-full object-contain">
+                                                                        @else
+                                                                            <span
+                                                                                class="text-xs font-bold text-slate-400">
+                                                                                {{ $sCarrier['iata_code'] ?? '?' }}
+                                                                            </span>
+                                                                        @endif
+                                                                    </div>
+                                                                    <div class="flex flex-col">
+                                                                        <span
+                                                                            class="font-semibold text-base text-slate-950">{{ $sAirline }}</span>
+                                                                        <span
+                                                                            class="font-normal text-sm text-slate-500">
+                                                                            {{ $sFno }}
+                                                                            @if ($sAircraft)
+                                                                                &nbsp;·&nbsp; {{ $sAircraft }}
+                                                                            @endif
+                                                                        </span>
                                                                     </div>
                                                                 </div>
-                                                                <span class="font-normal text-xs text-slate-500">
-                                                                    {{ $p['stop_label'] }}
-                                                                </span>
-                                                            </div>
 
-                                                            {{-- Arrival --}}
-                                                            <div class="flex flex-col items-end">
-                                                                <span class="font-semibold text-sm lg:text-xl text-slate-950 text-end">
-                                                                    {{ $p['arr_at']->format('d M, g:i A') }}
-                                                                </span>
-                                                                <span class="font-normal text-sm text-slate-500 text-right">
-                                                                    {{ $p['destination']['city_name'] ?? '' }}
-                                                                    ({{ $p['destination']['iata_code'] ?? '' }})
-                                                                    @if ($p['dest_terminal'])
-                                                                        · T{{ $p['dest_terminal'] }}
+                                                                {{-- Route --}}
+                                                                <div
+                                                                    class="flex flex-row items-center justify-between gap-6 sm:gap-4">
+
+                                                                    {{-- Departure --}}
+                                                                    <div class="flex flex-col items-start">
+                                                                        <span
+                                                                            class="font-semibold text-sm lg:text-xl text-slate-950">
+                                                                            {{ $sDep ? \Carbon\Carbon::parse($sDep)->format('d M, g:i A') : '—' }}
+                                                                        </span>
+                                                                        <span
+                                                                            class="font-normal text-sm text-slate-500">
+                                                                            {{ $sOrigin['city_name'] ?? '' }}
+                                                                            ({{ $sOrigin['iata_code'] ?? '' }})
+                                                                            @if ($sSeg['origin_terminal'] ?? null)
+                                                                                · T{{ $sSeg['origin_terminal'] }}
+                                                                            @endif
+                                                                        </span>
+                                                                    </div>
+
+                                                                    {{-- Duration --}}
+                                                                    <div
+                                                                        class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
+                                                                        <span
+                                                                            class="font-normal text-xs text-slate-500">
+                                                                            {{ $sDur? \Carbon\CarbonInterval::make($sDur)->cascade()->forHumans(['parts' => 2]): '' }}
+                                                                        </span>
+                                                                        <div
+                                                                            class="relative w-full flex items-center justify-center h-4">
+                                                                            <div
+                                                                                class="absolute w-full h-px bg-slate-200">
+                                                                            </div>
+                                                                            <div
+                                                                                class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200">
+                                                                            </div>
+                                                                            <div
+                                                                                class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200">
+                                                                            </div>
+                                                                            <div
+                                                                                class="relative z-10 bg-white px-2 leading-none">
+                                                                                <i data-tabler="plane"
+                                                                                    class="text-slate-400"
+                                                                                    data-size="18"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                        <span
+                                                                            class="font-normal text-xs text-slate-500">
+                                                                            {{ $sStops === 0 ? 'Non-stop' : $sStops . ' stop' . ($sStops > 1 ? 's' : '') }}
+                                                                        </span>
+                                                                    </div>
+
+                                                                    {{-- Arrival --}}
+                                                                    <div class="flex flex-col items-end">
+                                                                        <span
+                                                                            class="font-semibold text-sm lg:text-xl text-slate-950 text-end">
+                                                                            {{ $sArr ? \Carbon\Carbon::parse($sArr)->format('d M, g:i A') : '—' }}
+                                                                        </span>
+                                                                        <span
+                                                                            class="font-normal text-sm text-slate-500 text-right">
+                                                                            {{ $sDest['city_name'] ?? '' }}
+                                                                            ({{ $sDest['iata_code'] ?? '' }})
+                                                                            @if ($sSeg['destination_terminal'] ?? null)
+                                                                                · T{{ $sSeg['destination_terminal'] }}
+                                                                            @endif
+                                                                        </span>
+                                                                    </div>
+
+                                                                </div>
+
+                                                                {{-- Cabin & Baggage Badges --}}
+                                                                <div class="flex flex-wrap gap-1.5">
+                                                                    @if ($sCabin)
+                                                                        <span
+                                                                            class="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-medium">
+                                                                            {{ $sCabin }}
+                                                                        </span>
                                                                     @endif
-                                                                </span>
-                                                            </div>
-
-                                                        </div>
-
-                                                        {{-- Cabin & Baggage Badges --}}
-                                                        <div class="flex flex-wrap gap-1.5">
-                                                            @if ($p['cabin_class'])
-                                                                <span class="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-medium">
-                                                                    {{ $p['cabin_class'] }}
-                                                                </span>
-                                                            @endif
-                                                            @if ($p['fare_brand'])
-                                                                <span class="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
-                                                                    {{ $p['fare_brand'] }}
-                                                                </span>
-                                                            @endif
-                                                            @foreach ($p['baggages'] as $bag)
-                                                                <span class="text-xs px-2.5 py-1 rounded-full bg-green-50 text-green-700">
-                                                                    {{ $bag['quantity'] }}×
-                                                                    {{ $bag['type'] === 'checked' ? 'Checked bag' : 'Carry-on' }}
-                                                                    @if ($bag['type'] === 'checked' && $p['checked_bag_kg'])
-                                                                        ({{ $p['checked_bag_kg'] }}kg)
+                                                                    @if ($sFareBrand)
+                                                                        <span
+                                                                            class="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                                                                            {{ $sFareBrand }}
+                                                                        </span>
                                                                     @endif
-                                                                </span>
-                                                            @endforeach
-                                                        </div>
+                                                                    @if ($sCabinBag)
+                                                                        <span
+                                                                            class="text-xs px-2.5 py-1 rounded-full bg-green-50 text-green-700">
+                                                                            {{ $sCabinBag['quantity'] }}× Carry-on
+                                                                        </span>
+                                                                    @endif
+                                                                    @if ($sCheckedBag)
+                                                                        <span
+                                                                            class="text-xs px-2.5 py-1 rounded-full bg-green-50 text-green-700">
+                                                                            {{ $sCheckedBag['quantity'] }}× Checked bag
+                                                                        </span>
+                                                                    @endif
+                                                                </div>
+
+                                                            </div>
+                                                        @endforeach
 
                                                     </div>
 
-                                                    <div class="hidden lg:block w-px bg-slate-200 h-auto self-stretch"></div>
+                                                    <div class="hidden lg:block w-px bg-slate-200 h-auto self-stretch">
+                                                    </div>
                                                     <div class="lg:hidden h-px bg-slate-100 w-full"></div>
 
                                                     {{-- Right: Price & Actions --}}
-                                                    <div class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between gap-4 shrink-0">
+                                                    <div
+                                                        class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between gap-4 shrink-0">
                                                         <div class="flex flex-col lg:items-end">
-                                                            <span class="font-semibold text-[24px] leading-[36px] {{ $priceColor }}">
+                                                            <span
+                                                                class="font-semibold text-[24px] leading-[36px] {{ $priceColor }}">
                                                                 {{ $order->currency }}
                                                                 {{ number_format($order->amount, 2) }}
                                                             </span>
                                                             @if ($order->tax_amount > 0)
                                                                 <span class="text-xs text-slate-400">
-                                                                    Base {{ number_format($order->amount - $order->tax_amount, 2) }}
+                                                                    Base
+                                                                    {{ number_format($order->amount - $order->tax_amount, 2) }}
                                                                     + Tax {{ number_format($order->tax_amount, 2) }}
                                                                 </span>
                                                             @endif
                                                             @if ($flags['isCancelled'])
-                                                                <span class="text-xs text-red-500 font-medium">Cancelled</span>
+                                                                <span
+                                                                    class="text-xs text-red-500 font-medium">Cancelled</span>
                                                             @elseif($flags['isCompleted'])
                                                                 <span class="text-xs text-slate-500">Completed</span>
                                                             @endif
@@ -190,7 +294,8 @@
                                                                 </button>
                                                             @endif
                                                             <button class="btn btn-primary btn-sm whitespace-nowrap"
-                                                                wire:navigate href="{{ route('booking.flight.show',$order->id)}}">
+                                                                wire:navigate
+                                                                href="{{ route('booking.flight.show', $order->id) }}">
                                                                 {{ $flags['isUpcoming'] ? 'View' : 'View Details' }}
                                                             </button>
                                                         </div>
@@ -241,8 +346,7 @@
                         @foreach (['upcoming' => 'Upcoming', 'completed' => 'Completed', 'cancelled' => 'Cancelled'] as $statusKey => $statusLabel)
                             <label class="tab tabs flex-1 md:flex-none">
                                 <input type="radio" name="hotel_status_tabs"
-                                    wire:click="setStatus('{{ $statusKey }}')"
-                                    @checked($activeStatus === $statusKey && $activeType === 'hotel')>
+                                    wire:click="setStatus('{{ $statusKey }}')" @checked($activeStatus === $statusKey && $activeType === 'hotel')>
                                 {{ $statusLabel }}
                             </label>
 
@@ -261,11 +365,13 @@
                                                         : 'text-blue-600');
                                             @endphp
 
-                                            <div class="card p-4 transition-all hover:shadow-md {{ $flags['isCancelled'] ? 'opacity-75' : '' }}">
+                                            <div
+                                                class="card p-4 transition-all hover:shadow-md {{ $flags['isCancelled'] ? 'opacity-75' : '' }}">
                                                 <div class="flex flex-col lg:flex-row gap-3 md:gap-6">
 
                                                     {{-- Hotel Image --}}
-                                                    <div class="w-full lg:w-[200px] h-[150px] lg:h-auto shrink-0 rounded-xl overflow-hidden bg-slate-100">
+                                                    <div
+                                                        class="w-full lg:w-[200px] h-[150px] lg:h-auto shrink-0 rounded-xl overflow-hidden bg-slate-100">
                                                         @if ($hotelData['accommodation']['photos'][0]['url'] ?? null)
                                                             <img src="{{ $hotelData['accommodation']['photos'][0]['url'] }}"
                                                                 alt="{{ $hotelData['accommodation']['name'] ?? '' }}"
@@ -290,25 +396,30 @@
                                                             </div>
                                                         </div>
                                                         <div class="flex items-center gap-2">
-                                                            <i data-tabler="calendar" class="text-slate-400" data-size="18"></i>
+                                                            <i data-tabler="calendar" class="text-slate-400"
+                                                                data-size="18"></i>
                                                             <span class="font-normal text-sm text-slate-700">
                                                                 {{ $order->booking_date ? \Carbon\Carbon::parse($order->booking_date)->format('D, d M Y') : '—' }}
                                                             </span>
                                                         </div>
                                                     </div>
 
-                                                    <div class="hidden lg:block w-px bg-slate-200 h-auto self-stretch"></div>
+                                                    <div class="hidden lg:block w-px bg-slate-200 h-auto self-stretch">
+                                                    </div>
                                                     <div class="lg:hidden h-px bg-slate-100 w-full"></div>
 
                                                     {{-- Price & Actions --}}
-                                                    <div class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between gap-4">
+                                                    <div
+                                                        class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between gap-4">
                                                         <div class="flex flex-col lg:items-end">
-                                                            <span class="font-semibold text-[24px] leading-[36px] {{ $priceColor }}">
+                                                            <span
+                                                                class="font-semibold text-[24px] leading-[36px] {{ $priceColor }}">
                                                                 {{ $order->currency }}
                                                                 {{ number_format($order->amount, 2) }}
                                                             </span>
                                                             @if ($flags['isCancelled'])
-                                                                <span class="text-xs text-red-500 font-medium">Cancelled</span>
+                                                                <span
+                                                                    class="text-xs text-red-500 font-medium">Cancelled</span>
                                                             @elseif($flags['isCompleted'])
                                                                 <span class="text-xs text-slate-500">Completed</span>
                                                             @endif
@@ -372,8 +483,7 @@
                         @foreach (['upcoming' => 'Upcoming', 'completed' => 'Completed', 'cancelled' => 'Cancelled'] as $statusKey => $statusLabel)
                             <label class="tab tabs flex-1 md:flex-none">
                                 <input type="radio" name="car_status_tabs"
-                                    wire:click="setStatus('{{ $statusKey }}')"
-                                    @checked($activeStatus === $statusKey && $activeType === 'car')>
+                                    wire:click="setStatus('{{ $statusKey }}')" @checked($activeStatus === $statusKey && $activeType === 'car')>
                                 {{ $statusLabel }}
                             </label>
 
@@ -392,11 +502,13 @@
                                                         : 'text-blue-600');
                                             @endphp
 
-                                            <div class="card p-4 transition-all hover:shadow-md {{ $flags['isCancelled'] ? 'opacity-75' : '' }}">
+                                            <div
+                                                class="card p-4 transition-all hover:shadow-md {{ $flags['isCancelled'] ? 'opacity-75' : '' }}">
                                                 <div class="flex flex-col lg:flex-row gap-3 md:gap-6">
 
                                                     {{-- Car Image --}}
-                                                    <div class="w-full lg:w-[200px] h-[150px] lg:h-auto shrink-0 rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center">
+                                                    <div
+                                                        class="w-full lg:w-[200px] h-[150px] lg:h-auto shrink-0 rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center">
                                                         @if ($carData['vehicle']['photo_url'] ?? null)
                                                             <img src="{{ $carData['vehicle']['photo_url'] }}"
                                                                 alt="{{ $carData['vehicle']['name'] ?? '' }}"
@@ -421,25 +533,30 @@
                                                             </span>
                                                         </div>
                                                         <div class="flex items-center gap-2">
-                                                            <i data-tabler="calendar" class="text-slate-400" data-size="18"></i>
+                                                            <i data-tabler="calendar" class="text-slate-400"
+                                                                data-size="18"></i>
                                                             <span class="font-normal text-sm text-slate-700">
                                                                 {{ $order->booking_date ? \Carbon\Carbon::parse($order->booking_date)->format('D, d M Y') : '—' }}
                                                             </span>
                                                         </div>
                                                     </div>
 
-                                                    <div class="hidden lg:block w-px bg-slate-200 h-auto self-stretch"></div>
+                                                    <div class="hidden lg:block w-px bg-slate-200 h-auto self-stretch">
+                                                    </div>
                                                     <div class="lg:hidden h-px bg-slate-100 w-full"></div>
 
                                                     {{-- Price & Actions --}}
-                                                    <div class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between gap-4">
+                                                    <div
+                                                        class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between gap-4">
                                                         <div class="flex flex-col lg:items-end">
-                                                            <span class="font-semibold text-[24px] leading-[36px] {{ $priceColor }}">
+                                                            <span
+                                                                class="font-semibold text-[24px] leading-[36px] {{ $priceColor }}">
                                                                 {{ $order->currency }}
                                                                 {{ number_format($order->amount, 2) }}
                                                             </span>
                                                             @if ($flags['isCancelled'])
-                                                                <span class="text-xs text-red-500 font-medium">Cancelled</span>
+                                                                <span
+                                                                    class="text-xs text-red-500 font-medium">Cancelled</span>
                                                             @elseif($flags['isCompleted'])
                                                                 <span class="text-xs text-slate-500">Completed</span>
                                                             @endif
@@ -494,11 +611,12 @@
     {{-- ═══════════════════════════════════════════════════════
          CANCEL MODAL
     ══════════════════════════════════════════════════════════ --}}
-    <dialog id="cancel_booking_modal" class="modal" @if($showCancelModal) open @endif>
+    <dialog id="cancel_booking_modal" class="modal" @if ($showCancelModal) open @endif>
         <div class="modal-box max-w-[500px] mx-auto flex flex-col p-0 rounded-2xl overflow-hidden bg-white shadow-md">
             <div class="px-5 pt-9 pb-5 flex flex-col gap-6">
                 <div class="flex flex-col items-center gap-3.5">
-                    <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600 shadow-sm">
+                    <div
+                        class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600 shadow-sm">
                         <i data-tabler="alert-triangle" data-stroke="2"></i>
                     </div>
                     <div class="flex flex-col items-center gap-2">
@@ -515,13 +633,13 @@
 
                 <div class="flex flex-col gap-3">
                     <button class="btn btn-primary w-full bg-red-600 hover:bg-red-700 border-red-600"
-                        wire:click="confirmCancel"
-                        wire:loading.attr="disabled">
+                        wire:click="confirmCancel" wire:loading.attr="disabled">
                         <span wire:loading.remove wire:target="confirmCancel">Yes, Cancel</span>
                         <span wire:loading wire:target="confirmCancel">Processing...</span>
                     </button>
 
-                    <button class="w-full text-center text-sm font-semibold text-slate-500 leading-5 hover:text-slate-700 transition-colors"
+                    <button
+                        class="w-full text-center text-sm font-semibold text-slate-500 leading-5 hover:text-slate-700 transition-colors"
                         wire:click="$set('showCancelModal', false)">
                         No
                     </button>

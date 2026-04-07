@@ -27,32 +27,41 @@
                 </div>
             </div>
         </div>
+
         <div class="back-btn container px-4">
             <button onclick="history.back()" class="btn btn-white">
                 <i data-tabler="chevron-left" data-size="16"></i>Back
             </button>
         </div>
+
         <div class="booking-page-content py-8 lg:py-16">
             <div class="container px-4">
                 <div class="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-start">
+
+                    {{-- ─── LEFT COLUMN ─────────────────────────────────────── --}}
                     <div class="flex-1 flex flex-col gap-5 md:gap-6 min-w-0">
+
                         <div class="flex flex-col gap-1.5">
                             <h1 class="font-semibold text-xl md:text-[24px] leading-tight text-slate-800">Review Your Booking</h1>
                             <span class="font-normal text-sm md:text-base text-slate-500">Please review all details before proceeding to payment</span>
                         </div>
+
+                        {{-- ─── FLIGHT SLICES (unified loop, works for all trip types) ── --}}
+                        @php $tripTypeReview = session('selected_flight.tripType', 'one_way'); @endphp
+
                         @foreach ($slices as $sliceIdx => $slice)
                             @php
                                 $segment  = $slice['segments'][0] ?? [];
                                 $dep      = $segment['departing_at'] ?? null;
                                 $arr      = $segment['arriving_at']  ?? null;
-                                $orig     = $segment['origin']['iata_code']               ?? '';
-                                $dest     = $segment['destination']['iata_code']          ?? '';
-                                $origCity = $segment['origin']['city_name']               ?? $orig;
-                                $destCity = $segment['destination']['city_name']          ?? $dest;
-                                $origTerm = $segment['origin']['terminal']                ?? null;
-                                $destTerm = $segment['destination']['terminal']           ?? null;
+                                $orig     = $segment['origin']['iata_code']                  ?? '';
+                                $dest     = $segment['destination']['iata_code']             ?? '';
+                                $origCity = $segment['origin']['city_name']                  ?? $orig;
+                                $destCity = $segment['destination']['city_name']             ?? $dest;
+                                $origTerm = $segment['origin']['terminal']                   ?? null;
+                                $destTerm = $segment['destination']['terminal']              ?? null;
                                 $logo     = $segment['operating_carrier']['logo_symbol_url'] ?? '';
-                                $airline  = $segment['operating_carrier']['name']          ?? '';
+                                $airline  = $segment['operating_carrier']['name']            ?? '';
                                 $fno      = ($segment['operating_carrier']['iata_code'] ?? '') . ($segment['operating_carrier_flight_number'] ?? '');
                                 $dur      = $segment['duration'] ?? '';
                                 $cabin    = ucfirst($slice['fare_brand_name'] ?? ($selectedFlight['cabin_class'] ?? 'Economy'));
@@ -62,26 +71,36 @@
                                 $cabinBag    = collect($paxBaggages)->firstWhere('type', 'carry_on');
                                 $checkedBag  = collect($paxBaggages)->firstWhere('type', 'checked');
                                 $baggageStr  = '';
-                                if ($cabinBag)   $baggageStr .= ($cabinBag['quantity'] ?? 1)   . ' × cabin bag';
+                                if ($cabinBag)   $baggageStr .= ($cabinBag['quantity'] ?? 1) . ' × cabin bag';
                                 if ($checkedBag) $baggageStr .= ($baggageStr ? ' + ' : '') . ($checkedBag['quantity'] ?? 1) . ' × ' . ($checkedBag['maximum_weight_kg'] ?? '') . 'kg';
                                 if (! $baggageStr) $baggageStr = 'Per fare conditions';
 
                                 $conditions   = $selectedFlight['conditions'] ?? [];
                                 $isRefundable = ($conditions['refund_before_departure']['allowed'] ?? false);
+
+                                if ($tripTypeReview === 'multi_city') {
+                                    $sliceHeading = 'Flight ' . ($sliceIdx + 1) . ' · ' . $orig . ' → ' . $dest;
+                                } elseif (count($slices) > 1) {
+                                    $sliceHeading = $sliceIdx === 0 ? 'Outbound Flight' : 'Return Flight';
+                                } else {
+                                    $sliceHeading = 'Flight Details';
+                                }
                             @endphp
+
                             <div class="card overflow-hidden">
                                 <div class="flex items-center gap-3 px-4 py-4 md:p-5 border-b border-slate-100">
                                     <i data-tabler="plane-departure" class="text-slate-600 shrink-0" data-size="18"></i>
-                                    <h2 class="font-semibold text-base md:text-lg text-slate-950">
-                                        {{ count($slices) > 1 ? ($sliceIdx === 0 ? 'Outbound Flight' : 'Return Flight') : 'Flight Details' }}
-                                    </h2>
+                                    <h2 class="font-semibold text-base md:text-lg text-slate-950">{{ $sliceHeading }}</h2>
                                 </div>
+
                                 <div class="flex flex-col gap-5 p-4 md:p-5">
+
+                                    {{-- Airline row --}}
                                     <div class="flex items-center gap-3">
                                         @if ($logo)
                                             <img src="{{ $logo }}"
-                                                class="w-10 h-10 md:w-11 md:h-11 object-contain rounded-xl border border-slate-100 shrink-0"
-                                                alt="{{ $airline }}">
+                                                 class="w-10 h-10 md:w-11 md:h-11 object-contain rounded-xl border border-slate-100 shrink-0"
+                                                 alt="{{ $airline }}">
                                         @endif
                                         <div class="flex flex-col min-w-0">
                                             <span class="font-semibold text-sm md:text-base text-slate-950 truncate">{{ $airline }}</span>
@@ -99,6 +118,8 @@
                                             @endif
                                         </div>
                                     </div>
+
+                                    {{-- Route row --}}
                                     <div class="flex items-start gap-2 sm:gap-4 self-stretch">
                                         <div class="flex flex-col items-start shrink-0 min-w-0 max-w-[30%]">
                                             <span class="font-bold text-lg sm:text-xl text-slate-950 leading-tight">
@@ -115,6 +136,7 @@
                                                 </span>
                                             @endif
                                         </div>
+
                                         <div class="flex flex-col items-center gap-1 flex-1 pt-1.5">
                                             <span class="text-[10px] sm:text-xs text-slate-400 whitespace-nowrap">
                                                 {{ $dur ? \Carbon\CarbonInterval::make($dur)->cascade()->forHumans(['parts' => 2]) : '' }}
@@ -132,6 +154,7 @@
                                                 {{ $stops === 0 ? 'Non-stop' : $stops . ' stop' . ($stops > 1 ? 's' : '') }}
                                             </span>
                                         </div>
+
                                         <div class="flex flex-col items-end shrink-0 min-w-0 max-w-[30%]">
                                             <span class="font-bold text-lg sm:text-xl text-slate-950 leading-tight">
                                                 {{ $arr ? \Carbon\Carbon::parse($arr)->format('H:i') : '—' }}
@@ -149,7 +172,7 @@
                                         </div>
                                     </div>
 
-                                    {{-- Info pills — mobile scrollable row --}}
+                                    {{-- Info pills --}}
                                     <div class="flex flex-wrap gap-2 pt-1 border-t border-slate-100">
                                         <div class="flex flex-col gap-0.5 bg-slate-50 rounded-xl px-3 py-2 min-w-[90px]">
                                             <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wide">Cabin</span>
@@ -170,12 +193,13 @@
                                 </div>
                             </div>
                         @endforeach
+
+                        {{-- ─── PASSENGER DETAILS ───────────────────────────────── --}}
                         <div class="card overflow-hidden">
                             <div class="flex items-center gap-3 px-4 py-4 md:p-5 border-b border-slate-100">
                                 <i data-tabler="users" class="text-slate-600 shrink-0" data-size="18"></i>
                                 <h2 class="font-semibold text-base md:text-lg text-slate-950">Passenger Details</h2>
                             </div>
-
                             <div class="flex flex-col divide-y divide-slate-100">
                                 @foreach ($passengers as $idx => $pax)
                                     @php
@@ -186,13 +210,13 @@
                                             default               => 'Passenger',
                                         };
                                         $title    = ucfirst($pax['title'] ?? '');
-                                        $fname    = $pax['first_name']      ?? $pax['given_name']  ?? '';
-                                        $lname    = $pax['last_name']       ?? $pax['family_name'] ?? '';
-                                        $gender   = $pax['gender']          ?? '';
-                                        $dob      = $pax['dob']             ?? $pax['born_on']     ?? '';
-                                        $passport = $pax['passport_no']     ?? $pax['identity_documents'][0]['unique_identifier'] ?? '';
-                                        $expiry   = $pax['passport_expiry'] ?? $pax['identity_documents'][0]['expires_on']        ?? '';
-                                        $national = $pax['nationality']     ?? $pax['identity_documents'][0]['issuing_country_code'] ?? '';
+                                        $fname    = $pax['first_name']  ?? $pax['given_name']  ?? '';
+                                        $lname    = $pax['last_name']   ?? $pax['family_name'] ?? '';
+                                        $gender   = $pax['gender']      ?? '';
+                                        $dob      = $pax['dob']         ?? $pax['born_on']     ?? '';
+                                        $passport = $pax['passport_no'] ?? $pax['identity_documents'][0]['unique_identifier'] ?? '';
+                                        $expiry   = $pax['passport_expiry'] ?? $pax['identity_documents'][0]['expires_on']   ?? '';
+                                        $national = $pax['nationality'] ?? $pax['identity_documents'][0]['issuing_country_code'] ?? '';
 
                                         $paxId   = $pax['id'] ?? "pax_{$idx}";
                                         $paxSeat = null;
@@ -279,6 +303,8 @@
                                 @endforeach
                             </div>
                         </div>
+
+                        {{-- ─── CONTACT INFO ────────────────────────────────────── --}}
                         <div class="card overflow-hidden">
                             <div class="flex items-center gap-3 px-4 py-4 md:p-5 border-b border-slate-100">
                                 <i data-tabler="mail" class="text-slate-600 shrink-0" data-size="18"></i>
@@ -297,12 +323,13 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- ─── FARE RULES ──────────────────────────────────────── --}}
                         @php
                             $conditions = $selectedFlight['conditions'] ?? [];
                             $refund     = $conditions['refund_before_departure'] ?? [];
                             $change     = $conditions['change_before_departure'] ?? [];
                             $rules = [];
-
                             if (! empty($refund['allowed'])) {
                                 $p = $refund['penalty_amount'] ?? null;
                                 $rules[] = ['icon' => 'check', 'color' => 'text-green-600', 'bg' => 'bg-green-50',
@@ -338,14 +365,13 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- ─── PRICE SUMMARY (mobile only) ────────────────────── --}}
                         <div class="block lg:hidden card p-4 space-y-3">
                             <h3 class="font-semibold text-base text-slate-800">Price Summary</h3>
                             @php
-                                $paxTypes = [];
-                                foreach ($passengers as $p) {
-                                    $t = $p['type'] ?? 'adult';
-                                    $paxTypes[$t] = ($paxTypes[$t] ?? 0) + 1;
-                                }
+                                $paxTypes   = [];
+                                foreach ($passengers as $p) { $t = $p['type'] ?? 'adult'; $paxTypes[$t] = ($paxTypes[$t] ?? 0) + 1; }
                                 $totalPax   = max(1, $adults + $children);
                                 $perPaxFare = round($baseTotal / $totalPax, 2);
                             @endphp
@@ -378,68 +404,147 @@
                                 <span class="font-bold text-lg text-slate-950">{{ $currency }} {{ number_format($grandTotal, 2) }}</span>
                             </div>
                         </div>
+
+                        {{-- ─── BOTTOM BUTTONS ──────────────────────────────────── --}}
                         <div class="flex justify-between items-center gap-4 py-2">
                             <button onclick="history.back()" class="btn btn-white min-w-[110px] sm:min-w-[130px]">Back</button>
                             <button wire:click="confirm" class="btn btn-primary flex-1 sm:flex-none sm:min-w-[160px]">
-                                <span wire:loading.remove wire:target="confirm">
-                                    Contiune
-                                </span>
+                                <span wire:loading.remove wire:target="confirm">Continue</span>
                                 <span wire:loading wire:target="confirm" class="loading loading-spinner loading-xs"></span>
                             </button>
                         </div>
-                    </div>
+
+                    </div>{{-- end left column --}}
+
+                    {{-- ─── RIGHT SIDEBAR ───────────────────────────────────── --}}
                     <div class="hidden lg:block w-[304px] shrink-0 sticky top-24">
                         <div class="flex flex-col gap-5">
                             <h3 class="font-semibold text-[24px] leading-[36px] text-slate-800">Price details</h3>
-                            @php
-                                $seg0  = ($selectedFlight['slices'][0]['segments'][0] ?? []);
-                                $dep0  = $seg0['departing_at'] ?? null;
-                                $arr0  = $seg0['arriving_at']  ?? null;
-                                $o     = $seg0['origin']['iata_code']               ?? '';
-                                $d     = $seg0['destination']['iata_code']          ?? '';
-                                $logo0 = $seg0['operating_carrier']['logo_symbol_url'] ?? '';
-                                $airl0 = $seg0['operating_carrier']['name']          ?? '';
-                                $fno0  = ($seg0['operating_carrier']['iata_code'] ?? '') . ($seg0['operating_carrier_flight_number'] ?? '');
-                                $dur0  = $seg0['duration'] ?? '';
-                                $stps0 = count($selectedFlight['slices'][0]['segments'] ?? []) - 1;
-                            @endphp
-                            @if ($logo0 || $airl0)
-                                <div class="card p-4 flex items-center gap-3">
-                                    @if ($logo0)
-                                        <div class="w-11 h-11 rounded-xl bg-slate-50 overflow-hidden border border-slate-100 shrink-0">
-                                            <img src="{{ $logo0 }}" alt="{{ $airl0 }}" class="w-full h-full object-cover">
+
+                            {{-- Multi-city: saare slices sidebar mein --}}
+                            @if ($tripTypeReview === 'multi_city')
+                                @foreach ($slices as $sIdx => $sSlice)
+                                    @php
+                                        $sSeg  = $sSlice['segments'][0] ?? [];
+                                        $sDep  = $sSeg['departing_at'] ?? null;
+                                        $sArr  = $sSeg['arriving_at']  ?? null;
+                                        $sO    = $sSeg['origin']['iata_code']                  ?? '';
+                                        $sD    = $sSeg['destination']['iata_code']             ?? '';
+                                        $sLogo = $sSeg['operating_carrier']['logo_symbol_url'] ?? '';
+                                        $sAirl = $sSeg['operating_carrier']['name']            ?? '';
+                                        $sFno  = ($sSeg['operating_carrier']['iata_code'] ?? '') . ($sSeg['operating_carrier_flight_number'] ?? '');
+                                        $sDur  = $sSeg['duration'] ?? '';
+                                        $sStps = count($sSlice['segments'] ?? []) - 1;
+                                    @endphp
+                                    <div class="card p-4 flex items-center gap-3">
+                                        @if ($sLogo)
+                                            <div class="w-9 h-9 rounded-xl bg-slate-50 overflow-hidden border border-slate-100 shrink-0">
+                                                <img src="{{ $sLogo }}" alt="{{ $sAirl }}" class="w-full h-full object-cover">
+                                            </div>
+                                        @endif
+                                        <div class="flex flex-col flex-1 min-w-0">
+                                            <span class="font-semibold text-sm text-slate-950 truncate">
+                                                Flight {{ $sIdx + 1 }} · {{ $sO }} → {{ $sD }}
+                                            </span>
+                                            <span class="text-xs text-slate-500">{{ $sAirl }} · {{ $sFno }}</span>
                                         </div>
-                                    @endif
-                                    <div class="flex flex-col flex-1 min-w-0">
-                                        <span class="font-semibold text-base text-slate-950 truncate">{{ $airl0 }}</span>
-                                        <span class="text-sm text-slate-500">{{ $fno0 }}</span>
                                     </div>
-                                </div>
-                                <div class="card p-4 flex items-center justify-between gap-3">
-                                    <div class="flex flex-col">
-                                        <span class="font-semibold text-sm text-slate-950">{{ $dep0 ? \Carbon\Carbon::parse($dep0)->format('H:i') : '' }}</span>
-                                        <span class="text-xs text-slate-500">{{ $o }}</span>
-                                    </div>
-                                    <div class="flex flex-col items-center gap-0.5 flex-1">
-                                        <span class="text-xs text-slate-400">{{ $dur0 ? \Carbon\CarbonInterval::make($dur0)->cascade()->forHumans(['parts'=>2]) : '' }}</span>
-                                        <div class="w-full h-px bg-slate-200 relative">
-                                            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-slate-300"></div>
-                                            <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                                    <div class="card p-4 flex items-center justify-between gap-3">
+                                        <div class="flex flex-col">
+                                            <span class="font-semibold text-sm text-slate-950">
+                                                {{ $sDep ? \Carbon\Carbon::parse($sDep)->format('H:i') : '' }}
+                                            </span>
+                                            <span class="text-xs text-slate-500">{{ $sO }}</span>
+                                            @if ($sDep)
+                                                <span class="text-[10px] text-slate-400">{{ \Carbon\Carbon::parse($sDep)->format('d M') }}</span>
+                                            @endif
                                         </div>
-                                        <span class="text-xs text-slate-400">{{ $stps0 === 0 ? 'Non-stop' : $stps0 . ' stop' . ($stps0 > 1 ? 's' : '') }}</span>
+                                        <div class="flex flex-col items-center gap-0.5 flex-1 px-2">
+                                            <span class="text-xs text-slate-400">
+                                                {{ $sDur ? \Carbon\CarbonInterval::make($sDur)->cascade()->forHumans(['parts' => 2]) : '' }}
+                                            </span>
+                                            <div class="w-full h-px bg-slate-200 relative">
+                                                <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                                                <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                                            </div>
+                                            <span class="text-xs text-slate-400">
+                                                {{ $sStps === 0 ? 'Non-stop' : $sStps . ' stop' . ($sStps > 1 ? 's' : '') }}
+                                            </span>
+                                        </div>
+                                        <div class="flex flex-col items-end">
+                                            <span class="font-semibold text-sm text-slate-950">
+                                                {{ $sArr ? \Carbon\Carbon::parse($sArr)->format('H:i') : '' }}
+                                            </span>
+                                            <span class="text-xs text-slate-500">{{ $sD }}</span>
+                                            @if ($sArr)
+                                                <span class="text-[10px] text-slate-400">{{ \Carbon\Carbon::parse($sArr)->format('d M') }}</span>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div class="flex flex-col items-end">
-                                        <span class="font-semibold text-sm text-slate-950">{{ $arr0 ? \Carbon\Carbon::parse($arr0)->format('H:i') : '' }}</span>
-                                        <span class="text-xs text-slate-500">{{ $d }}</span>
+                                @endforeach
+
+                            {{-- One-way / Round-trip: original single block --}}
+                            @else
+                                @php
+                                    $seg0  = $selectedFlight['slices'][0]['segments'][0] ?? [];
+                                    $dep0  = $seg0['departing_at'] ?? null;
+                                    $arr0  = $seg0['arriving_at']  ?? null;
+                                    $o     = $seg0['origin']['iata_code']                  ?? '';
+                                    $d     = $seg0['destination']['iata_code']             ?? '';
+                                    $logo0 = $seg0['operating_carrier']['logo_symbol_url'] ?? '';
+                                    $airl0 = $seg0['operating_carrier']['name']            ?? '';
+                                    $fno0  = ($seg0['operating_carrier']['iata_code'] ?? '') . ($seg0['operating_carrier_flight_number'] ?? '');
+                                    $dur0  = $seg0['duration'] ?? '';
+                                    $stps0 = count($selectedFlight['slices'][0]['segments'] ?? []) - 1;
+                                @endphp
+                                @if ($logo0 || $airl0)
+                                    <div class="card p-4 flex items-center gap-3">
+                                        @if ($logo0)
+                                            <div class="w-11 h-11 rounded-xl bg-slate-50 overflow-hidden border border-slate-100 shrink-0">
+                                                <img src="{{ $logo0 }}" alt="{{ $airl0 }}" class="w-full h-full object-cover">
+                                            </div>
+                                        @endif
+                                        <div class="flex flex-col flex-1 min-w-0">
+                                            <span class="font-semibold text-base text-slate-950 truncate">{{ $airl0 }}</span>
+                                            <span class="text-sm text-slate-500">{{ $fno0 }}</span>
+                                        </div>
                                     </div>
-                                </div>
+                                    <div class="card p-4 flex items-center justify-between gap-3">
+                                        <div class="flex flex-col">
+                                            <span class="font-semibold text-sm text-slate-950">
+                                                {{ $dep0 ? \Carbon\Carbon::parse($dep0)->format('H:i') : '' }}
+                                            </span>
+                                            <span class="text-xs text-slate-500">{{ $o }}</span>
+                                        </div>
+                                        <div class="flex flex-col items-center gap-0.5 flex-1">
+                                            <span class="text-xs text-slate-400">
+                                                {{ $dur0 ? \Carbon\CarbonInterval::make($dur0)->cascade()->forHumans(['parts' => 2]) : '' }}
+                                            </span>
+                                            <div class="w-full h-px bg-slate-200 relative">
+                                                <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                                                <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                                            </div>
+                                            <span class="text-xs text-slate-400">
+                                                {{ $stps0 === 0 ? 'Non-stop' : $stps0 . ' stop' . ($stps0 > 1 ? 's' : '') }}
+                                            </span>
+                                        </div>
+                                        <div class="flex flex-col items-end">
+                                            <span class="font-semibold text-sm text-slate-950">
+                                                {{ $arr0 ? \Carbon\Carbon::parse($arr0)->format('H:i') : '' }}
+                                            </span>
+                                            <span class="text-xs text-slate-500">{{ $d }}</span>
+                                        </div>
+                                    </div>
+                                @endif
                             @endif
+
+                            {{-- Price breakdown (same for all trip types) --}}
                             <div class="card p-5 space-y-3.5">
                                 @php
-                                    $paxTypes2  = [];
+                                    $paxTypes2 = [];
                                     foreach ($passengers as $p) { $t = $p['type'] ?? 'adult'; $paxTypes2[$t] = ($paxTypes2[$t] ?? 0) + 1; }
-                                    $totalPax2  = max(1, $adults + $children);
-                                    $perPax2    = round($baseTotal / $totalPax2, 2);
+                                    $totalPax2 = max(1, $adults + $children);
+                                    $perPax2   = round($baseTotal / $totalPax2, 2);
                                 @endphp
                                 @if (($paxTypes2['adult'] ?? 0) > 0)
                                     <div class="flex justify-between items-center">
@@ -477,7 +582,8 @@
                                 <span class="text-xs text-slate-500">Secure booking — your data is protected</span>
                             </div>
                         </div>
-                    </div>
+                    </div>{{-- end sidebar --}}
+
                 </div>
             </div>
         </div>

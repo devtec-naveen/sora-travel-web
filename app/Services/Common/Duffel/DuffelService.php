@@ -388,10 +388,6 @@ class DuffelService
             ]);
 
             $result = $response->json();
-
-            dd($result);
-
-            // 4️⃣ Handle Duffel errors
             if (!empty($result['errors'])) {
                 Log::error('Duffel cancel failed', [
                     'order_id' => $orderId,
@@ -404,27 +400,22 @@ class DuffelService
                 ];
             }
 
-            // 5️⃣ Get cancellation data
             $cancelData = $result['data'] ?? [];
             $cancellationId = $cancelData['id'] ?? null;
 
-            // 6️⃣ Update DB inside transaction
             DB::transaction(function () use ($order, $cancelData) {
-                // Update payment status to refunded
                 PaymentModel::where('id', $order->payment_id)
                     ->update([
                         'status'           => 'refunded',
                         'gateway_response' => $cancelData,
                     ]);
 
-                // Update order status
                 $order->update([
                     'status' => 'cancelled',
                     'data'   => $cancelData,
                 ]);
             });
 
-            // 7️⃣ Return success
             return [
                 'success' => true,
                 'message' => 'Flight cancelled successfully',
