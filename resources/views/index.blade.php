@@ -3,7 +3,7 @@
         <section class="py-6 bg-cover bg-center relative min-h-[500px]" style="background-image: url('{{ asset('assets/images/search-bg.jpg') }}');">
             <div class="bg-gradient-to-b from-blue-950 via-blue-950 to-blue-950/0 absolute top-0 left-0 w-full h-full">
             </div>
-            <div class="container">
+            <div class="container ">
                 <div class="flex flex-col gap-4 md:gap-9 relative z-[1]">
                     <div class="flex items-center gap-2 md:gap-3.5">
                         <button class="tabs-border flex-1 md:flex-none active">
