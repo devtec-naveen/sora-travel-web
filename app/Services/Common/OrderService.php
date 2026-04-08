@@ -9,6 +9,7 @@ use App\Services\Common\Payment\PaymentService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Stripe\PaymentIntent;
 
 class OrderService
 {
@@ -152,8 +153,28 @@ class OrderService
                     'payment_id' => $payment->id,
                     'errors'     => $orderData['errors'],
                 ]);
+
+                $intent = PaymentIntent::retrieve($order->payment_intent_id);
+
+                if ($intent->status === 'succeeded') {
+                    $intent->refunds->create([
+                        'amount' => $intent->amount,
+                    ]);
+                    Log::info('Stripe Payment refunded due to booking failure', [
+                        'payment_id' => $payment->id,
+                        'intent_id'  => $intent->id,
+                    ]);
+                } elseif ($intent->status === 'requires_capture') {
+                    $intent->cancel();
+                    Log::info('Stripe PaymentIntent canceled due to booking failure', [
+                        'payment_id' => $payment->id,
+                        'intent_id'  => $intent->id,
+                    ]);
+                }
+
                 $payment->update(['status' => 'failed']);
                 $order->update(['status' => 'failed']);
+
                 return $orderData;
             }
 
