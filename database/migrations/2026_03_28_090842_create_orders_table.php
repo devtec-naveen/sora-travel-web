@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('payment_id')->constrained()->nullOnDelete();
+            $table->foreignId('payment_id')->constrained()->nullable();
             $table->string('order_number')->unique();
             $table->enum('type', ['flight', 'hotel', 'car']);
             $table->string('external_id')->nullable()->comment('External API order ID');

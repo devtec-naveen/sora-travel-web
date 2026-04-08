@@ -147,17 +147,14 @@
                                                 $today = \Carbon\Carbon::today();
 
                                                 if ($type === 'adult') {
-                                                    // 18+ hona chahiye → max date = aaj - 18 saal
                                                     $maxDate = $today->copy()->subYears(18)->format('Y-m-d');
                                                     $minYear = 1970;
                                                     $maxYear = $today->copy()->subYears(18)->year;
                                                 } elseif ($type === 'child') {
-                                                    // 2 - 11 saal
                                                     $maxDate = $today->copy()->subYears(2)->format('Y-m-d');
                                                     $minYear = $today->copy()->subYears(11)->year;
                                                     $maxYear = $today->copy()->subYears(2)->year;
                                                 } else {
-                                                    // Infant: 0 - 2 saal
                                                     $maxDate = $today->copy()->format('Y-m-d');
                                                     $minYear = $today->copy()->subYears(2)->year;
                                                     $maxYear = $today->year;
@@ -204,7 +201,11 @@
                                                     <span class="form-label">Passport Expiry Date</span>
                                                     <div class="dtp-field relative" data-dtp-id="{{ $expId }}"
                                                         data-mode="date"
-                                                        data-min-date="{{ \Carbon\Carbon::tomorrow()->format('Y-m-d') }}">
+                                                        data-min-date="{{ 
+                                                            !empty($returnDate) 
+                                                                ? \Carbon\Carbon::parse($returnDate)->addDay()->format('Y-m-d') 
+                                                                : \Carbon\Carbon::tomorrow()->format('Y-m-d') 
+                                                        }}">
                                                         <div
                                                             class="form-input flex items-center justify-between cursor-pointer select-none gap-2">
                                                             <span id="dtp_lbl_{{ $expId }}"

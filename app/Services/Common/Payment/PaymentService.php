@@ -1,19 +1,21 @@
 <?php
 
-namespace App\Services\Common\Stripe;
+namespace App\Services\Common\Payment;
+
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 
-class StripeService
+class PaymentService
 {
-    public function payWithCard(array $data): PaymentIntent
+    public function createPaymentIntent(array $data): PaymentIntent
     {
         Stripe::setApiKey(config('services.stripe.secret'));
         return PaymentIntent::create([
             'amount' => (int) ($data['amount'] * 100),
             'currency' => strtolower($data['currency'] ?? 'usd'),
-            'payment_method' => 'pm_card_visa',
-            'confirm' => true,
+            'metadata' => [
+                'payment_id' => $data['payment_id'] ?? null,
+            ],
             'automatic_payment_methods' => [
                 'enabled' => true,
                 'allow_redirects' => 'never',

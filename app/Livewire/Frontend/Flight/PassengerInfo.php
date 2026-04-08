@@ -16,10 +16,14 @@ class PassengerInfo extends Component
     public string $phoneCode      = '+91';
     public string $phone          = '';
     public bool   $isLoading      = true;
+    public $returnDate;
+    public float $baseAmount  = 0;
+    public float $platformFee = 0;
 
     public function mount(): void
     {
-        
+        $session = session('selected_flight', []);
+        $this->returnDate = $session['return_date'] ?? null;
     }
 
     protected function rules()
@@ -51,7 +55,7 @@ class PassengerInfo extends Component
         ];
     }
 
-    public function loadData(): void 
+    public function loadData(): void
     {
         sleep(1);
         $session = session('selected_flight', []);
@@ -60,6 +64,10 @@ class PassengerInfo extends Component
         $this->children       = (int) ($session['children']  ?? request('childrens', 0));
         $this->infants        = (int) ($session['infants']   ?? request('infants',  0));
         $this->cabinClass     = $session['cabinClass'] ?? request('cabin_class', 'Economy');
+        $this->returnDate = $session['return_date'] ?? null;
+        $this->baseAmount  = (float) ($session['base_amount']  ?? 0);
+        $this->platformFee = (float) ($session['platform_fee'] ?? 0);
+
         $saved = session('passenger_info', []);
         if (! empty($saved['passengers'])) {
             $this->passengers = $saved['passengers'];
@@ -109,10 +117,12 @@ class PassengerInfo extends Component
     public function continue(): void
     {
         $this->validate();
-        
+
         session([
             'passenger_info' => [
                 'flight'     => $this->selectedFlight,
+                'base_amount'  => $this->baseAmount, 
+                'platform_fee' => $this->platformFee,
                 'passengers' => $this->passengers,
                 'contact'    => [
                     'email'      => $this->email,
@@ -123,6 +133,7 @@ class PassengerInfo extends Component
                 'children'   => $this->children,
                 'infants'    => $this->infants,
                 'cabinClass' => $this->cabinClass,
+                'return_date' => $this->returnDate,
             ],
         ]);
 
@@ -137,6 +148,7 @@ class PassengerInfo extends Component
     public function render()
     {
         $sf      = $this->selectedFlight;
+        $reuturnDate      = $this->returnDate;
         $slice   = $sf['slices'][0]      ?? [];
         $segment = $slice['segments'][0] ?? [];
 
@@ -154,6 +166,7 @@ class PassengerInfo extends Component
             'currency' => $currency,
             'baseFare' => $baseFare,
             'taxes'    => $taxes,
+            'reuturnDate' => $reuturnDate
         ]);
     }
 }

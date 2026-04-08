@@ -160,7 +160,7 @@ class AuthService
                 ];
             }
 
-            Auth::login($user);
+            Auth::login($user,$data['remember'] ?? false);
             request()->session()->regenerate();
 
             return [

@@ -18,6 +18,8 @@ class PaymentModel extends Model
         'gateway_response', 
         'failure_reason',
         'paid_at',
+        'amount',	
+	    'base_amount'
     ];
 
     protected $casts = [

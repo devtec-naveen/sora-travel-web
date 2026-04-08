@@ -3,11 +3,9 @@
 namespace App\Livewire\Frontend\Flight;
 
 use Livewire\Component;
-use App\Services\Common\Duffel\DuffelService;
-use App\Services\Common\Stripe\StripeService;
+use App\Services\Common\OrderService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class Payment extends Component
 {
@@ -32,6 +30,9 @@ class Payment extends Component
     public bool   $paymentError   = false;
     public string $errorMessage   = '';
     public bool $isLoading = true;
+    public float $platformFee = 0;
+    
+    protected $listeners = ['confirm-payment' => 'confirmPayment'];
 
     protected function rules(): array
     {
@@ -65,13 +66,16 @@ class Payment extends Component
         $this->children       = (int) ($source['children'] ?? 0);
         $this->infants        = (int) ($source['infants']  ?? 0);
         $this->services       = $source['services']   ?? [];
-
-        $sf                = $this->selectedFlight;
-        $this->currency    = $sf['total_currency']    ?? $source['currency'] ?? '';
-        $this->baseTotal   = (float) ($sf['total_amount']    ?? 0);
+        $sf             = $this->selectedFlight;
+        $this->currency = $sf['total_currency'] ?? $source['currency'] ?? '';
+        $this->baseTotal   = (float) ($sf['base_amount']  ?? $source['base_amount']  ?? 0);        
+        $this->platformFee = (float) ($sf['platform_fee'] ?? $source['platform_fee'] ?? 0);        
         $this->addonsTotal = (float) ($source['addonsTotal'] ?? 0);
-        $this->seatTotal   = (float) ($source['seatTotal']   ?? 0);
-        $this->grandTotal  = (float) ($source['grandTotal']  ?? ($this->baseTotal + $this->addonsTotal + $this->seatTotal));
+        $this->seatTotal   = (float) ($source['seatTotal']   ?? 0);        
+        $this->grandTotal  = $this->baseTotal 
+                        + $this->platformFee 
+                        + $this->addonsTotal 
+                        + $this->seatTotal;
     }
 
     public function updated(string $field): void
@@ -79,51 +83,33 @@ class Payment extends Component
         $this->validateOnly($field);
     }
 
-    public function pay(): void
+    public function pay()
     {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             $this->dispatch('require-login');
             return;
         }
 
-        $this->validate();
-        [$month, $year] = explode('/', $this->cardExpiry);
-        $currentYear = (int) date('y');
-        $currentMonth = (int) date('m');
-        if ((int)$year < $currentYear || ((int)$year === $currentYear && (int)$month < $currentMonth)) {
-            $this->paymentError = true;
-            $this->errorMessage = 'Card expiry date is invalid or expired.';
-            return;
-        }
-
         $this->isProcessing = true;
-        $this->paymentError = false;
-        $this->errorMessage = '';
 
         try {
-            $stripeService = app(StripeService::class);
-            $paymentIntent = $stripeService->payWithCard([
-                'amount'      => $this->grandTotal,
-                'currency'    => $this->currency ?: 'usd',
-                'card_number' => $this->cardNumber,
-                'exp_month'   => (int)$month,
-                'exp_year'    => 2000 + (int)$year,
-                'cvc'         => $this->cardCvv,
+            $bookingInfo = session('booking_info', []);
+            $orderService = app(OrderService::class);
+            $response = $orderService->create([
+                'user_id'      => Auth::id(),
+                'currency'     => $bookingInfo['currency'] ?? $this->currency,
+                'base_amount'  => $bookingInfo['base_amount'] ?? $this->baseTotal,
+                'addons_total' => $bookingInfo['addons_total'] ?? $this->addonsTotal,
+                'seat_total'   => $bookingInfo['seat_total'] ?? $this->seatTotal,
+                'platform_fee' => $bookingInfo['platform_fee'] ?? $this->platformFee,
             ]);
-            if ($paymentIntent->status !== 'succeeded') {
-                throw new \Exception('Payment could not be processed.');
-            }
-            $this->createDuffelOrder();
+
+            $orderPassengers = $this->mapPassengersForDuffel($this->passengers, $this->selectedFlight, $this->contact);
+            $order = $orderService->confirmPayment($response['payment_id'],$this->selectedFlight['id'],$orderPassengers);
+            session()->forget(['booking_info', 'addons_info', 'seats_info']);
+            return redirect()->route('airport.confirmation');
+
         } catch (\Throwable $e) {
-            Log::error('Payment failed', [
-                'message'  => $e->getMessage(),
-                'offer_id' => $this->selectedFlight['id'] ?? null,
-                'passengers_debug' => collect($this->passengers)->map(fn($p) => [
-                    'type'    => $p['type']    ?? null,
-                    'born_on' => $p['born_on'] ?? $p['dob'] ?? null,
-                    'gender'  => $p['gender']  ?? null,
-                ])->toArray(),
-            ]);
             $this->paymentError = true;
             $this->errorMessage = $e->getMessage();
         } finally {
@@ -131,72 +117,43 @@ class Payment extends Component
         }
     }
 
-    protected function createDuffelOrder(): void
+    protected function mapPassengersForDuffel(array $formPassengers, array $flight, array $contact): array
     {
-        $duffel = app(DuffelService::class);
-
-        $sf        = $this->selectedFlight;
-        $offerId   = $sf['id']         ?? null;
-        $offerPaxs = $sf['passengers'] ?? [];
-
-        if (! $offerId) {
-            throw new \Exception('Offer ID missing.');
-        }
-
         $orderPassengers = [];
-        $formPaxByType   = [];
-
-        foreach ($this->passengers as $pax) {
-            $type = $pax['type'] ?? 'adult';
-            $formPaxByType[$type][] = $pax;
-        }
-
+        $offerPaxs = $flight['passengers'] ?? [];
         $typeCounters = [];
-
         $infantIds = [];
         $infantIndex = 0;
 
+        // collect infant IDs
         foreach ($offerPaxs as $pax) {
-            if (str_starts_with($pax['type'], 'infant')) {
+            if (str_starts_with($pax['type'] ?? '', 'infant')) {
                 $infantIds[] = $pax['id'];
             }
-        }        
+        }
 
         foreach ($offerPaxs as $offerPax) {
-            $offerType      = $offerPax['type'] ?? 'adult';
+            $offerType = $offerPax['type'] ?? 'adult';
             $normalizedType = str_starts_with($offerType, 'infant') ? 'infant' : $offerType;
 
             $typeCounters[$normalizedType] = $typeCounters[$normalizedType] ?? 0;
-            $formPax = $formPaxByType[$normalizedType][$typeCounters[$normalizedType]] ?? null;
+            $formPax = $formPassengers[$typeCounters[$normalizedType]] ?? null;
             $typeCounters[$normalizedType]++;
 
-            if (!$formPax) {
-               continue;
-            }
+            if (!$formPax) continue;
 
-            $rawDob = $formPax['born_on'] ?? $formPax['dob'] ?? '';
-            $bornOn = '';
-            if ($rawDob) {
-                try {
-                    $bornOn = Carbon::parse($rawDob)->format('Y-m-d');
-                } catch (\Throwable $e) {
-                    $bornOn = $rawDob;
-                }
-            }
+            $bornOn = $formPax['dob'] ?? '';
+            try { $bornOn = $bornOn ? \Carbon\Carbon::parse($bornOn)->format('Y-m-d') : ''; } catch (\Throwable) {}
 
             $orderPax = [
                 'id'           => $offerPax['id'],
                 'title'        => strtolower($formPax['title'] ?? 'mr'),
-                'given_name'   => $formPax['given_name']  ?? $formPax['first_name']  ?? '',
-                'family_name'  => $formPax['family_name'] ?? $formPax['last_name']   ?? '',
-                'gender'       => match(strtolower($formPax['gender'] ?? 'm')) {
-                    'male', 'm'   => 'm',
-                    'female', 'f' => 'f',
-                    default       => 'm',
-                },
+                'given_name'   => $formPax['given_name'] ?? $formPax['first_name'] ?? '',
+                'family_name'  => $formPax['family_name'] ?? $formPax['last_name'] ?? '',
+                'gender'       => match(strtolower($formPax['gender'] ?? 'm')) { 'male','m'=>'m','female','f'=>'f', default=>'m'},
                 'born_on'      => $bornOn,
-                'email'        => $this->contact['email'] ?? '',
-                'phone_number' => ($this->contact['phone_code'] ?? '') . ($this->contact['phone'] ?? ''),
+                'email'        => $contact['email'] ?? '',
+                'phone_number' => ($contact['phone_code'] ?? '') . ($contact['phone'] ?? ''),
             ];
 
             if ($normalizedType === 'adult' && isset($infantIds[$infantIndex])) {
@@ -204,62 +161,10 @@ class Payment extends Component
                 $infantIndex++;
             }
 
-            $passportNo = $formPax['identity_documents'][0]['unique_identifier'] ?? $formPax['passport_no'] ?? null;
-            $passportNo = $formPax['identity_documents'][0]['unique_identifier']    ?? $formPax['passport_no']     ?? null;
-            $expiresOn  = $formPax['identity_documents'][0]['expires_on']           ?? $formPax['passport_expiry'] ?? null;
-            $issuing    = $formPax['identity_documents'][0]['issuing_country_code'] ?? $formPax['nationality']     ?? null;
-
-            if ($passportNo && $expiresOn) {
-                try {
-                    $expiresOn = Carbon::parse($expiresOn)->format('Y-m-d');
-                } catch (\Throwable $e) {}
-
-                $orderPax['identity_documents'] = [[
-                    'unique_identifier'    => $passportNo,
-                    'expires_on'           => $expiresOn,
-                    'issuing_country_code' => strtoupper($issuing ?? 'IN'),
-                    'type'                 => 'passport',
-                ]];
-            }
-
             $orderPassengers[] = $orderPax;
         }
 
-        $response = $duffel->createOrder([
-            'offer_id'   => $offerId,
-            'passengers' => $orderPassengers,
-            'services'   => $this->services,
-            'services_amount' => $this->addonsTotal + $this->seatTotal,
-            'amount'     => (string) $this->grandTotal,
-            'currency'   => $this->currency,
-            'contact'    => $this->contact,
-            'user_id'    => Auth::id()
-        ]);
-
-        if (! empty($response['errors'])) {
-            $error = $response['errors'][0] ?? [];
-            $msg   = $error['message'] ?? 'Order creation failed.';
-
-            Log::error('Duffel createOrder error', [
-                'offer_id'           => $offerId,
-                'error'              => $error,
-                'payload_passengers' => collect($orderPassengers)->map(fn($p) => [
-                    'id'         => $p['id']        ?? null,
-                    'born_on'    => $p['born_on']   ?? null,
-                    'given_name' => $p['given_name'] ?? null,
-                    'gender'     => $p['gender']    ?? null,
-                ])->toArray(),
-            ]);
-
-            throw new \Exception($msg);
-        }
-
-        $order = $response['data'] ?? [];
-
-        session()->forget(['passenger_info', 'addons_info', 'seats_info', 'booking_info']);
-        session(['last_order' => $order]);
-
-        $this->redirect(route('airport.confirmation'));
+        return $orderPassengers;
     }
 
     public function render()
