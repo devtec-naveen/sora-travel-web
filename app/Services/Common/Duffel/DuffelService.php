@@ -33,8 +33,21 @@ class DuffelService
         if (!$offerRequestId) {
             return [];
         }
-
+        $percent = (float) getSetting('platform_commission_percent', 0);
         $offers = $this->getOffers($offerRequestId);
+
+        $offers['offers'] = collect($offers['offers'] ?? [])
+            ->map(function ($offer) use ($percent) {
+                $baseAmount = (float) ($offer['total_amount'] ?? 0);
+                $commission = ($baseAmount * $percent) / 100;
+                $offer['base_amount']  = $baseAmount;
+                $offer['platform_fee'] = round($commission, 2);
+                $offer['total_amount'] = round($baseAmount + $commission, 2);
+
+                return $offer;
+            })
+            ->toArray();
+
         return [
             'offer_request_id' => $offerRequestId,
             'offers'           => $offers['offers'] ?? [],
@@ -216,242 +229,131 @@ class DuffelService
         ];
     }
 
-    public function createOrder(array $data): array
+    public function createDuffelOrder(array $data): array
     {
-        $offerId    = $data['offer_id'];
-        $services   = $data['services']   ?? [];
-        $passengers = $data['passengers'];
-        $currency   = $data['currency'];
-
-        /** @var \Illuminate\Http\Client\Response $offerResponse */
-        $offerResponse = $this->auth->client()->get("/air/offers/{$offerId}");
-        $offerData     = $offerResponse->json('data', []);
-        $offerAmount   = $offerData['total_amount']   ?? null;
-        $offerCurrency = $offerData['total_currency'] ?? $currency;
-
-        if (!$offerAmount) {
-            throw new \Exception('Duffel: Could not resolve offer amount.');
+        $payload = $data;
+        if (!empty($data['services'])) {
+            $payload['data']['services'] = $data['services'];
         }
 
-        $servicesAmount = (float) ($data['services_amount'] ?? 0.0);
-        $grandTotal     = number_format((float) $offerAmount + $servicesAmount, 2, '.', '');
+        /** @var \Illuminate\Http\Client\Response $response */
+        $response = $this->auth->client()->post('/air/orders', $payload);
+        $result   = $response->json();
 
-        $normalizedServices = array_values(array_map(
-            fn($s) => ['id' => $s['id'], 'quantity' => (int) ($s['quantity'] ?? 1)],
-            array_filter($services, fn($s) => !empty($s['id']))
-        ));
-
-        [$payment, $order] = DB::transaction(function () use ($grandTotal, $offerCurrency, $data) {
-
-            $payment = PaymentModel::create([
-                'user_id'        => $data['user_id'],
-                'payment_id'     => 'PENDING-' . Str::uuid(),
-                'payment_method' => 'balance',
-                'amount'         => $grandTotal,
-                'currency'       => $offerCurrency,
-                'status'         => 'pending',
-            ]);
-
-            $order = OrderModel::create([
-                'user_id'      => $data['user_id'],
-                'payment_id'   => $payment->id,
-                'order_number' => 'ORD-' . now()->format('Ymd') . '-' . strtoupper(Str::random(6)),
-                'type'         => 'flight',
-                'external_id'  => null,
-                'amount'       => $grandTotal,
-                'currency'     => $offerCurrency,
-                'status'       => 'pending',
-            ]);
-
-            return [$payment, $order];
-        });
-
-        try {
-            $payload = [
-                'data' => [
-                    'type'            => 'instant',
-                    'selected_offers' => [$offerId],
-                    'passengers'      => $passengers,
-                    'payments'        => [[
-                        'type'     => 'balance',
-                        'currency' => $offerCurrency,
-                        'amount'   => $grandTotal,
-                    ]],
-                ],
-            ];
-
-            if (!empty($normalizedServices)) {
-                $payload['data']['services'] = $normalizedServices;
-            }
-
-            /** @var \Illuminate\Http\Client\Response $response */
-            $response   = $this->auth->client()->post('/air/orders', $payload);
-            $result     = $response->json();
-
-            if (!empty($result['errors'])) {
-                Log::error('Duffel createOrder failed', [
-                    'offer_id'   => $offerId,
-                    'grand_total' => $grandTotal,
-                    'errors'     => $result['errors'],
-                ]);
-
-                $payment->update(['status' => 'failed']);
-                $order->update(['status'   => 'failed']);
-
-                return $result;
-            }
-
-            $orderData = $result['data'];
-
-            DB::transaction(function () use ($payment, $order, $orderData) {
-                $payment->update([
-                    'payment_id'       => $orderData['id'],
-                    'status'           => 'completed',
-                    'paid_at'          => now(),
-                    'gateway_response' => $orderData,
-                ]);
-
-                $order->update([
-                    'external_id'  => $orderData['id'],
-                    'status'       => 'confirmed',
-                    'booking_date' => $this->resolveBookingDate($orderData),
-                    'data'         => $orderData,
-                ]);
-            });
-
-            $result['db'] = [
-                'payment_id' => $payment->id,
-                'order_id'   => $order->id,
-            ];
-
-            return $result;
-        } catch (\Throwable $e) {
-            Log::error('createOrder unexpected error', [
-                'message'  => $e->getMessage(),
-                'order_id' => $order->id,
-            ]);
-
-            $payment->update(['status' => 'failed', 'failure_reason' => $e->getMessage()]);
-            $order->update(['status'   => 'failed']);
-
-            throw $e;
+        if (!empty($result['errors'])) {
+            throw new \Exception(json_encode($result['errors']));
         }
+
+        return $result['data'];
     }
 
-    public function cancelOrder(array $data): array
-    {
-        $orderId = $data['order_id'];    
-        $userId  = $data['user_id'];
+    // public function cancelOrder(array $data): array
+    // {
+    //     $orderId = $data['order_id'];
+    //     $userId  = $data['user_id'];
 
-        $order = OrderModel::where('external_id', $orderId)
-            ->where('user_id', $userId)
-            ->first();
+    //     $order = OrderModel::where('external_id', $orderId)
+    //         ->where('user_id', $userId)
+    //         ->first();
 
-        if (!$order) {
-            return [
-                'success' => false,
-                'message' => 'Order not found',
-            ];
-        }
+    //     if (!$order) {
+    //         return [
+    //             'success' => false,
+    //             'message' => 'Order not found',
+    //         ];
+    //     }
 
-        if ($order->status === 'cancelled') {
-            return [
-                'success' => false,
-                'message' => 'Order already cancelled',
-            ];
-        }
+    //     if ($order->status === 'cancelled') {
+    //         return [
+    //             'success' => false,
+    //             'message' => 'Order already cancelled',
+    //         ];
+    //     }
 
-        try {
-            /** @var \Illuminate\Http\Client\Response $orderDetails */
-            $orderDetails = $this->auth->client()->get("/air/orders/{$orderId}")->json();
+    //     try {
+    //         /** @var \Illuminate\Http\Client\Response $orderDetails */
+    //         $orderDetails = $this->auth->client()->get("/air/orders/{$orderId}")->json();
 
-            if (empty($orderDetails['data'])) {
-                return [
-                    'success' => false,
-                    'message' => 'Unable to fetch order details from Duffel',
-                ];
-            }
+    //         if (empty($orderDetails['data'])) {
+    //             return [
+    //                 'success' => false,
+    //                 'message' => 'Unable to fetch order details from Duffel',
+    //             ];
+    //         }
 
-            $isCancellable = $orderDetails['data']['cancellable'] ?? false;
-            if (!$isCancellable) {
-                return [
-                    'success' => false,
-                    'message' => 'This order cannot be cancelled through the API',
-                ];
-            }
+    //         $isCancellable = $orderDetails['data']['cancellable'] ?? false;
+    //         if (!$isCancellable) {
+    //             return [
+    //                 'success' => false,
+    //                 'message' => 'This order cannot be cancelled through the API',
+    //             ];
+    //         }
 
-            // 3️⃣ Request cancellation from Duffel
-            $response = $this->auth->client()->post("/air/order_cancellations", [
-                'data' => [
-                    'order_id' => $orderId,
-                ],
-            ]);
+    //         // 3️⃣ Request cancellation from Duffel
+    //         $response = $this->auth->client()->post("/air/order_cancellations", [
+    //             'data' => [
+    //                 'order_id' => $orderId,
+    //             ],
+    //         ]);
 
-            $result = $response->json();
-            if (!empty($result['errors'])) {
-                Log::error('Duffel cancel failed', [
-                    'order_id' => $orderId,
-                    'errors'   => $result['errors'],
-                ]);
+    //         $result = $response->json();
+    //         if (!empty($result['errors'])) {
+    //             Log::error('Duffel cancel failed', [
+    //                 'order_id' => $orderId,
+    //                 'errors'   => $result['errors'],
+    //             ]);
 
-                return [
-                    'success' => false,
-                    'message' => $result['errors'][0]['title'] ?? 'Cancel failed',
-                ];
-            }
+    //             return [
+    //                 'success' => false,
+    //                 'message' => $result['errors'][0]['title'] ?? 'Cancel failed',
+    //             ];
+    //         }
 
-            $cancelData = $result['data'] ?? [];
-            $cancellationId = $cancelData['id'] ?? null;
+    //         $cancelData = $result['data'] ?? [];
+    //         $cancellationId = $cancelData['id'] ?? null;
 
-            DB::transaction(function () use ($order, $cancelData) {
-                PaymentModel::where('id', $order->payment_id)
-                    ->update([
-                        'status'           => 'refunded',
-                        'gateway_response' => $cancelData,
-                    ]);
+    //         DB::transaction(function () use ($order, $cancelData) {
+    //             PaymentModel::where('id', $order->payment_id)
+    //                 ->update([
+    //                     'status'           => 'refunded',
+    //                     'gateway_response' => $cancelData,
+    //                 ]);
 
-                $order->update([
-                    'status' => 'cancelled',
-                    'data'   => $cancelData,
-                ]);
-            });
+    //             $order->update([
+    //                 'status' => 'cancelled',
+    //                 'data'   => $cancelData,
+    //             ]);
+    //         });
 
-            return [
-                'success' => true,
-                'message' => 'Flight cancelled successfully',
-                'data'    => $cancelData,
-                'cancellation_id' => $cancellationId,
-            ];
+    //         return [
+    //             'success' => true,
+    //             'message' => 'Flight cancelled successfully',
+    //             'data'    => $cancelData,
+    //             'cancellation_id' => $cancellationId,
+    //         ];
+    //     } catch (\Illuminate\Http\Client\RequestException $e) {
+    //         Log::error('Duffel API request failed', [
+    //             'order_id' => $orderId,
+    //             'message'  => $e->getMessage(),
+    //             'response' => $e->response?->json(),
+    //         ]);
 
-        } catch (\Illuminate\Http\Client\RequestException $e) {
-            Log::error('Duffel API request failed', [
-                'order_id' => $orderId,
-                'message'  => $e->getMessage(),
-                'response' => $e->response?->json(),
-            ]);
+    //         return [
+    //             'success' => false,
+    //             'message' => 'Duffel API request failed: ' . $e->getMessage(),
+    //         ];
+    //     } catch (\Throwable $e) {
+    //         Log::error('Cancel order error', [
+    //             'order_id' => $orderId,
+    //             'message'  => $e->getMessage(),
+    //         ]);
 
-            return [
-                'success' => false,
-                'message' => 'Duffel API request failed: ' . $e->getMessage(),
-            ];
-        } catch (\Throwable $e) {
-            Log::error('Cancel order error', [
-                'order_id' => $orderId,
-                'message'  => $e->getMessage(),
-            ]);
-
-            return [
-                'success' => false,
-                'message' => 'Something went wrong while cancelling',
-            ];
-        }
-    }
-
-    private function resolveBookingDate(array $orderData): ?string
-    {
-        $departing = $orderData['slices'][0]['segments'][0]['departing_at'] ?? null;
-        return $departing ? date('Y-m-d', strtotime($departing)) : null;
-    }
+    //         return [
+    //             'success' => false,
+    //             'message' => 'Something went wrong while cancelling',
+    //         ];
+    //     }
+    // } 
 
     public function filterAndSort(array $offers, array $filters = []): array
     {
@@ -539,7 +441,7 @@ class DuffelService
             ->get('/air/offers', $query);
 
         $data = $response->json();
-        
+
         return [
             'offers' => $data['data'] ?? [],
             'cursor' => $data['meta']['after'] ?? null,
@@ -569,4 +471,26 @@ class DuffelService
             'cursor' => $data['meta']['after'] ?? null,
         ];
     }
+
+    public function getOfferAmount(string $offerId): float
+    {
+        /** @var \Illuminate\Http\Client\Response $response */
+        $response = $this->auth->client()->get("/air/offers/{$offerId}");
+
+        if ($response->failed()) {
+            throw new \Exception('Failed to fetch offer amount from Duffel. Status: ' . $response->status());
+        }
+
+        $offer = $response->json('data', []);
+
+        if (empty($offer)) {
+            throw new \Exception('Offer data not found for ID: ' . $offerId);
+        }
+
+        return (float) ($offer['total_amount'] ?? 0);
+    }
+
+    
+
+    
 }

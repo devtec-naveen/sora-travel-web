@@ -170,7 +170,7 @@
                                             type="airport"
                                             icon="takeoff.svg"
                                             cityInputName="origin_city[]"
-                                            cityValue="{{ $originCities[$i] ?? '' }}"
+                                            cityValue="{{ $originCities[$i] ?? 'Bangalore' }}"
                                         />
                                         <x-frontend.autocomplete
                                             label="Going to"
@@ -181,7 +181,7 @@
                                             type="airport"
                                             icon="dropoff.svg"
                                             cityInputName="departure_city[]"
-                                            cityValue="{{ $depCities[$i] ?? '' }}"
+                                            cityValue="{{ $depCities[$i] ?? 'Delhi' }}"
                                         />
                                         <x-frontend.date-picker
                                             id="mul_fl_dep_{{ $i }}"

@@ -26,12 +26,10 @@ class Seats extends Component
     public string $activePassengerKey = '';
     public bool $isLoading = true;
     public array $passengerMeta = [];
+    public float $platformFee = 0;
 
 
-    public function mount(): void
-    {
-
-    }
+    public function mount(): void {}
 
     public function loadData(): void
     {
@@ -39,6 +37,7 @@ class Seats extends Component
 
         $session    = session('passenger_info', []);
         $addonsInfo = session('addons_info', []);
+
         $this->selectedFlight = $addonsInfo['flight']     ?? $session['flight']     ?? [];
         $this->passengers     = $addonsInfo['passengers'] ?? $session['passengers'] ?? [];
         $this->contact        = $addonsInfo['contact']    ?? $session['contact']    ?? [];
@@ -47,10 +46,12 @@ class Seats extends Component
         $this->infants        = (int) ($addonsInfo['infants']  ?? $session['infants']  ?? 0);
         $this->addonsInfo     = $addonsInfo;
 
-        $sf                = $this->selectedFlight;
-        $this->currency    = $sf['total_currency'] ?? '';
-        $this->baseTotal   = (float) ($sf['total_amount']       ?? 0);
-        $this->addonsTotal = (float) ($addonsInfo['addonsTotal'] ?? 0);
+        $sf             = $this->selectedFlight;
+        $this->currency = $sf['total_currency'] ?? '';
+
+        $this->baseTotal   = (float) ($addonsInfo['base_amount']  ?? $session['base_amount']  ?? $sf['base_amount']  ?? 0);
+        $this->platformFee = (float) ($addonsInfo['platform_fee'] ?? $session['platform_fee'] ?? $sf['platform_fee'] ?? 0);
+        $this->addonsTotal = (float) ($addonsInfo['addonsTotal']  ?? 0);
 
         foreach ($this->passengers as $idx => $pax) {
             if (($pax['type'] ?? '') === 'infant') continue;
@@ -58,7 +59,7 @@ class Seats extends Component
             $duffelId = $pax['id'] ?? null;
             $paxKey   = $duffelId ?: "pax_{$idx}";
             $name     = trim(($pax['first_name'] ?? $pax['given_name'] ?? '') . ' ' . ($pax['last_name'] ?? $pax['family_name'] ?? ''))
-                        ?: ucfirst($pax['type'] ?? 'Passenger') . ' ' . ($idx + 1);
+                ?: ucfirst($pax['type'] ?? 'Passenger') . ' ' . ($idx + 1);
 
             $this->passengerMeta[$paxKey] = [
                 'name'      => $name,
@@ -111,7 +112,6 @@ class Seats extends Component
             if (empty($this->seatMaps)) {
                 $this->noSeatsAvailable = true;
             }
-
         } catch (\Throwable $e) {
             Log::error('Seats fetchSeatMaps exception: ' . $e->getMessage());
             $this->fetchError = true;
@@ -200,8 +200,10 @@ class Seats extends Component
                 'selectedSeats' => $this->selectedSeats,
                 'addonsTotal'   => $this->addonsTotal,
                 'seatTotal'     => $seatTotal,
-                'grandTotal'    => $this->baseTotal + $this->addonsTotal + $seatTotal,
+                'grandTotal'    => $this->baseTotal + $this->platformFee + $this->addonsTotal + $seatTotal,
                 'currency'      => $this->currency,
+                'base_amount'   => $this->baseTotal,    
+                'platform_fee'  => $this->platformFee, 
             ],
         ]);
 
@@ -211,7 +213,7 @@ class Seats extends Component
     public function render()
     {
         $seatTotal  = $this->getSeatTotal();
-        $grandTotal = $this->baseTotal + $this->addonsTotal + $seatTotal;
+        $grandTotal = $this->platformFee + $this->baseTotal + $this->addonsTotal + $seatTotal;
 
         return view('livewire.frontend.flight.seats', [
             'seatTotal'  => $seatTotal,

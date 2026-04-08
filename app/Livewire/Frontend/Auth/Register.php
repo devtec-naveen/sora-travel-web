@@ -169,11 +169,19 @@ class Register extends Component
 
     public function updated($field): void
     {
-        $this->validateOnly($field);
-
-        if (in_array($field, ['password', 'password_confirmation'])) {
-            $this->validateOnly('password');
+        if ($field === 'password') {
+            $this->validateOnly('password', [
+                'password' => 'required|min:8'
+            ]);
+            return;
         }
+
+        if ($field === 'password_confirmation') {
+            $this->validateOnly('password_confirmation');
+            return;
+        }
+
+        $this->validateOnly($field);
     }
 
     public function getPasswordStrengthProperty(): array

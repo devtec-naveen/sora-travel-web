@@ -1,5 +1,6 @@
 import "./bootstrap";
 import './modal.js';
+import './payment.js';
 /**
  * app.js — Global Application Script
  * Sections:
@@ -26,6 +27,14 @@ document.addEventListener("livewire:init", function () {
         window.location.reload();
     });
 });
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    initOneWayValidator();
+    initRoundTripValidator();
+    initMulticityValidator();
+});
+
 
 /* ═══════════════════════════════════════════════════════════════
    1. LOADER
@@ -1488,38 +1497,244 @@ function removeMultiCity(btn) {
    14. FLIGHT FORM VALIDATOR
 ═══════════════════════════════════════════════════════════════ */
 
-function initFlightValidator() {
+ 
+function showError(inputEl, message) {
+    if (!inputEl) return;
+ 
+    const wrapper = inputEl.closest(".form-control") || inputEl.parentElement;
+    if (!wrapper) return;
+ 
+    // Avoid duplicate error on same field
+    if (wrapper.querySelector(".just-validate-error-label")) return;
+ 
+    // Wrapper must be position:relative for absolute tooltip
+    wrapper.style.position = "relative";
+ 
+    // Mark field border
+    inputEl.classList.add("just-validate-error-field", "!border-red-400");
+ 
+    // Tooltip error label
+    const err           = document.createElement("div");
+    err.className       = "just-validate-error-label";
+    err.innerHTML       = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ${message}`;
+    wrapper.appendChild(err);
+}
+ 
+function clearErrors(formEl) {
+    formEl.querySelectorAll(".just-validate-error-label").forEach((el) => el.remove());
+    formEl.querySelectorAll(".just-validate-error-field").forEach((el) => {
+        el.classList.remove("just-validate-error-field", "!border-red-400");
+    });
+    formEl.querySelectorAll("[style*='position: relative']").forEach((el) => {
+        el.style.position = "";
+    });
+}
+ 
+function autoRemoveErrors(formEl, delay = 4000) {
+    setTimeout(() => clearErrors(formEl), delay);
+}
+ 
+function isPastDate(dateStr) {
+    if (!dateStr) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(dateStr) < today;
+}
+ 
+function isDateBefore(dateA, dateB) {
+    return new Date(dateA) < new Date(dateB);
+}
+ 
+function getInputVal(form, name) {
+    return form.querySelector(`[name="${name}"]`)?.value?.trim() ?? "";
+}
+ 
+ 
+// ═══════════════════════════════════════════
+//  1. ONE WAY
+// ═══════════════════════════════════════════
+ 
+function initOneWayValidator() {
     const form = document.getElementById("flightOneWayForm");
-    if (!form || typeof JustValidate === "undefined") return;
-
-    const validator = new JustValidate("#flightOneWayForm");
-    validator
-        .addField("#destination", [
-            {
-                validator: () => {
-                    const origin =
-                        document.querySelector('[name="origin"]')?.value;
-                    const dest = document.querySelector(
-                        '[name="destination"]',
-                    )?.value;
-                    return dest !== origin;
-                },
-                errorMessage: "Source and destination cannot be same",
-            },
-        ])
-        .onSuccess((event) => event.target.submit())
-        .onFail(() => {
-            setTimeout(() => {
-                document
-                    .querySelectorAll(".just-validate-error-label")
-                    .forEach((el) => el.remove());
-                document
-                    .querySelectorAll(".just-validate-error-field")
-                    .forEach((el) =>
-                        el.classList.remove("just-validate-error-field"),
-                    );
-            }, 3000);
+    if (!form) return;
+ 
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        clearErrors(form);
+ 
+        let hasError = false;
+ 
+        const origin   = getInputVal(form, "origin");
+        const dest     = getInputVal(form, "destination");
+        const depDate  = getInputVal(form, "departureDate");
+ 
+        const originEl  = form.querySelector('[name="origin"]');
+        const destEl    = form.querySelector('[name="destination"]');
+        const dateEl    = form.querySelector('[name="departureDate"]');
+ 
+        if (!origin) {
+            showError(originEl, "Please select departure airport");
+            hasError = true;
+        }
+ 
+        if (!dest) {
+            showError(destEl, "Please select arrival airport");
+            hasError = true;
+        } else if (origin && origin === dest) {
+            showError(destEl, "Origin and destination cannot be same");
+            hasError = true;
+        }
+ 
+        if (!depDate) {
+            showError(dateEl, "Please select departure date");
+            hasError = true;
+        } else if (isPastDate(depDate)) {
+            showError(dateEl, "Departure date cannot be in the past");
+            hasError = true;
+        }
+ 
+        if (hasError) { autoRemoveErrors(form); return; }
+        form.submit();
+    });
+}
+ 
+ 
+// ═══════════════════════════════════════════
+//  2. ROUND TRIP
+// ═══════════════════════════════════════════
+ 
+function initRoundTripValidator() {
+    const tripInput = document.querySelector(
+        `form input[name="trip_type"][value="{{ config('constant.flight_trip_types.roundtrip') }}"]`
+    ) ?? document.querySelector('form input[name="trip_type"][value="2"]');
+ 
+    const form = tripInput?.closest("form");
+    if (!form) return;
+ 
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        clearErrors(form);
+ 
+        let hasError = false;
+ 
+        const origin   = getInputVal(form, "origin");
+        const dest     = getInputVal(form, "destination");
+        const depDate  = getInputVal(form, "departureDate");
+        const retDate  = getInputVal(form, "returnDate");
+ 
+        const originEl  = form.querySelector('[name="origin"]');
+        const destEl    = form.querySelector('[name="destination"]');
+        const depDateEl = form.querySelector('[name="departureDate"]');
+        const retDateEl = form.querySelector('[name="returnDate"]');
+ 
+        if (!origin) {
+            showError(originEl, "Please select departure airport");
+            hasError = true;
+        }
+ 
+        if (!dest) {
+            showError(destEl, "Please select arrival airport");
+            hasError = true;
+        } else if (origin && origin === dest) {
+            showError(destEl, "Origin and destination cannot be same");
+            hasError = true;
+        }
+ 
+        if (!depDate) {
+            showError(depDateEl, "Please select departure date");
+            hasError = true;
+        } else if (isPastDate(depDate)) {
+            showError(depDateEl, "Departure date cannot be in the past");
+            hasError = true;
+        }
+ 
+        if (!retDate) {
+            showError(retDateEl, "Please select return date");
+            hasError = true;
+        } else if (isPastDate(retDate)) {
+            showError(retDateEl, "Return date cannot be in the past");
+            hasError = true;
+        } else if (depDate && isDateBefore(retDate, depDate)) {
+            showError(retDateEl, "Return date must be after departure date");
+            hasError = true;
+        }
+ 
+        if (hasError) { autoRemoveErrors(form); return; }
+        form.submit();
+    });
+}
+ 
+ 
+// ═══════════════════════════════════════════
+//  3. MULTI CITY
+// ═══════════════════════════════════════════
+ 
+function initMulticityValidator() {
+    const form = document.getElementById("multicity-form");
+    if (!form) return;
+ 
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        clearErrors(form);
+ 
+        let hasError = false;
+ 
+        const origins = form.querySelectorAll('[name="origin[]"]');
+        const dests   = form.querySelectorAll('[name="destination[]"]');
+        const dates   = form.querySelectorAll('[name="departure_date[]"]');
+ 
+        if (origins.length < 2) {
+            showMulticityFormError("Please add at least 2 flights for multi-city search");
+            hasError = true;
+        }
+ 
+        origins.forEach((originEl, i) => {
+            const origin = originEl.value?.trim();
+            const dest   = dests[i]?.value?.trim();
+            const date   = dates[i]?.value?.trim();
+            const row    = i + 1;
+ 
+            if (!origin) {
+                showError(originEl, `Flight ${row}: Select departure airport`);
+                hasError = true;
+            }
+ 
+            if (!dest) {
+                showError(dests[i], `Flight ${row}: Select arrival airport`);
+                hasError = true;
+            } else if (origin && origin === dest) {
+                showError(dests[i], `Flight ${row}: Origin and destination cannot be same`);
+                hasError = true;
+            }
+ 
+            if (!date) {
+                showError(dates[i], `Flight ${row}: Select departure date`);
+                hasError = true;
+            } else if (isPastDate(date)) {
+                showError(dates[i], `Flight ${row}: Date cannot be in the past`);
+                hasError = true;
+            } else if (i > 0 && dates[i - 1]?.value && isDateBefore(date, dates[i - 1].value)) {
+                showError(dates[i], `Flight ${row}: Must be on or after Flight ${row - 1} date`);
+                hasError = true;
+            }
         });
+ 
+        if (hasError) { autoRemoveErrors(form); return; }
+        form.submit();
+    });
+}
+ 
+function showMulticityFormError(message) {
+    const container = document.getElementById("addon-rows-container");
+    if (!container || container.querySelector(".just-validate-error-label.form-level")) return;
+ 
+    container.style.position = "relative";
+ 
+    const err       = document.createElement("div");
+    err.className   = "just-validate-error-label form-level";
+    err.style.cssText = "position:static;transform:none;margin-bottom:8px;display:inline-flex;";
+    err.innerHTML   = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ${message}`;
+    container.prepend(err);
 }
 
 function initHeroToggle() {
@@ -1565,7 +1780,7 @@ function reinitAfterLivewire() {
     initTripTypeTabs();
     initHG();
     refreshButtons();
-    initFlightValidator();
+    // initFlightValidator();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1580,7 +1795,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initTripTypeTabs();
     initHG();
     refreshButtons();
-    initFlightValidator();
+    // initFlightValidator();
     initHeroToggle();
 });
 

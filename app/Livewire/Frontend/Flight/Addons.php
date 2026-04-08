@@ -16,6 +16,7 @@ class Addons extends Component
     public int    $infants         = 0;
     public string $currency        = '';
     public float  $baseTotal       = 0;
+    public float  $platformFee     = 0;
 
     public array $availableServices = [];
     public array $selectedBaggage   = [];
@@ -24,15 +25,12 @@ class Addons extends Component
     public bool $fetchError          = false;
     public bool $isLoading = true;
 
-    public function mount(): void
-    {
-
-    }
+    public function mount(): void {}
 
     public function loadData(): void
     {
         sleep(1);
-        
+
         $session = session('passenger_info', []);
         $this->selectedFlight = $session['flight']     ?? [];
         $this->passengers     = $session['passengers'] ?? [];
@@ -43,45 +41,21 @@ class Addons extends Component
 
         $sf              = $this->selectedFlight;
         $this->currency  = $sf['total_currency'] ?? '';
-        $this->baseTotal = (float) ($sf['total_amount'] ?? 0);
+        $this->baseTotal   = (float) ($sf['base_amount']  ?? $sf['total_amount'] ?? 0);
+        $this->platformFee = (float) ($sf['platform_fee'] ?? $session['platform_fee'] ?? 0);
 
-        $offerPassengers = $sf['passengers'] ?? [];
-        $offerPaxByType  = [];
+        Log::info('ADDONS loadData START', [
+            'session_base_amount'  => $session['base_amount']  ?? 'NOT FOUND',
+            'session_platform_fee' => $session['platform_fee'] ?? 'NOT FOUND',
+            'sf_base_amount'       => $sf['base_amount']       ?? 'NOT FOUND',
+            'sf_platform_fee'      => $sf['platform_fee']      ?? 'NOT FOUND',
+            'sf_total_amount'      => $sf['total_amount']      ?? 'NOT FOUND',
+            'final_baseTotal'      => $this->baseTotal,
+            'final_platformFee'    => $this->platformFee,
+        ]);
 
-        foreach ($offerPassengers as $op) {
-            $type = $op['type'] ?? 'adult';
-            $normalizedType = str_starts_with($type, 'infant') ? 'infant' : $type;
-            $offerPaxByType[$normalizedType][] = $op['id'];
-        }
 
-        $typeCounters = [];
-        foreach ($this->passengers as $idx => $pax) {
-            $type = $pax['type'] ?? 'adult';
-            if ($type === 'infant') continue;
-
-            $typeCounters[$type] = ($typeCounters[$type] ?? 0);
-            $paxId = $offerPaxByType[$type][$typeCounters[$type]] ?? "pax_{$idx}";
-            $typeCounters[$type]++;
-
-            $this->passengers[$idx]['id'] = $paxId;
-            $this->selectedBaggage[$paxId] = [];
-        }
-
-        $savedAddons = session('addons_info.addons', []);
-        foreach ($savedAddons as $paxId => $addon) {
-            if (! empty($addon['baggage_service_ids'])) {
-                $this->selectedBaggage[$paxId] = $addon['baggage_service_ids'];
-            }
-        }
-
-        $offerId = $sf['id'] ?? null;
-        if ($offerId) {
-            $this->fetchServices($offerId);
-        } else {
-            $this->noServicesAvailable = true;
-        }
-
-        $this->isLoading = false; 
+        $this->isLoading = false;
     }
 
     protected function fetchServices(string $offerId): void
@@ -102,18 +76,26 @@ class Addons extends Component
             $this->availableServices = $result['services'];
 
             if (! empty($result['offer'])) {
-                $this->selectedFlight = $result['offer'];
+                $freshOffer = $result['offer'];
+
+                $freshOffer['base_amount']  = $this->baseTotal;
+                $freshOffer['platform_fee'] = $this->platformFee;
+
+                $this->selectedFlight = $freshOffer;
+
                 $paxSession = session('passenger_info', []);
-                $paxSession['flight'] = $result['offer'];
+                $paxSession['flight']       = $freshOffer;
+                $paxSession['base_amount']  = $this->baseTotal;
+                $paxSession['platform_fee'] = $this->platformFee;
                 session(['passenger_info' => $paxSession]);
+
             }
 
             if (empty($this->availableServices)) {
                 $this->noServicesAvailable = true;
             }
-
         } catch (\Throwable $e) {
-            Log::error('Addons fetchServices exception: ' . $e->getMessage());
+            Log::error('Seats fetchSeatMaps exception: ' . $e->getMessage());
             $this->fetchError = true;
         }
     }
@@ -237,8 +219,10 @@ class Addons extends Component
                 'addons'      => $selectedAddons,
                 'services'    => $servicesToBook,
                 'addonsTotal' => $addonsTotal,
-                'grandTotal'  => $this->baseTotal + $addonsTotal,
                 'currency'    => $this->currency,
+                'base_amount'  => $this->baseTotal,
+                'platform_fee' => $this->platformFee,
+                'grandTotal'   => $this->baseTotal + $this->platformFee + $addonsTotal,
             ],
         ]);
 
@@ -248,7 +232,7 @@ class Addons extends Component
     public function render()
     {
         $addonsTotal = $this->getAddonsTotal();
-        $grandTotal  = $this->baseTotal + $addonsTotal;
+        $grandTotal  = $this->baseTotal + $this->platformFee + $addonsTotal;
 
         $sf      = $this->selectedFlight;
         $slice   = $sf['slices'][0]      ?? [];

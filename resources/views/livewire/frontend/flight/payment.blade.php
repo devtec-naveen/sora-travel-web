@@ -278,7 +278,7 @@
                                                 <div class="relative">
                                                     <input type="password" wire:model.live.debounce.500ms="cardCvv"
                                                         class="form-input pr-10 @error('cardCvv') border-red-400 @enderror"
-                                                        placeholder="•••" maxlength="4" />
+                                                        placeholder="•••" maxlength="4"  autocomplete="cc-csc" name="cc-csc"/>
                                                     <i data-tabler="lock"
                                                         class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"
                                                         data-size="15"></i>

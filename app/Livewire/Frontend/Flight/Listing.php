@@ -86,7 +86,6 @@ class Listing extends Component
                     'departureDate' => $dates[$i] ?? '',
                 ];
             }
-
         } elseif ($rawTripType === 'roundtrip') {
             $this->tripType = 'round_trip';
         } else {
@@ -174,7 +173,10 @@ class Listing extends Component
 
     public function selectFlight(int $index): void
     {
-        $this->selectedFlight = $this->flights[$index] ?? [];
+        $flight = $this->flights[$index] ?? [];
+        $flight['base_amount']  = $flight['base_amount']  ?? 0;
+        $flight['platform_fee'] = $flight['platform_fee'] ?? 0;
+        $this->selectedFlight = $flight;
         $this->dispatch('open-modal', id: 'flight_details_modal');
     }
 
@@ -183,11 +185,15 @@ class Listing extends Component
         session([
             'selected_flight' => [
                 'flight'     => $this->selectedFlight,
+                'base_amount'  => $this->selectedFlight['base_amount'] ?? 0,
+                'platform_fee' => $this->selectedFlight['platform_fee'] ?? 0,
+                'total_amount' => $this->selectedFlight['total_amount'] ?? 0,
                 'adults'     => $this->adults,
                 'children'   => $this->childrens,
                 'infants'    => $this->infants,
                 'cabinClass' => $this->cabin_class,
                 'tripType'   => $this->tripType,
+                'return_date'   => $this->returnDate,
             ],
         ]);
 
@@ -203,7 +209,7 @@ class Listing extends Component
     public function loadFlights(): void
     {
         $this->isLoading = true;
-
+        $percent = (float) getSetting('platform_commission_percent', 0);
         $duffelService = $this->duffelService ?? app(DuffelService::class);
 
         if ($this->tripType === 'multi_city') {
@@ -245,6 +251,17 @@ class Listing extends Component
 
             $cursor = $next['cursor'] ?? null;
         }
+
+        $allOffers = collect($allOffers)
+            ->map(function ($offer) use ($percent) {
+                $baseAmount = (float) ($offer['total_amount'] ?? 0);
+                $commission = calculateCommission($baseAmount, $percent);
+                $offer['base_amount']  = $baseAmount;
+                $offer['platform_fee'] = $commission;
+                $offer['total_amount'] = round($baseAmount + $commission, 2);
+                return $offer;
+            })
+            ->toArray();
 
         $this->allFlights = $allOffers;
         session(['allFlights' => $allOffers]);
@@ -297,20 +314,20 @@ class Listing extends Component
             ->toArray();
     }
 
-    public function cancelBooking($orderId)
-    {
-        $result = app(DuffelService::class)->cancelOrder([
-            'order_id' => $orderId,
-            'user_id'  => Auth::id(),
-        ]);
+    // public function cancelBooking($orderId)
+    // {
+    //     $result = app(DuffelService::class)->cancelOrder([
+    //         'order_id' => $orderId,
+    //         'user_id'  => Auth::id(),
+    //     ]);
 
-        if (!$result['success']) {
-            session()->flash('error', $result['message']);
-            return;
-        }
+    //     if (!$result['success']) {
+    //         session()->flash('error', $result['message']);
+    //         return;
+    //     }
 
-        session()->flash('success', 'Flight cancelled successfully');
-    }
+    //     session()->flash('success', 'Flight cancelled successfully');
+    // }
 
     public function loadMore()
     {

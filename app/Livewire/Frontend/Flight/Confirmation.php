@@ -32,6 +32,7 @@ class Confirmation extends Component
 
     public function redirectHome(): void
     {
+        session()->forget('flight_search_tabs');
         session()->forget('selected_flight');
         $this->redirect(route('home'));
     }

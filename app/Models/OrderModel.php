@@ -23,6 +23,11 @@ class OrderModel extends Model
         'expires_at',      
         'data',             
         'notes',
+        'platform_fee',
+        'base_amount',
+        'addons_amount',	
+        'seat_amount',		
+        'total_amount',
     ];
 
     protected $casts = [
@@ -34,7 +39,6 @@ class OrderModel extends Model
         'expires_at'    => 'datetime',
     ];
 
-    // ─── Relationships ───────────────────────────────
 
     public function user()
     {
