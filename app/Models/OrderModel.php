@@ -28,6 +28,7 @@ class OrderModel extends Model
         'addons_amount',	
         'seat_amount',		
         'total_amount',
+        'payment_intent_id'
     ];
 
     protected $casts = [

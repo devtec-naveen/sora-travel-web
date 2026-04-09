@@ -30,7 +30,7 @@ Route::middleware('check.active')->group(function () {
     Route::post('/flights/search', [FlightController::class, 'listing']);
     Route::post('/flights/seats', [FlightController::class, 'seats']);
     Route::post('/flights/addons',  [FlightController::class, 'addons']);
-    Route::post('/flights/order', [FlightController::class, 'createOrder']);
+    
 
     Route::prefix('hotels')->group(function () {
         Route::get('search', [HotelController::class, 'search']);
@@ -46,6 +46,7 @@ Route::middleware('check.active')->group(function () {
         Route::get('/mybooking/flight/{id}', [MyBookingController::class, 'viewFlight']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/payment/intent', [PaymentController::class, 'createPaymentIntent']);
+        Route::post('/payments/confirm-and-book', [FlightController::class, 'confirmAndBook']);
     });
 
 });
