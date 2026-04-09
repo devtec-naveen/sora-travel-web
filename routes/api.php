@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AirportController;
 use App\Http\Controllers\Api\FlightController;
 use App\Http\Controllers\Api\HotelController;
 use App\Http\Controllers\Api\MyBookingController;
+use App\Http\Controllers\Api\PaymentController;
 
 Route::middleware('check.active')->group(function () {
 
@@ -37,10 +38,14 @@ Route::middleware('check.active')->group(function () {
         Route::get('/detail/{accommodationId}', [HotelController::class, 'details']);
     });
 
+
+    //================== Auth Sanctum ======================
+    
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/mybooking', [MyBookingController::class, 'indexFlight']);
         Route::get('/mybooking/flight/{id}', [MyBookingController::class, 'viewFlight']);
         Route::post('/logout', [AuthController::class, 'logout']);
+        Route::post('/payment/intent', [PaymentController::class, 'createPaymentIntent']);
     });
 
 });
