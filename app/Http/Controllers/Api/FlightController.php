@@ -182,6 +182,7 @@ class FlightController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'payment_intent_id'                                          => ['required', 'string'],
+                'payment_id'                                                 => ['required', 'integer'],
                 'offer_id'                                                   => ['required', 'string'],
                 'passengers'                                                 => ['required', 'array', 'min:1'],
                 'passengers.*.id'                                            => ['required', 'string'],
