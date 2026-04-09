@@ -217,7 +217,7 @@ class FlightController extends Controller
                 ], 422);
             }
 
-            $paymentId = $intent->metadata['payment_id'] ?? null;
+            $paymentId = $request->input('payment_id');
 
             if (!$paymentId) {
                 return response()->json([
