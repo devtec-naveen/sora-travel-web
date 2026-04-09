@@ -40,27 +40,27 @@ class Listing extends Component
         $this->showCancelModal = false;
     }
 
-    public function confirmCancel(): void
-    {
-        if (!$this->cancelOrderId) return;
+    // public function confirmCancel(): void
+    // {
+    //     if (!$this->cancelOrderId) return;
 
-        try {
-            $result = $this->service->cancelOrder([
-                'order_id' => $this->cancelOrderId,
-                'user_id'  => Auth::id(),
-            ]);
+    //     try {
+    //         $result = $this->service->cancelOrder([
+    //             'order_id' => $this->cancelOrderId,
+    //             'user_id'  => Auth::id(),
+    //         ]);
 
-            $this->closeModal();
+    //         $this->closeModal();
 
-            $this->dispatch('notify',
-                type: $result['success'] ? 'success' : 'danger',
-                message: $result['message'] ?? 'Something went wrong.',
-            );
+    //         $this->dispatch('notify',
+    //             type: $result['success'] ? 'success' : 'danger',
+    //             message: $result['message'] ?? 'Something went wrong.',
+    //         );
 
-        } catch (\Throwable $e) {
-            $this->dispatch('notify', type: 'danger', message: $e->getMessage());
-        }
-    }
+    //     } catch (\Throwable $e) {
+    //         $this->dispatch('notify', type: 'danger', message: $e->getMessage());
+    //     }
+    // }
 
     public function setType(string $type): void
     {

@@ -56,46 +56,98 @@ class MyBookingService
         ];
     }
 
-    public function getStatusFlags(OrderModel $order): array
+    private function getStatusFlags($order): array
     {
-        $isUpcoming  = in_array($order->status, ['pending', 'confirmed'])
-            && $order->booking_date
-            && \Carbon\Carbon::parse($order->booking_date)->isFuture();
+        $now  = now();
+        $data = is_array($order->data) ? $order->data : json_decode($order->data, true);
 
-        $isCompleted = $order->status === 'confirmed'
-            && $order->booking_date
-            && \Carbon\Carbon::parse($order->booking_date)->isPast();
+        if ($order->type === 'flight') {
+            $slices      = $data['slices'] ?? [];
+            $lastSlice   = !empty($slices) ? end($slices) : [];
+            $segments    = $lastSlice['segments'] ?? [];
+            $lastSegment = !empty($segments) ? end($segments) : [];
+            $arrivingAt  = $lastSegment['arriving_at'] ?? null;
 
-        $isCancelled = in_array($order->status, ['cancelled', 'failed']);
+            $arrivalTime = $arrivingAt ? \Carbon\Carbon::parse($arrivingAt) : null;
 
-        return compact('isUpcoming', 'isCompleted', 'isCancelled');
+            $isCancelled = in_array($order->status, ['cancelled']);
+            $isUpcoming  = !$isCancelled
+                        && $arrivalTime
+                        && $arrivalTime->greaterThanOrEqualTo($now)
+                        && in_array($order->status, ['pending', 'confirmed']);
+            $isCompleted = !$isCancelled
+                        && $arrivalTime
+                        && $arrivalTime->lessThan($now)
+                        && $order->status === 'confirmed';
+
+            return [
+                'isUpcoming'  => $isUpcoming,
+                'isCompleted' => $isCompleted,
+                'isCancelled' => $isCancelled,
+            ];
+        }
+
+        $bookingDate = $order->booking_date
+            ? \Carbon\Carbon::parse($order->booking_date)
+            : null;
+
+        $isCancelled = in_array($order->status, ['cancelled']);
+        $isUpcoming  = !$isCancelled
+                    && $bookingDate
+                    && $bookingDate->greaterThanOrEqualTo($now)
+                    && in_array($order->status, ['pending', 'confirmed']);
+        $isCompleted = !$isCancelled
+                    && $bookingDate
+                    && $bookingDate->lessThan($now)
+                    && $order->status === 'confirmed';
+
+        return [
+            'isUpcoming'  => $isUpcoming,
+            'isCompleted' => $isCompleted,
+            'isCancelled' => $isCancelled,
+        ];
     }
 
-    public function getParsedOrders(
-        string $type,
-        string $status,
-        string $dateRange = ''
-    ): Collection {
-        return $this->getOrders($type, $status, $dateRange)
-            ->map(function (OrderModel $order) use ($type) {
-                $data = is_array($order->data)
-                    ? $order->data
-                    : json_decode($order->data, true);
-
-                return [
-                    'order'  => $order,
-                    'flags'  => $this->getStatusFlags($order),
-                    'parsed' => $type === 'flight' && $data
-                        ? $this->parseFlightOrder($data)
-                        : null,
-                ];
-            });
-    }
-
-    public function cancelOrder(array $data): array
+    public function getParsedOrders(string $type, string $status, string $dateRange = ''): array
     {
-        return $this->suffelService->cancelOrder($data);
+        $orders = $this->getOrders($type, $status, $dateRange);
+        $now    = now();
+
+        return $orders->map(function ($order) use ($now, $status) {
+            $data   = is_array($order->data) ? $order->data : json_decode($order->data, true);
+            $slices = $data['slices'] ?? [];
+
+            $lastSlice    = !empty($slices) ? end($slices) : [];
+            $segments     = $lastSlice['segments'] ?? [];
+            $lastSegment  = !empty($segments) ? end($segments) : [];
+            $arrivingAt   = $lastSegment['arriving_at'] ?? null;
+
+            $arrivalTime  = $arrivingAt ? \Carbon\Carbon::parse($arrivingAt) : null;
+
+            $isUpcoming  = $arrivalTime && $arrivalTime->greaterThanOrEqualTo($now)
+                        && in_array($order->status, ['pending', 'confirmed']);
+            $isCompleted = $arrivalTime && $arrivalTime->lessThan($now)
+                        && $order->status === 'confirmed';
+            $isCancelled = in_array($order->status, ['cancelled']);
+
+            return [
+                'order' => $order,
+                'flags' => [
+                    'isUpcoming'  => $isUpcoming,
+                    'isCompleted' => $isCompleted,
+                    'isCancelled' => $isCancelled,
+                ],
+                'parsed' => [
+                    'booking_reference' => $data['booking_reference'] ?? null,
+                ],
+            ];
+        })->values()->toArray();
     }
+
+    // public function cancelOrder(array $data): array
+    // {
+    //     return $this->suffelService->cancelOrder($data);
+    // }
 
     public function getOrderDetail(int|string $id): ?array
     {

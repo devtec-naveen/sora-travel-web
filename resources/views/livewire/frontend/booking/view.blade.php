@@ -35,7 +35,8 @@
                                     wire:click="$set('showRescheduleModal', true)">
                                     Reschedule
                                 </button>
-                                <button class="btn btn-red w-full sm:w-auto" wire:click="$set('showCancelModal', true)">
+                                {{-- wire:click="$set('showCancelModal', true)" --}}
+                                <button class="btn btn-red w-full sm:w-auto">
                                     Cancel
                                 </button>
                             </div>

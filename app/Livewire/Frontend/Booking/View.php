@@ -38,25 +38,25 @@ class View extends Component
         $this->isLoading = false;
     }
 
-    public function confirmCancel(): void
-    {
-        try {
-            $result = $this->service->cancelOrder([
-                'order_id' => $this->bookingId,
-                'user_id'  => Auth::id(),
-            ]);
+    // public function confirmCancel(): void
+    // {
+    //     try {
+    //         $result = $this->service->cancelOrder([
+    //             'order_id' => $this->bookingId,
+    //             'user_id'  => Auth::id(),
+    //         ]);
 
-            $this->showCancelModal = false;
+    //         $this->showCancelModal = false;
 
-            $this->dispatch('notify',
-                type:    $result['success'] ? 'success' : 'danger',
-                message: $result['message'] ?? 'Something went wrong.',
-            );
+    //         $this->dispatch('notify',
+    //             type:    $result['success'] ? 'success' : 'danger',
+    //             message: $result['message'] ?? 'Something went wrong.',
+    //         );
 
-        } catch (\Throwable $e) {
-            $this->dispatch('notify', type: 'danger', message: $e->getMessage());
-        }
-    }
+    //     } catch (\Throwable $e) {
+    //         $this->dispatch('notify', type: 'danger', message: $e->getMessage());
+    //     }
+    // }
 
     public function render()
     {
