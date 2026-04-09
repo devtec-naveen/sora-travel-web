@@ -4,24 +4,36 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckUserActive
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::guard('web')->user();
+
         if ($user && $user->status !== 'active') {
-            $user->currentAccessToken()?->delete();
-            return response()->json([
-                'status' => false,
-                'message' => 'Your account has been deactivated by admin.'
-            ], 401);
+            if ($request->expectsJson()) {
+               /** @var \Laravel\Sanctum\PersonalAccessToken|null $token */
+                $token = $user->currentAccessToken();
+                $token?->delete();
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Your account has been deactivated by admin.',
+                ], 401);
+            }
+
+            Auth::guard('web')->logout();
+            $request->session()->regenerateToken();
+            
+            if ($request->routeIs('my-*') || $request->routeIs('airport.*')) {
+                return redirect()->route('home')
+                    ->with('error', 'Your account has been deactivated by admin.');
+            }
+
+            return $next($request);
         }
         return $next($request);
     }

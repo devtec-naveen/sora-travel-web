@@ -243,7 +243,7 @@
                                             <span class="form-label">Email Address *</span>
                                             <input type="email" placeholder="Enter email address"
                                                 class="form-input @error('email') border-red-400 @enderror"
-                                                wire:model.live.debounce.500ms="email" />
+                                                wire:model.live.debounce.500ms="email" name="email" autocomplete="email" />
                                             @error('email')
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror

@@ -122,9 +122,9 @@
                     class="checkbox checkbox-sm checkbox-primary mt-0.5" />
                 <span class="text-xs sm:text-sm text-slate-500">
                     I agree to the
-                    <a href="#" class="text-blue-600 font-medium">Terms & Conditions</a>
+                    <a href="{{url('terms-and-conditions')}}" class="text-blue-600 font-medium">Terms & Conditions</a>
                     and
-                    <a href="#" class="text-blue-600 font-medium">Privacy Policy</a>
+                    <a href="{{url('privacy-policy')}}" class="text-blue-600 font-medium">Privacy Policy</a>
                 </span>
             </div>
             @error('terms')
