@@ -15,6 +15,11 @@ class AuthRepository
         return User::where('email', $email)->first();
     }
 
+    public function updateProfile($user, array $data): bool
+    {
+        return $user->update($data);
+    }
+
     public function findByEmailAndRole(string $email, string $role): ?User
     {
         return User::where('email', $email)->where('role', $role)->first();
@@ -109,4 +114,7 @@ class AuthRepository
 
         return $plainToken;
     }
+
+
+    
 }

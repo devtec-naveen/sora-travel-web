@@ -343,4 +343,32 @@ class AuthService
     {
         return $this->authRepo->findByEmail($email);
     }
+
+    public function updateProfile(array $data): array
+    {
+        try {
+            $user = request()->user();
+
+            if (!$user) {
+                return [
+                    'status'  => false,
+                    'message' => 'Unauthorized.',
+                ];
+            }
+
+            $this->authRepo->updateProfile($user, [
+                'name'        => $data['name']        ?? $user->name,
+                'phone_number'=> $data['phone_number'] ?? $user->phone_number,
+                'passport_id' => $data['passport_id'] ?? $user->passport_id,
+            ]);
+
+            return [
+                'status'  => true,
+                'message' => 'Profile updated successfully.',
+                'user'    => $user->fresh(),
+            ];
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
 }

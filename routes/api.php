@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\AirportController;
+use App\Http\Controllers\Api\CmsController;
 use App\Http\Controllers\Api\FlightController;
 use App\Http\Controllers\Api\HotelController;
 use App\Http\Controllers\Api\MyBookingController;
@@ -30,7 +31,7 @@ Route::middleware('check.active')->group(function () {
     Route::post('/flights/search', [FlightController::class, 'listing']);
     Route::post('/flights/seats', [FlightController::class, 'seats']);
     Route::post('/flights/addons',  [FlightController::class, 'addons']);
-    
+
 
     Route::prefix('hotels')->group(function () {
         Route::get('search', [HotelController::class, 'search']);
@@ -38,15 +39,16 @@ Route::middleware('check.active')->group(function () {
         Route::get('/detail/{accommodationId}', [HotelController::class, 'details']);
     });
 
+    Route::get('/page/{slug}', [CmsController::class, 'show']);
 
     //================== Auth Sanctum ======================
-    
-    Route::middleware('auth:sanctum')->group(function () {
+
+    Route::middleware('auth:sanctum')->group(function () {        
+        Route::put('/profile/update', [AuthController::class, 'updateProfile']);
         Route::get('/mybooking', [MyBookingController::class, 'indexFlight']);
         Route::get('/mybooking/flight/{id}', [MyBookingController::class, 'viewFlight']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/payment/intent', [PaymentController::class, 'createPaymentIntent']);
         Route::post('/payments/confirm-and-book', [FlightController::class, 'confirmAndBook']);
     });
-
 });
