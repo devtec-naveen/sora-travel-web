@@ -47,7 +47,6 @@ class AuthController extends Controller
             }
 
             return $this->success('OTP sent successfully.', [], config('constant.httpCode.SUCCESS_OK'));
-
         } catch (ValidationException $e) {
             return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
         } catch (Exception $e) {
@@ -79,7 +78,6 @@ class AuthController extends Controller
                 $result,
                 config('constant.httpCode.SUCCESS_CREATED')
             );
-
         } catch (ValidationException $e) {
             return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
         } catch (Exception $e) {
@@ -125,6 +123,18 @@ class AuthController extends Controller
             $request->validate([
                 'email' => 'required|email',
             ]);
+
+            $check = $this->authService->findByEmail($request->input('email'));
+
+            if (!$check['status']) {
+                return $this->error($check['message'], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+            }
+
+            $result = $this->authService->forgotPassword($request->only(['email']));
+
+            if (!$result['status']) {
+                return $this->error($result['message'], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+            }
 
             $result = $this->authService->forgotPassword($request->only(['email']));
 

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Livewire\Frontend\Auth;
+
 use Livewire\Component;
 use App\Services\Common\Auth\AuthService;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,7 @@ class ForgotPassword extends Component
     protected $listeners = [
         'modal-opened' => 'handleOpen',
         'modal-closed' => 'handleClose',
-    ];    
+    ];
 
     protected array $rules = [
         'email'                 => 'required|email',
@@ -78,6 +79,18 @@ class ForgotPassword extends Component
             'email.required' => 'Email is required.',
             'email.email'    => 'Enter a valid email.',
         ]);
+
+        $user = $authService->findByEmail($this->email);
+
+        if (!$user) {
+            $this->addError('email', 'No account found with this email.');
+            return;
+        }
+
+        if ($user->status === 'inactive') {
+            $this->addError('email', 'Your account is inactive. Please contact support.');
+            return;
+        }
 
         $result = $authService->forgotPassword([
             'email' => $this->email,
@@ -195,7 +208,7 @@ class ForgotPassword extends Component
         return [
             'show'  => strlen($this->password_confirmation) > 0,
             'match' => $this->password === $this->password_confirmation
-                    && strlen($this->password_confirmation) > 0,
+                && strlen($this->password_confirmation) > 0,
         ];
     }
 

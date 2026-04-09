@@ -100,4 +100,9 @@ class AuthService
     {
         return $this->commonAuth->resetPasswordWithOtp($data);
     }
+
+    public function findByEmail(string $email)
+    {
+        return $this->commonAuth->findByEmail($email);
+    }
 }
