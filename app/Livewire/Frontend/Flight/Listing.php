@@ -252,17 +252,6 @@ class Listing extends Component
             $cursor = $next['cursor'] ?? null;
         }
 
-        $allOffers = collect($allOffers)
-            ->map(function ($offer) use ($percent) {
-                $baseAmount = (float) ($offer['total_amount'] ?? 0);
-                $commission = calculateCommission($baseAmount, $percent);
-                $offer['base_amount']  = $baseAmount;
-                $offer['platform_fee'] = $commission;
-                $offer['total_amount'] = round($baseAmount + $commission, 2);
-                return $offer;
-            })
-            ->toArray();
-
         $this->allFlights = $allOffers;
         session(['allFlights' => $allOffers]);
         $this->total = count($this->allFlights);
