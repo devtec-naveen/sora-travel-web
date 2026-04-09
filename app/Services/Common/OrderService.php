@@ -194,6 +194,7 @@ class OrderService
                 ]);
             });
 
+            session(['last_order' => $orderData]);
             return $order;
         });
     }
