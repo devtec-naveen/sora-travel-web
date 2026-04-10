@@ -147,20 +147,27 @@
                                                 $today = \Carbon\Carbon::today();
 
                                                 if ($type === 'adult') {
-                                                    $maxDate = $today->copy()->subYears(18)->format('Y-m-d');
-                                                    $minYear = 1970;
-                                                    $maxYear = $today->copy()->subYears(18)->year;
+                                                    $minDate = $today->copy()->subYears(65)->format('Y-m-d');
+                                                    $maxDate = $today->copy()->subYears(12)->format('Y-m-d');
+
+                                                    $minYear = $today->copy()->subYears(65)->year;
+                                                    $maxYear = $today->copy()->subYears(12)->year;
+
                                                 } elseif ($type === 'child') {
+                                                    $minDate = $today->copy()->subYears(11)->format('Y-m-d');
                                                     $maxDate = $today->copy()->subYears(2)->format('Y-m-d');
+
                                                     $minYear = $today->copy()->subYears(11)->year;
                                                     $maxYear = $today->copy()->subYears(2)->year;
-                                                } else {
-                                                    $maxDate = $today->copy()->format('Y-m-d');
+
+                                                } else { 
+                                                    $minDate = $today->copy()->subYears(2)->format('Y-m-d');
+                                                    $maxDate = $today->format('Y-m-d');
+
                                                     $minYear = $today->copy()->subYears(2)->year;
                                                     $maxYear = $today->year;
                                                 }
                                             @endphp
-
                                             <div class="form-control">
                                                 <span class="form-label">Date of Birth *</span>
                                                 <div class="dtp-field relative" data-dtp-id="{{ $dobId }}"
@@ -243,7 +250,7 @@
                                             <span class="form-label">Email Address *</span>
                                             <input type="email" placeholder="Enter email address"
                                                 class="form-input @error('email') border-red-400 @enderror"
-                                                wire:model.live.debounce.500ms="email" name="email" autocomplete="email" />
+                                                wire:model.live.debounce.500ms="email" name="new-password-email" autocomplete="new-password-email" />
                                             @error('email')
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror

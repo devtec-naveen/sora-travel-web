@@ -1,6 +1,6 @@
 import "./bootstrap";
-import './modal.js';
-import './payment.js';
+import "./modal.js";
+import "./payment.js";
 /**
  * app.js — Global Application Script
  * Sections:
@@ -28,13 +28,11 @@ document.addEventListener("livewire:init", function () {
     });
 });
 
-
 document.addEventListener("DOMContentLoaded", () => {
     initOneWayValidator();
     initRoundTripValidator();
     initMulticityValidator();
 });
-
 
 /* ═══════════════════════════════════════════════════════════════
    1. LOADER
@@ -905,6 +903,7 @@ const DTP_MONTHS = [
 const DTP_WDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 const _dtp = {};
+const _dtpLinks = {};
 let _dtpOpen = null;
 
 function dtpParseMin(val) {
@@ -937,8 +936,60 @@ function dtpWireSet(val, isoValue) {
     val.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
+function dtpSyncLinked(id) {
+    const link = _dtpLinks[id];
+    if (!link) {
+        console.log(`[DTP SYNC] No link found for id: ${id}`);
+        return;
+    }
+
+    const { type, linkedId } = link;
+    const myS = _dtp[id];
+    const linkedS = _dtp[linkedId];
+
+    console.log(`[DTP SYNC] id=${id} type=${type} linkedId=${linkedId}`);
+    console.log(`[DTP SYNC] myS.date=`, myS?.date, `linkedS=`, linkedS);
+
+    if (!myS || !linkedS) {
+        console.warn(
+            `[DTP SYNC] Missing state! myS=${!!myS} linkedS=${!!linkedS}`,
+        );
+        return;
+    }
+
+    if (type === "dep") {
+        const newMin = myS.date ? dtpDateOnly(myS.date) : null;
+        console.log(`[DTP SYNC] Setting return minD =`, newMin);
+        linkedS.minD = newMin;
+
+        if (newMin) {
+            if (!linkedS.date || dtpDateOnly(linkedS.date) < newMin) {
+                console.log(
+                    `[DTP SYNC] Return date invalid/empty, defaulting to departure date`,
+                );
+                linkedS.date = new Date(myS.date);
+                const linkedLbl = document.getElementById(
+                    `dtp_lbl_${linkedId}`,
+                );
+                const linkedVal = document.getElementById(
+                    `dtp_val_${linkedId}`,
+                );
+                if (linkedLbl) {
+                    linkedLbl.textContent = dtpFmt(linkedS.date);
+                    linkedLbl.style.cssText = "color:#1e293b;font-weight:500;";
+                }
+                if (linkedVal) {
+                    linkedVal.value = dtpLocalISO(linkedS.date);
+                }
+            }
+        }
+
+        dtpRender(linkedId);
+    }
+}
+
 function dtpInit(fieldEl) {
-    const id   = fieldEl.dataset.dtpId;
+    const id = fieldEl.dataset.dtpId;
     const mode = fieldEl.dataset.mode || "date";
     const minD = dtpParseMin(fieldEl.dataset.minDate);
     const maxD = dtpParseMin(fieldEl.dataset.maxDate);
@@ -951,27 +1002,32 @@ function dtpInit(fieldEl) {
         mode,
         minD,
         maxD,
-        navYear:  new Date().getFullYear(),
+        navYear: new Date().getFullYear(),
         navMonth: new Date().getMonth(),
-        date:      null,
-        endDate:   null,
+        date: null,
+        endDate: null,
         selecting: false,
-        // data-min-year / data-max-year se year range lo
-        // Agar data-min-year / data-max-year attribute nahi diya to default 7 year range
-        minYear: fieldEl.dataset.minYear ? parseInt(fieldEl.dataset.minYear) : new Date().getFullYear() - 1,
-        maxYear: fieldEl.dataset.maxYear ? parseInt(fieldEl.dataset.maxYear) : new Date().getFullYear() + 5,
+        minYear: fieldEl.dataset.minYear
+            ? parseInt(fieldEl.dataset.minYear)
+            : new Date().getFullYear() - 1,
+        maxYear: fieldEl.dataset.maxYear
+            ? parseInt(fieldEl.dataset.maxYear)
+            : new Date().getFullYear() + 5,
     };
 
     const hiddenInp = document.getElementById(`dtp_val_${id}`);
-    const endInp    = document.getElementById(`dtp_end_${id}`);
+    const endInp = document.getElementById(`dtp_end_${id}`);
 
     if (hiddenInp?.value) {
         const d = new Date(hiddenInp.value);
         d.setHours(0, 0, 0, 0);
-        _dtp[id].date     = d;
-        _dtp[id].navYear  = d.getFullYear();
+        _dtp[id].date = d;
+        _dtp[id].navYear = d.getFullYear();
         _dtp[id].navMonth = d.getMonth();
-    } else if (hiddenInp?.hasAttribute("data-default-today") && mode !== "range") {
+    } else if (
+        hiddenInp?.hasAttribute("data-default-today") &&
+        mode !== "range"
+    ) {
         const t = new Date();
         t.setHours(0, 0, 0, 0);
         _dtp[id].date = t;
@@ -997,7 +1053,7 @@ function dtpInit(fieldEl) {
 
     dtpRender(id);
 
-    const s   = _dtp[id];
+    const s = _dtp[id];
     const lbl = document.getElementById(`dtp_lbl_${id}`);
     const val = document.getElementById(`dtp_val_${id}`);
 
@@ -1025,7 +1081,9 @@ function dtpOpen(id) {
         dd.classList.add("open");
         dd.style.display = "block";
     }
-    document.querySelectorAll(".ap-dropdown.open").forEach((d) => d.classList.remove("open"));
+    document
+        .querySelectorAll(".ap-dropdown.open")
+        .forEach((d) => d.classList.remove("open"));
     dtpRender(id);
 }
 
@@ -1039,35 +1097,39 @@ function dtpClose(id) {
 }
 
 function dtpRender(id) {
-    const s    = _dtp[id];
+    const s = _dtp[id];
     const body = document.getElementById(`dtp_body_${id}`);
     if (!body) return;
 
-    const today    = dtpDateOnly(new Date());
+    const today = dtpDateOnly(new Date());
     const { navYear: year, navMonth: month } = s;
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMo = new Date(year, month + 1, 0).getDate();
 
-    // Year options — minYear se maxYear tak (data attribute se)
     const yearOpts = Array.from(
         { length: s.maxYear - s.minYear + 1 },
-        (_, i) => s.minYear + i
+        (_, i) => s.minYear + i,
     )
-    .map((y) => `<option value="${y}"${y === year ? " selected" : ""}>${y}</option>`)
-    .join("");
+        .map(
+            (y) =>
+                `<option value="${y}"${y === year ? " selected" : ""}>${y}</option>`,
+        )
+        .join("");
 
     const monthOpts = DTP_MONTHS.map(
-        (m, i) => `<option value="${i}"${i === month ? " selected" : ""}>${m}</option>`,
+        (m, i) =>
+            `<option value="${i}"${i === month ? " selected" : ""}>${m}</option>`,
     ).join("");
 
     let cells = "";
     for (let i = 0; i < firstDay; i++) cells += `<div></div>`;
     for (let d = 1; d <= daysInMo; d++) {
-        const dt  = dtpDateOnly(new Date(year, month, d));
+        const dt = dtpDateOnly(new Date(year, month, d));
         const dis = (s.minD && dt < s.minD) || (s.maxD && dt > s.maxD);
         const isTd = dt.getTime() === today.getTime();
         const isSl = s.date && dt.getTime() === dtpDateOnly(s.date).getTime();
-        const isEn = s.endDate && dt.getTime() === dtpDateOnly(s.endDate).getTime();
+        const isEn =
+            s.endDate && dt.getTime() === dtpDateOnly(s.endDate).getTime();
         const inRg =
             s.mode === "range" &&
             s.date &&
@@ -1078,7 +1140,10 @@ function dtpRender(id) {
         let cls = "dtp-day";
         if (dis) cls += " disabled";
         if (isTd) cls += " today";
-        if (isSl) cls += " selected" + (s.mode === "range" && s.endDate ? " range-start" : "");
+        if (isSl)
+            cls +=
+                " selected" +
+                (s.mode === "range" && s.endDate ? " range-start" : "");
         if (isEn) cls += " selected range-end";
         if (inRg) cls += " in-range";
         cells += `<div class="${cls}" data-y="${year}" data-m="${month}" data-d="${d}">${d}</div>`;
@@ -1102,7 +1167,7 @@ function dtpRender(id) {
         </button>
         <div class="flex items-center gap-1.5">
           <select class="dtp-month text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none cursor-pointer">${monthOpts}</select>
-          <select class="dtp-year  text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none cursor-pointer">${yearOpts}</select>
+          <select class="dtp-year text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none cursor-pointer">${yearOpts}</select>
         </div>
         <button type="button" class="dtp-next w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
@@ -1115,7 +1180,7 @@ function dtpRender(id) {
       ${rangeHint}
       <div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-100">
         <button type="button" class="dtp-clear btn-outline text-xs py-1.5 px-3">Clear</button>
-        <button type="button" class="dtp-done  btn-primary text-xs py-1.5 px-3">Done</button>
+        <button type="button" class="dtp-done btn-primary text-xs py-1.5 px-3">Done</button>
       </div>
     </div>`;
 
@@ -1140,54 +1205,62 @@ function dtpRender(id) {
         s.date = null;
         s.endDate = null;
         s.selecting = false;
-        const lbl    = document.getElementById(`dtp_lbl_${id}`);
-        const val    = document.getElementById(`dtp_val_${id}`);
+        const lbl = document.getElementById(`dtp_lbl_${id}`);
+        const val = document.getElementById(`dtp_val_${id}`);
         const endVal = document.getElementById(`dtp_end_${id}`);
         if (lbl) {
-            lbl.textContent   = s.mode === "range" ? "Select dates" : "Select date";
+            lbl.textContent =
+                s.mode === "range" ? "Select dates" : "Select date";
             lbl.style.cssText = "color:#94a3b8;font-weight:400;";
         }
         dtpWireSet(val, "");
         dtpWireSet(endVal, "");
+        dtpSyncLinked(id);
         dtpRender(id);
     };
 
     body.querySelector(".dtp-done").onclick = () => {
-        const lbl    = document.getElementById(`dtp_lbl_${id}`);
-        const val    = document.getElementById(`dtp_val_${id}`);
+        const lbl = document.getElementById(`dtp_lbl_${id}`);
+        const val = document.getElementById(`dtp_val_${id}`);
         const endVal = document.getElementById(`dtp_end_${id}`);
         if (s.mode === "range") {
             if (!s.date || !s.endDate) return;
             if (lbl) {
-                lbl.textContent   = `${dtpFmt(s.date)} – ${dtpFmt(s.endDate)}`;
+                lbl.textContent = `${dtpFmt(s.date)} – ${dtpFmt(s.endDate)}`;
                 lbl.style.cssText = "color:#1e293b;font-weight:500;";
             }
             dtpWireSet(val, dtpLocalISO(s.date));
             dtpWireSet(endVal, dtpLocalISO(s.endDate));
-            dtpClose(id);
         } else {
             if (!s.date) return;
             if (lbl) {
-                lbl.textContent   = dtpFmt(s.date);
+                lbl.textContent = dtpFmt(s.date);
                 lbl.style.cssText = "color:#1e293b;font-weight:500;";
             }
             dtpWireSet(val, dtpLocalISO(s.date));
-            dtpClose(id);
         }
+        console.log(`[DTP DONE] id=${id} date=${dtpLocalISO(s.date)}`);
+        dtpSyncLinked(id);
+        dtpClose(id);
     };
 
     body.querySelectorAll(".dtp-day[data-d]").forEach((cell) => {
         cell.onclick = () => {
-            const dt = new Date(+cell.dataset.y, +cell.dataset.m, +cell.dataset.d);
+            if (cell.classList.contains("disabled")) return;
+            const dt = new Date(
+                +cell.dataset.y,
+                +cell.dataset.m,
+                +cell.dataset.d,
+            );
             if (s.mode === "range") {
                 if (!s.date || !s.selecting) {
-                    s.date     = dt;
-                    s.endDate  = null;
+                    s.date = dt;
+                    s.endDate = null;
                     s.selecting = true;
                 } else {
                     if (dt < s.date) {
                         s.endDate = s.date;
-                        s.date    = dt;
+                        s.date = dt;
                     } else {
                         s.endDate = dt;
                     }
@@ -1205,11 +1278,30 @@ function initAllDtpFields() {
     document.querySelectorAll(".dtp-field").forEach((el) => {
         const id = el.dataset.dtpId;
         if (!id) return;
-        if (el.hasAttribute("data-dtp-init") && document.getElementById("dtp_dd_" + id)) return;
+        if (
+            el.hasAttribute("data-dtp-init") &&
+            document.getElementById("dtp_dd_" + id)
+        )
+            return;
         if (_dtp[id]) delete _dtp[id];
         el.setAttribute("data-dtp-init", "1");
         dtpInit(el);
     });
+}
+
+function dtpLinkDepartureReturn(depId, retId) {
+    console.log(`[DTP LINK] Linking dep=${depId} ret=${retId}`);
+    _dtpLinks[depId] = { type: "dep", linkedId: retId };
+    _dtpLinks[retId] = { type: "ret", linkedId: depId };
+
+    const depS = _dtp[depId];
+    const retS = _dtp[retId];
+    console.log(`[DTP LINK] depS=`, depS, `retS=`, retS);
+
+    if (depS?.date && retS) {
+        retS.minD = dtpDateOnly(depS.date);
+        console.log(`[DTP LINK] Set retS.minD =`, retS.minD);
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1442,7 +1534,7 @@ function addMultiCity() {
     });
     clone
         .querySelectorAll(".ap-hidden, .ap-city-hidden")
-        .forEach((el)   => (el.value = ""));
+        .forEach((el) => (el.value = ""));
     clone
         .querySelectorAll(".ap-dropdown")
         .forEach((el) => el.classList.remove("open"));
@@ -1497,31 +1589,32 @@ function removeMultiCity(btn) {
    14. FLIGHT FORM VALIDATOR
 ═══════════════════════════════════════════════════════════════ */
 
- 
 function showError(inputEl, message) {
     if (!inputEl) return;
- 
+
     const wrapper = inputEl.closest(".form-control") || inputEl.parentElement;
     if (!wrapper) return;
- 
+
     // Avoid duplicate error on same field
     if (wrapper.querySelector(".just-validate-error-label")) return;
- 
+
     // Wrapper must be position:relative for absolute tooltip
     wrapper.style.position = "relative";
- 
+
     // Mark field border
     inputEl.classList.add("just-validate-error-field", "!border-red-400");
- 
+
     // Tooltip error label
-    const err           = document.createElement("div");
-    err.className       = "just-validate-error-label";
-    err.innerHTML       = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ${message}`;
+    const err = document.createElement("div");
+    err.className = "just-validate-error-label";
+    err.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ${message}`;
     wrapper.appendChild(err);
 }
- 
+
 function clearErrors(formEl) {
-    formEl.querySelectorAll(".just-validate-error-label").forEach((el) => el.remove());
+    formEl
+        .querySelectorAll(".just-validate-error-label")
+        .forEach((el) => el.remove());
     formEl.querySelectorAll(".just-validate-error-field").forEach((el) => {
         el.classList.remove("just-validate-error-field", "!border-red-400");
     });
@@ -1529,54 +1622,53 @@ function clearErrors(formEl) {
         el.style.position = "";
     });
 }
- 
+
 function autoRemoveErrors(formEl, delay = 4000) {
     setTimeout(() => clearErrors(formEl), delay);
 }
- 
+
 function isPastDate(dateStr) {
     if (!dateStr) return false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return new Date(dateStr) < today;
 }
- 
+
 function isDateBefore(dateA, dateB) {
     return new Date(dateA) < new Date(dateB);
 }
- 
+
 function getInputVal(form, name) {
     return form.querySelector(`[name="${name}"]`)?.value?.trim() ?? "";
 }
- 
- 
+
 // ═══════════════════════════════════════════
 //  1. ONE WAY
 // ═══════════════════════════════════════════
- 
+
 function initOneWayValidator() {
     const form = document.getElementById("flightOneWayForm");
     if (!form) return;
- 
+
     form.addEventListener("submit", (e) => {
         e.preventDefault();
         clearErrors(form);
- 
+
         let hasError = false;
- 
-        const origin   = getInputVal(form, "origin");
-        const dest     = getInputVal(form, "destination");
-        const depDate  = getInputVal(form, "departureDate");
- 
-        const originEl  = form.querySelector('[name="origin"]');
-        const destEl    = form.querySelector('[name="destination"]');
-        const dateEl    = form.querySelector('[name="departureDate"]');
- 
+
+        const origin = getInputVal(form, "origin");
+        const dest = getInputVal(form, "destination");
+        const depDate = getInputVal(form, "departureDate");
+
+        const originEl = form.querySelector('[name="origin"]');
+        const destEl = form.querySelector('[name="destination"]');
+        const dateEl = form.querySelector('[name="departureDate"]');
+
         if (!origin) {
             showError(originEl, "Please select departure airport");
             hasError = true;
         }
- 
+
         if (!dest) {
             showError(destEl, "Please select arrival airport");
             hasError = true;
@@ -1584,7 +1676,7 @@ function initOneWayValidator() {
             showError(destEl, "Origin and destination cannot be same");
             hasError = true;
         }
- 
+
         if (!depDate) {
             showError(dateEl, "Please select departure date");
             hasError = true;
@@ -1592,46 +1684,49 @@ function initOneWayValidator() {
             showError(dateEl, "Departure date cannot be in the past");
             hasError = true;
         }
- 
-        if (hasError) { autoRemoveErrors(form); return; }
+
+        if (hasError) {
+            autoRemoveErrors(form);
+            return;
+        }
         form.submit();
     });
 }
- 
- 
+
 // ═══════════════════════════════════════════
 //  2. ROUND TRIP
 // ═══════════════════════════════════════════
- 
+
 function initRoundTripValidator() {
-    const tripInput = document.querySelector(
-        `form input[name="trip_type"][value="{{ config('constant.flight_trip_types.roundtrip') }}"]`
-    ) ?? document.querySelector('form input[name="trip_type"][value="2"]');
- 
+    const tripInput =
+        document.querySelector(
+            `form input[name="trip_type"][value="{{ config('constant.flight_trip_types.roundtrip') }}"]`,
+        ) ?? document.querySelector('form input[name="trip_type"][value="2"]');
+
     const form = tripInput?.closest("form");
     if (!form) return;
- 
+
     form.addEventListener("submit", (e) => {
         e.preventDefault();
         clearErrors(form);
- 
+
         let hasError = false;
- 
-        const origin   = getInputVal(form, "origin");
-        const dest     = getInputVal(form, "destination");
-        const depDate  = getInputVal(form, "departureDate");
-        const retDate  = getInputVal(form, "returnDate");
- 
-        const originEl  = form.querySelector('[name="origin"]');
-        const destEl    = form.querySelector('[name="destination"]');
+
+        const origin = getInputVal(form, "origin");
+        const dest = getInputVal(form, "destination");
+        const depDate = getInputVal(form, "departureDate");
+        const retDate = getInputVal(form, "returnDate");
+
+        const originEl = form.querySelector('[name="origin"]');
+        const destEl = form.querySelector('[name="destination"]');
         const depDateEl = form.querySelector('[name="departureDate"]');
         const retDateEl = form.querySelector('[name="returnDate"]');
- 
+
         if (!origin) {
             showError(originEl, "Please select departure airport");
             hasError = true;
         }
- 
+
         if (!dest) {
             showError(destEl, "Please select arrival airport");
             hasError = true;
@@ -1639,7 +1734,7 @@ function initRoundTripValidator() {
             showError(destEl, "Origin and destination cannot be same");
             hasError = true;
         }
- 
+
         if (!depDate) {
             showError(depDateEl, "Please select departure date");
             hasError = true;
@@ -1647,7 +1742,7 @@ function initRoundTripValidator() {
             showError(depDateEl, "Departure date cannot be in the past");
             hasError = true;
         }
- 
+
         if (!retDate) {
             showError(retDateEl, "Please select return date");
             hasError = true;
@@ -1658,82 +1753,107 @@ function initRoundTripValidator() {
             showError(retDateEl, "Return date must be after departure date");
             hasError = true;
         }
- 
-        if (hasError) { autoRemoveErrors(form); return; }
+
+        if (hasError) {
+            autoRemoveErrors(form);
+            return;
+        }
         form.submit();
     });
 }
- 
- 
+
 // ═══════════════════════════════════════════
 //  3. MULTI CITY
 // ═══════════════════════════════════════════
- 
+
 function initMulticityValidator() {
     const form = document.getElementById("multicity-form");
     if (!form) return;
- 
+
     form.addEventListener("submit", (e) => {
         e.preventDefault();
         clearErrors(form);
- 
+
         let hasError = false;
- 
+
         const origins = form.querySelectorAll('[name="origin[]"]');
-        const dests   = form.querySelectorAll('[name="destination[]"]');
-        const dates   = form.querySelectorAll('[name="departure_date[]"]');
- 
+        const dests = form.querySelectorAll('[name="destination[]"]');
+        const dates = form.querySelectorAll('[name="departure_date[]"]');
+
         if (origins.length < 2) {
-            showMulticityFormError("Please add at least 2 flights for multi-city search");
+            showMulticityFormError(
+                "Please add at least 2 flights for multi-city search",
+            );
             hasError = true;
         }
- 
+
         origins.forEach((originEl, i) => {
             const origin = originEl.value?.trim();
-            const dest   = dests[i]?.value?.trim();
-            const date   = dates[i]?.value?.trim();
-            const row    = i + 1;
- 
+            const dest = dests[i]?.value?.trim();
+            const date = dates[i]?.value?.trim();
+            const row = i + 1;
+
             if (!origin) {
                 showError(originEl, `Flight ${row}: Select departure airport`);
                 hasError = true;
             }
- 
+
             if (!dest) {
                 showError(dests[i], `Flight ${row}: Select arrival airport`);
                 hasError = true;
             } else if (origin && origin === dest) {
-                showError(dests[i], `Flight ${row}: Origin and destination cannot be same`);
+                showError(
+                    dests[i],
+                    `Flight ${row}: Origin and destination cannot be same`,
+                );
                 hasError = true;
             }
- 
+
             if (!date) {
                 showError(dates[i], `Flight ${row}: Select departure date`);
                 hasError = true;
             } else if (isPastDate(date)) {
-                showError(dates[i], `Flight ${row}: Date cannot be in the past`);
+                showError(
+                    dates[i],
+                    `Flight ${row}: Date cannot be in the past`,
+                );
                 hasError = true;
-            } else if (i > 0 && dates[i - 1]?.value && isDateBefore(date, dates[i - 1].value)) {
-                showError(dates[i], `Flight ${row}: Must be on or after Flight ${row - 1} date`);
+            } else if (
+                i > 0 &&
+                dates[i - 1]?.value &&
+                isDateBefore(date, dates[i - 1].value)
+            ) {
+                showError(
+                    dates[i],
+                    `Flight ${row}: Must be on or after Flight ${row - 1} date`,
+                );
                 hasError = true;
             }
         });
- 
-        if (hasError) { autoRemoveErrors(form); return; }
+
+        if (hasError) {
+            autoRemoveErrors(form);
+            return;
+        }
         form.submit();
     });
 }
- 
+
 function showMulticityFormError(message) {
     const container = document.getElementById("addon-rows-container");
-    if (!container || container.querySelector(".just-validate-error-label.form-level")) return;
- 
+    if (
+        !container ||
+        container.querySelector(".just-validate-error-label.form-level")
+    )
+        return;
+
     container.style.position = "relative";
- 
-    const err       = document.createElement("div");
-    err.className   = "just-validate-error-label form-level";
-    err.style.cssText = "position:static;transform:none;margin-bottom:8px;display:inline-flex;";
-    err.innerHTML   = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ${message}`;
+
+    const err = document.createElement("div");
+    err.className = "just-validate-error-label form-level";
+    err.style.cssText =
+        "position:static;transform:none;margin-bottom:8px;display:inline-flex;";
+    err.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ${message}`;
     container.prepend(err);
 }
 
@@ -1775,6 +1895,7 @@ document.addEventListener("click", (e) => {
 function reinitAfterLivewire() {
     initAllApFields();
     initAllDtpFields();
+    dtpLinkDepartureReturn("round_fl_dep", "round_fl_return");
     initTablerIcons();
     initTabs();
     initTripTypeTabs();

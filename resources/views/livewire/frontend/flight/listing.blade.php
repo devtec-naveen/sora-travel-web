@@ -1,8 +1,6 @@
 <div wire:init="loadFlights">
-    <x-loader 
-        message="Please Wait, We are searching for the flights on this route"
-        targets="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline"
-     />
+    <x-loader message="Please Wait, We are searching for the flights on this route"
+        targets="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline" />
     <main class="bg-slate-50">
         <section class="search-panel-inner py-5 bg-gradient-to-b from-[#075fc6] to-[#0d529b]">
             <div class="container">
@@ -36,7 +34,7 @@
                                 <div class="flex items-center gap-4">
                                     <button wire:click="clearFilters"
                                         class="text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors uppercase">
-                                        Clear All {{ request('trip_type') }}
+                                        Clear All {{ $tripType }}
                                     </button>
                                     <button id="close-filter" class="md:hidden text-slate-400 hover:text-slate-950">
                                         <i data-tabler="x" data-size="22"></i>
@@ -64,9 +62,6 @@
                                 <div class="space-y-4">
                                     <div class="flex justify-between items-center">
                                         <span class="form-label">Pricing</span>
-                                        {{-- <span class="text-sm font-bold text-primary-950">
-                                            &dollar; {{ $maxPossiblePrice > 0 ? number_format($maxPrice) : '—' }}
-                                        </span> --}}
                                     </div>
                                     <div class="px-1">
                                         <input type="range" min="{{ $minPossiblePrice }}"
@@ -74,8 +69,8 @@
                                             class="range range-xs range-primary w-full" />
                                     </div>
                                     <div class="flex justify-between text-sm font-bold text-primary-950">
-                                        <span> &dollar; {{ number_format($minPossiblePrice) }}</span>
-                                        <span> &dollar; {{ number_format($maxPossiblePrice) }}</span>
+                                        <span>&dollar; {{ number_format($minPossiblePrice) }}</span>
+                                        <span>&dollar; {{ number_format($maxPossiblePrice) }}</span>
                                     </div>
                                 </div>
 
@@ -124,6 +119,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="flex-1 space-y-5">
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <h4 class="font-semibold text-lg sm:text-xl leading-7 sm:leading-8 text-slate-950">
@@ -160,6 +156,7 @@
                                 @endif
                             </div>
                         </div>
+
                         <div class="space-y-3.5">
                             <div wire:loading.block
                                 wire:target="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline">
@@ -214,23 +211,63 @@
                                         $airlineCode = $segment['operating_carrier']['iata_code'] ?? '';
                                         $logo = $segment['operating_carrier']['logo_symbol_url'] ?? '';
                                         $flightNumber = $segment['operating_carrier_flight_number'] ?? '';
-                                        $departure = $segment['departing_at'];
-                                        $arrival = $segment['arriving_at'];
-                                        $origin = $segment['origin']['iata_code'] ?? '';
-                                        $destination = $segment['destination']['iata_code'] ?? '';
-                                        $duration = $segment['duration'] ?? '';
-                                        $aircraft = $segment['aircraft']['name'] ?? '';
-                                        $price = $flight['total_amount'] ?? '';
-                                        $currency = $flight['total_currency'] ?? '';
-                                        $stops = count($slice['segments']) - 1;
                                         $bags = $segment['passengers'][0]['baggages'] ?? [];
+                                        $aircraft = $segment['aircraft']['name'] ?? '';
                                         $isRefundable =
                                             $flight['conditions']['refund_before_departure']['allowed'] ?? false;
+                                        $price = $flight['total_amount'] ?? '';
+                                        $currency = $flight['total_currency'] ?? '';
+                                        $totalSeconds = 0;
+                                        $durationHuman = '';
+
+                                        if ($tripType === 'multi_city') {
+                                            $totalStops = 0;
+                                            foreach ($flight['slices'] as $sl) {
+                                                $totalStops += count($sl['segments']) - 1;
+                                            }
+                                            $totalStops += count($flight['slices']) - 1;
+                                            $stops = $totalStops;
+                                            foreach ($flight['slices'] as $sl) {
+                                                foreach ($sl['segments'] as $sg) {
+                                                    try {
+                                                        $totalSeconds += \Carbon\CarbonInterval::make(
+                                                            $sg['duration'] ?? 'PT0S',
+                                                        )->totalSeconds;
+                                                    } catch (\Exception $e) {
+                                                    }
+                                                }
+                                            }
+                                            $durationHuman =
+                                                intdiv($totalSeconds, 3600) .
+                                                'h ' .
+                                                intdiv($totalSeconds % 3600, 60) .
+                                                'm';
+                                            $lastSlice = $flight['slices'][count($flight['slices']) - 1];
+                                            $lastSegment = $lastSlice['segments'][count($lastSlice['segments']) - 1];
+                                            $arrival = $lastSegment['arriving_at'];
+                                            $destination = $lastSegment['destination']['iata_code'] ?? '';
+                                        } else {
+                                            $lastSeg = $slice['segments'][count($slice['segments']) - 1];
+                                            $arrival = $lastSeg['arriving_at'];
+                                            $destination = $lastSeg['destination']['iata_code'] ?? '';
+                                            $stops = count($slice['segments']) - 1;
+                                            try {
+                                                $durationHuman = \Carbon\CarbonInterval::make(
+                                                    $segment['duration'] ?? 'PT0S',
+                                                )
+                                                    ->cascade()
+                                                    ->forHumans();
+                                            } catch (\Exception $e) {
+                                                $durationHuman = '';
+                                            }
+                                        }
                                     @endphp
 
                                     <div wire:loading.remove class="card p-4 transition-all hover:shadow-md">
                                         <div class="flex flex-col lg:flex-row gap-3 md:gap-6">
                                             <div class="flex-1 flex flex-col gap-3">
+
+                                                {{-- Airline info — same for all --}}
                                                 <div class="flex items-center gap-4">
                                                     <div
                                                         class="w-11 h-11 rounded-xl bg-slate-50 overflow-hidden border border-slate-100">
@@ -245,64 +282,137 @@
                                                             {{ $flightNumber }}</span>
                                                     </div>
                                                 </div>
-
-                                                <div class="flex flex-row items-center justify-between gap-6 sm:gap-4">
-                                                    <div class="flex flex-col items-start">
-                                                        <span
-                                                            class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
-                                                            {{ \Carbon\Carbon::parse($departure)->format('h:i A') }}
-                                                        </span>
-                                                        <span
-                                                            class="font-normal text-sm text-slate-500">{{ $origin }}</span>
+                                                @if ($tripType === 'multi_city')
+                                                    <div class="flex flex-col divide-y divide-slate-100 -mx-4">
+                                                        @foreach ($flight['slices'] as $sliceIdx => $sl)
+                                                            @php
+                                                                $slFirst = $sl['segments'][0];
+                                                                $slLast = $sl['segments'][count($sl['segments']) - 1];
+                                                                $slSecs = 0;
+                                                                foreach ($sl['segments'] as $sg) {
+                                                                    try {
+                                                                        $slSecs += \Carbon\CarbonInterval::make(
+                                                                            $sg['duration'] ?? 'PT0S',
+                                                                        )->totalSeconds;
+                                                                    } catch (\Exception $e) {
+                                                                    }
+                                                                }
+                                                                $slH = intdiv($slSecs, 3600);
+                                                                $slM = intdiv($slSecs % 3600, 60);
+                                                                $slStops = count($sl['segments']) - 1;
+                                                            @endphp
+                                                            <div
+                                                                class="flex flex-row items-center justify-between gap-6 sm:gap-4 px-4 py-3">
+                                                                <div class="flex flex-col items-start">
+                                                                    <span
+                                                                        class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
+                                                                        {{ \Carbon\Carbon::parse($slFirst['departing_at'])->format('h:i A') }}
+                                                                    </span>
+                                                                    <span class="font-normal text-sm text-slate-500">
+                                                                        {{ $slFirst['origin']['iata_code'] ?? '' }}
+                                                                    </span>
+                                                                </div>
+                                                                <div
+                                                                    class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
+                                                                    <span
+                                                                        class="font-normal text-xs text-slate-500">{{ $slH }}h
+                                                                        {{ $slM }}m</span>
+                                                                    <div
+                                                                        class="relative w-full flex items-center justify-center h-4">
+                                                                        <div class="absolute w-full h-px bg-slate-200">
+                                                                        </div>
+                                                                        <div
+                                                                            class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200">
+                                                                        </div>
+                                                                        <div
+                                                                            class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200">
+                                                                        </div>
+                                                                        <div
+                                                                            class="relative z-10 bg-white px-2 leading-none">
+                                                                            <i data-tabler="plane"
+                                                                                class="text-slate-400"
+                                                                                data-size="18"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                    <span class="font-normal text-xs text-slate-500">
+                                                                        {{ $slStops === 0 ? 'Non-stop' : $slStops . ' stop' . ($slStops > 1 ? 's' : '') }}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="flex flex-col items-end">
+                                                                    <span
+                                                                        class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
+                                                                        {{ \Carbon\Carbon::parse($slLast['arriving_at'])->format('h:i A') }}
+                                                                    </span>
+                                                                    <span
+                                                                        class="font-normal text-sm text-slate-500 text-right">
+                                                                        {{ $slLast['destination']['iata_code'] ?? '' }}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
                                                     </div>
+                                                @else
                                                     <div
-                                                        class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
-                                                        <span class="font-normal text-xs text-slate-500">
-                                                            {{ \Carbon\CarbonInterval::make($duration)->cascade()->forHumans() }}
-                                                        </span>
-                                                        <div
-                                                            class="relative w-full flex items-center justify-center h-4">
-                                                            <div class="absolute w-full h-px bg-slate-200"></div>
-                                                            <div
-                                                                class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200">
-                                                            </div>
-                                                            <div
-                                                                class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200">
-                                                            </div>
-                                                            <div class="relative z-10 bg-white px-2 leading-none">
-                                                                <i data-tabler="plane" class="text-slate-400"
-                                                                    data-size="18"></i>
-                                                            </div>
+                                                        class="flex flex-row items-center justify-between gap-6 sm:gap-4">
+                                                        <div class="flex flex-col items-start">
+                                                            <span
+                                                                class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
+                                                                {{ \Carbon\Carbon::parse($segment['departing_at'])->format('h:i A') }}
+                                                            </span>
+                                                            <span class="font-normal text-sm text-slate-500">
+                                                                {{ $segment['origin']['iata_code'] ?? '' }}
+                                                            </span>
                                                         </div>
-                                                        <span class="font-normal text-xs text-slate-500">
-                                                            {{ $stops === 0 ? 'Non-stop' : $stops . ' stop' . ($stops > 1 ? 's' : '') }}
-                                                        </span>
+                                                        <div
+                                                            class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
+                                                            <span
+                                                                class="font-normal text-xs text-slate-500">{{ $durationHuman }}</span>
+                                                            <div
+                                                                class="relative w-full flex items-center justify-center h-4">
+                                                                <div class="absolute w-full h-px bg-slate-200"></div>
+                                                                <div
+                                                                    class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200">
+                                                                </div>
+                                                                <div
+                                                                    class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200">
+                                                                </div>
+                                                                <div class="relative z-10 bg-white px-2 leading-none">
+                                                                    <i data-tabler="plane" class="text-slate-400"
+                                                                        data-size="18"></i>
+                                                                </div>
+                                                            </div>
+                                                            <span class="font-normal text-xs text-slate-500">
+                                                                {{ $stops === 0 ? 'Non-stop' : $stops . ' stop' . ($stops > 1 ? 's' : '') }}
+                                                            </span>
+                                                        </div>
+                                                        <div class="flex flex-col items-end">
+                                                            <span
+                                                                class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
+                                                                {{ \Carbon\Carbon::parse($arrival)->format('h:i A') }}
+                                                            </span>
+                                                            <span
+                                                                class="font-normal text-sm text-slate-500 text-right">{{ $destination }}</span>
+                                                        </div>
                                                     </div>
-                                                    <div class="flex flex-col items-end">
-                                                        <span
-                                                            class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
-                                                            {{ \Carbon\Carbon::parse($arrival)->format('h:i A') }}
-                                                        </span>
-                                                        <span
-                                                            class="font-normal text-sm text-slate-500 text-right">{{ $destination }}</span>
-                                                    </div>
-                                                </div>
-
+                                                @endif
                                                 <div class="flex flex-wrap gap-2.5">
                                                     @foreach ($bags as $bag)
                                                         @php
-                                                            $label = $bag['type'] === 'checked' 
-                                                                ? 'Bag for Check-in' 
-                                                                : ($bag['type'] === 'carry_on' ? 'Cabin Bag' : ucfirst($bag['type']));
-
-                                                            $icon = $bag['type'] === 'checked'
-                                                                ? asset('assets/images/checked_bag.svg') 
-                                                                : asset('assets/images/carry_on.svg');
+                                                            $bagLabel =
+                                                                $bag['type'] === 'checked'
+                                                                    ? 'Bag for Check-in'
+                                                                    : ($bag['type'] === 'carry_on'
+                                                                        ? 'Cabin Bag'
+                                                                        : ucfirst($bag['type']));
+                                                            $bagIcon =
+                                                                $bag['type'] === 'checked'
+                                                                    ? asset('assets/images/checked_bag.svg')
+                                                                    : asset('assets/images/carry_on.svg');
                                                         @endphp
-
                                                         <div class="tag tag-gray flex items-center gap-1.5">
-                                                            <img src="{{ $icon }}" alt="icon" class="w-[22px]" />
-                                                            <span>{{ $bag['quantity'] }} {{ $label }}</span>
+                                                            <img src="{{ $bagIcon }}" alt="icon"
+                                                                class="w-[22px]" />
+                                                            <span>{{ $bag['quantity'] }} {{ $bagLabel }}</span>
                                                         </div>
                                                     @endforeach
                                                     @if ($aircraft)
@@ -322,7 +432,6 @@
 
                                             <div class="hidden lg:block w-px bg-slate-200 h-auto self-stretch"></div>
                                             <div class="lg:hidden h-px bg-slate-100 w-full"></div>
-
                                             <div
                                                 class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between lg:min-w-[153px] gap-4">
                                                 <div class="flex flex-col lg:items-end">
@@ -331,7 +440,9 @@
                                                         class="font-semibold text-[24px] leading-[36px] text-blue-600">
                                                         {{ $currency }} {{ number_format((float) $price, 2) }}
                                                     </span>
-                                                    <span class="font-normal text-sm text-slate-500">per person</span>
+                                                    <span class="font-normal text-sm text-slate-500">
+                                                        {{ $tripType === 'multi_city' ? 'total for all legs' : 'per person' }}
+                                                    </span>
                                                 </div>
                                                 <button wire:click="selectFlight({{ $index }})"
                                                     class="btn btn-primary whitespace-nowrap btn-sm">
@@ -341,6 +452,7 @@
                                         </div>
                                     </div>
                                 @endforeach
+
                                 @if (count($flights) < $total)
                                     <div wire:loading.remove x-data="{ loading: false }"
                                         x-intersect="
@@ -367,30 +479,64 @@
     <div>
         @php
             $sf = $selectedFlight ?? [];
-            $sfSlice = $sf['slices'][0] ?? [];
+            $sfSlices = $sf['slices'] ?? [];
+            $sfSlice = $sfSlices[0] ?? [];
             $sfSegment = $sfSlice['segments'][0] ?? [];
             $sfAirline = $sfSegment['operating_carrier']['name'] ?? '';
             $sfCode = $sfSegment['operating_carrier']['iata_code'] ?? '';
             $sfLogo = $sfSegment['operating_carrier']['logo_symbol_url'] ?? '';
             $sfFlightNo = $sfSegment['operating_carrier_flight_number'] ?? '';
             $sfDep = $sfSegment['departing_at'] ?? null;
-            $sfArr = $sfSegment['arriving_at'] ?? null;
             $sfOrigin = $sfSegment['origin']['iata_code'] ?? null;
-            $sfDest = $sfSegment['destination']['iata_code'] ?? '';
             $sfOriginCity = $sfSegment['origin']['city_name'] ?? $sfOrigin;
-            $sfDestCity = $sfSegment['destination']['city_name'] ?? $sfDest;
-            $sfDuration = $sfSegment['duration'] ?? '';
             $sfAircraft = $sfSegment['aircraft']['name'] ?? '';
             $sfPrice = $sf['total_amount'] ?? '';
             $sfCurrency = $sf['total_currency'] ?? '';
-            $sfStops = isset($sfSlice['segments']) ? count($sfSlice['segments']) - 1 : 0;
             $sfBags = $sfSegment['passengers'][0]['baggages'] ?? [];
             $sfCabin = $sfSegment['passengers'][0]['cabin_class_marketing_name'] ?? 'Economy';
             $sfRefundable = $sf['conditions']['refund_before_departure']['allowed'] ?? false;
             $sfChangeable = $sf['conditions']['change_before_departure']['allowed'] ?? false;
             $sfChangeFee = $sf['conditions']['change_before_departure']['penalty_amount'] ?? null;
             $sfChangeCurr = $sf['conditions']['change_before_departure']['penalty_currency'] ?? '';
+            $sfTripType = $tripType;
+
+            if ($sfTripType === 'multi_city' && !empty($sfSlices)) {
+                $sfLastSlice = $sfSlices[count($sfSlices) - 1];
+                $sfLastSegment = $sfLastSlice['segments'][count($sfLastSlice['segments']) - 1];
+                $sfArr = $sfLastSegment['arriving_at'] ?? null;
+                $sfDest = $sfLastSegment['destination']['iata_code'] ?? '';
+                $sfDestCity = $sfLastSegment['destination']['city_name'] ?? $sfDest;
+                $sfTotalStops = 0;
+                foreach ($sfSlices as $sl) {
+                    $sfTotalStops += count($sl['segments']) - 1;
+                }
+                $sfTotalStops += count($sfSlices) - 1;
+                $sfStops = $sfTotalStops;
+                $sfTotalSecs = 0;
+                foreach ($sfSlices as $sl) {
+                    foreach ($sl['segments'] as $sg) {
+                        try {
+                            $sfTotalSecs += \Carbon\CarbonInterval::make($sg['duration'] ?? 'PT0S')->totalSeconds;
+                        } catch (\Exception $e) {
+                        }
+                    }
+                }
+                $sfDurationHuman = intdiv($sfTotalSecs, 3600) . 'h ' . intdiv($sfTotalSecs % 3600, 60) . 'm';
+            } else {
+                $sfArr = $sfSegment['arriving_at'] ?? null;
+                $sfDest = $sfSegment['destination']['iata_code'] ?? '';
+                $sfDestCity = $sfSegment['destination']['city_name'] ?? $sfDest;
+                $sfStops = isset($sfSlice['segments']) ? count($sfSlice['segments']) - 1 : 0;
+                try {
+                    $sfDurationHuman = \Carbon\CarbonInterval::make($sfSegment['duration'] ?? 'PT0S')
+                        ->cascade()
+                        ->forHumans();
+                } catch (\Exception $e) {
+                    $sfDurationHuman = '';
+                }
+            }
         @endphp
+
         <x-frontend.modal :header="true" id="flight_details_modal" headerText="Flight Details">
             <div class="p-6 space-y-8 max-h-[70vh] overflow-y-auto">
                 <div class="flex items-center gap-4">
@@ -407,57 +553,115 @@
 
                 <div class="space-y-4">
                     <h4 class="font-semibold text-lg text-slate-950">Itinerary</h4>
-                    <div class="flex flex-row items-center justify-between gap-6 sm:gap-4">
-                        <div class="flex flex-col items-start">
-                            <span class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
-                                {{ $sfDep ? \Carbon\Carbon::parse($sfDep)->format('h:i A') : '' }}
-                            </span>
-                            <span class="font-normal text-sm text-slate-500">{{ $sfOriginCity }}
-                                {{ $sfOrigin ? "($sfOrigin)" : '' }}</span>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
-                            <span class="font-normal text-xs text-slate-500">
-                                {{ $sfDuration ? \Carbon\CarbonInterval::make($sfDuration)->cascade()->forHumans() : '' }}
-                            </span>
-                            <div class="relative w-full flex items-center justify-center h-4">
-                                <div class="absolute w-full h-px bg-slate-200"></div>
-                                <div class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200"></div>
-                                <div class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200"></div>
-                                <div class="relative z-10 bg-white px-2 leading-none">
-                                    <i data-tabler="plane" class="text-slate-400" data-size="18"></i>
-                                </div>
-                            </div>
-                            <span class="font-normal text-xs text-slate-500">{{ $sfStops }} stop(s)</span>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
-                                {{ $sfArr ? \Carbon\Carbon::parse($sfArr)->format('h:i A') : '' }}
-                            </span>
-                            <span class="font-normal text-sm text-slate-500 text-right">{{ $sfDestCity }}
-                                {{ $sfDest ? "($sfDest)" : '' }}</span>
-                        </div>
-                    </div>
-                    @if ($sfStops > 0)
-                        <div class="space-y-2 mt-2">
-                            @foreach ($sfSlice['segments'] ?? [] as $seg)
-                                <div
-                                    class="flex items-center gap-3 bg-slate-50 rounded-lg px-4 py-3 text-sm text-slate-600">
-                                    <i data-tabler="map-pin" data-size="15" class="text-slate-400"></i>
-                                    <span>
-                                        {{ $seg['origin']['city_name'] ?? '' }}
-                                        ({{ $seg['origin']['iata_code'] ?? '' }})
-                                        →
-                                        {{ $seg['destination']['city_name'] ?? '' }}
-                                        ({{ $seg['destination']['iata_code'] ?? '' }})
-                                    </span>
-                                    <span class="ml-auto text-slate-400">
-                                        {{ \Carbon\Carbon::parse($seg['departing_at'])->format('h:i A') }}
-                                        –
-                                        {{ \Carbon\Carbon::parse($seg['arriving_at'])->format('h:i A') }}
-                                    </span>
+                    @if ($sfTripType === 'multi_city' && !empty($sfSlices))
+                        <div class="flex flex-col divide-y divide-slate-100">
+                            @foreach ($sfSlices as $slIdx => $sl)
+                                @php
+                                    $slFirst = $sl['segments'][0];
+                                    $slLast = $sl['segments'][count($sl['segments']) - 1];
+                                    $slSecs = 0;
+                                    foreach ($sl['segments'] as $sg) {
+                                        try {
+                                            $slSecs += \Carbon\CarbonInterval::make($sg['duration'] ?? 'PT0S')
+                                                ->totalSeconds;
+                                        } catch (\Exception $e) {
+                                        }
+                                    }
+                                @endphp
+                                <div class="py-3">
+                                    <p class="text-xs font-semibold text-slate-400 uppercase mb-2">Leg
+                                        {{ $slIdx + 1 }}</p>
+                                    <div class="flex flex-row items-center justify-between gap-4">
+                                        <div class="flex flex-col items-start">
+                                            <span class="font-semibold text-xl leading-8 text-slate-950">
+                                                {{ \Carbon\Carbon::parse($slFirst['departing_at'])->format('h:i A') }}
+                                            </span>
+                                            <span class="font-normal text-sm text-slate-500">
+                                                {{ $slFirst['origin']['city_name'] ?? '' }}
+                                                ({{ $slFirst['origin']['iata_code'] ?? '' }})
+                                            </span>
+                                        </div>
+                                        <div
+                                            class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
+                                            <span class="font-normal text-xs text-slate-500">
+                                                {{ intdiv($slSecs, 3600) }}h {{ intdiv($slSecs % 3600, 60) }}m
+                                            </span>
+                                            <div class="relative w-full flex items-center justify-center h-4">
+                                                <div class="absolute w-full h-px bg-slate-200"></div>
+                                                <div class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200">
+                                                </div>
+                                                <div class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200">
+                                                </div>
+                                                <div class="relative z-10 bg-white px-2 leading-none">
+                                                    <i data-tabler="plane" class="text-slate-400" data-size="18"></i>
+                                                </div>
+                                            </div>
+                                            <span class="font-normal text-xs text-slate-500">
+                                                {{ count($sl['segments']) - 1 === 0 ? 'Non-stop' : count($sl['segments']) - 1 . ' stop(s)' }}
+                                            </span>
+                                        </div>
+                                        <div class="flex flex-col items-end">
+                                            <span class="font-semibold text-xl leading-8 text-slate-950">
+                                                {{ \Carbon\Carbon::parse($slLast['arriving_at'])->format('h:i A') }}
+                                            </span>
+                                            <span class="font-normal text-sm text-slate-500 text-right">
+                                                {{ $slLast['destination']['city_name'] ?? '' }}
+                                                ({{ $slLast['destination']['iata_code'] ?? '' }})
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             @endforeach
                         </div>
+                    @else
+                        <div class="flex flex-row items-center justify-between gap-6 sm:gap-4">
+                            <div class="flex flex-col items-start">
+                                <span class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
+                                    {{ $sfDep ? \Carbon\Carbon::parse($sfDep)->format('h:i A') : '' }}
+                                </span>
+                                <span class="font-normal text-sm text-slate-500">{{ $sfOriginCity }}
+                                    {{ $sfOrigin ? "($sfOrigin)" : '' }}</span>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center gap-0.5 max-w-[200px] min-w-[100px]">
+                                <span class="font-normal text-xs text-slate-500">{{ $sfDurationHuman }}</span>
+                                <div class="relative w-full flex items-center justify-center h-4">
+                                    <div class="absolute w-full h-px bg-slate-200"></div>
+                                    <div class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200"></div>
+                                    <div class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200"></div>
+                                    <div class="relative z-10 bg-white px-2 leading-none">
+                                        <i data-tabler="plane" class="text-slate-400" data-size="18"></i>
+                                    </div>
+                                </div>
+                                <span class="font-normal text-xs text-slate-500">{{ $sfStops }} stop(s)</span>
+                            </div>
+                            <div class="flex flex-col items-end">
+                                <span class="font-semibold text-sm lg:text-xl leading-8 text-slate-950">
+                                    {{ $sfArr ? \Carbon\Carbon::parse($sfArr)->format('h:i A') : '' }}
+                                </span>
+                                <span class="font-normal text-sm text-slate-500 text-right">{{ $sfDestCity }}
+                                    {{ $sfDest ? "($sfDest)" : '' }}</span>
+                            </div>
+                        </div>
+                        @if ($sfStops > 0)
+                            <div class="space-y-2 mt-2">
+                                @foreach ($sfSlice['segments'] ?? [] as $seg)
+                                    <div
+                                        class="flex items-center gap-3 bg-slate-50 rounded-lg px-4 py-3 text-sm text-slate-600">
+                                        <i data-tabler="map-pin" data-size="15" class="text-slate-400"></i>
+                                        <span>
+                                            {{ $seg['origin']['city_name'] ?? '' }}
+                                            ({{ $seg['origin']['iata_code'] ?? '' }})
+                                            → {{ $seg['destination']['city_name'] ?? '' }}
+                                            ({{ $seg['destination']['iata_code'] ?? '' }})
+                                        </span>
+                                        <span class="ml-auto text-slate-400">
+                                            {{ \Carbon\Carbon::parse($seg['departing_at'])->format('h:i A') }}
+                                            – {{ \Carbon\Carbon::parse($seg['arriving_at'])->format('h:i A') }}
+                                        </span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     @endif
                 </div>
 
@@ -511,7 +715,9 @@
                         </div>
                     </div>
                 </div>
+
                 <hr>
+
                 <div class="space-y-4">
                     <h4 class="font-semibold text-lg text-slate-950">Fare Rules</h4>
                     <div class="space-y-3">
@@ -537,10 +743,14 @@
                     </div>
                 </div>
             </div>
+
             <div class="p-6 border-t border-slate-100 flex justify-between items-center gap-4">
                 <div class="flex flex-col grow">
-                    <span class="font-semibold text-2xl text-blue-600">{{ $sfCurrency }} {{ $sfPrice }}</span>
-                    <span class="font-normal text-sm text-slate-500">Total price for all travelers</span>
+                    <span class="font-semibold text-2xl text-blue-600">{{ $sfCurrency }}
+                        {{ number_format((float) $sfPrice, 2) }}</span>
+                    <span class="font-normal text-sm text-slate-500">
+                        {{ $sfTripType === 'multi_city' ? 'Total price for complete multi-city journey' : 'Total price for all travelers' }}
+                    </span>
                 </div>
                 <button wire:click="proceedToPassengers" class="btn btn-primary">Continue</button>
             </div>

@@ -1,6 +1,7 @@
 <x-frontend.main-layout>
     <main>
-        <section class="py-6 bg-cover bg-center relative min-h-[500px]" style="background-image: url('{{ asset('assets/images/search-bg.jpg') }}');">
+        <section class="py-6 bg-cover bg-center relative min-h-[500px]"
+            style="background-image: url('{{ asset('assets/images/search-bg.jpg') }}');">
             <div class="bg-gradient-to-b from-blue-950 via-blue-950 to-blue-950/0 absolute top-0 left-0 w-full h-full">
             </div>
             <div class="container ">
@@ -18,15 +19,18 @@
                         </button>
                     </div>
                     <div class="search-tab-content">
-                         <x-frontend.flight-search-tabs/>
-                         <x-frontend.hotel-search-tabs/>
-                         <x-frontend.car-search-tabs/>
+                        <x-frontend.flight-search-tabs />
+                        <x-frontend.hotel-search-tabs />
+                        <x-frontend.car-search-tabs />
                     </div>
-                    <div class="w-full inline-flex flex-col justify-center items-center gap-1.5 text-center lg:text-left">
-                        <div class="self-stretch text-slate-50 font-semibold text-2xl leading-8 md:text-3xl md:leading-10 lg:text-4xl lg:leading-[48px]">
+                    <div
+                        class="w-full inline-flex flex-col justify-center items-center gap-1.5 text-center lg:text-left">
+                        <div
+                            class="self-stretch text-slate-50 font-semibold text-2xl leading-8 md:text-3xl md:leading-10 lg:text-4xl lg:leading-[48px]">
                             Designed for the way the world moves.
                         </div>
-                        <div class="self-stretch text-slate-50 font-medium text-base leading-6 md:text-lg md:leading-7 lg:text-xl lg:leading-8">
+                        <div
+                            class="self-stretch text-slate-50 font-medium text-base leading-6 md:text-lg md:leading-7 lg:text-xl lg:leading-8">
                             Go anywhere. Stay everywhere. Drive anything.
                         </div>
                     </div>
@@ -72,7 +76,10 @@
                                         WhatsApp Us At
                                     </h3>
                                     <p class="md:text-base text-sm text-slate-500 leading-6">
-                                        +1 503-702-3278
+                                        <a href="https://wa.me/15037023278?text=Welcome%20to%20Sorah%20Travel,%20How%20can%20we%20help%20you"
+                                            target="_blank">
+                                            +1 503-702-3278
+                                        </a>
                                     </p>
                                 </div>
                             </div>
@@ -88,7 +95,10 @@
                                         Email Us At
                                     </h3>
                                     <p class="md:text-base text-sm text-slate-500 leading-6">
-                                        sorah@info.com
+                                        <a
+                                            href="mailto:sorah@info.com?subject=Inquiry&body=Hello%20Sorah%20Travel,%20I%20need%20help">
+                                            sorah@info.com
+                                        </a>
                                     </p>
                                 </div>
                             </div>
@@ -181,8 +191,7 @@
                         </div>
                     </div>
                     <!-- Partner Logos -->
-                    <div
-                        class="w-full flex flex-col lg:flex-row justify-center items-center gap-6 lg:gap-12 flex-wrap">
+                    <div class="w-full flex flex-col lg:flex-row justify-center items-center gap-6 lg:gap-12 flex-wrap">
                         <div class="flex justify-center items-center gap-4 sm:gap-8 md:gap-12">
                             <img class="h-4 md:h-7" src="assets/images/paypal.png" />
                             <img class="h-4 md:h-7" src="assets/images/stripe.png" />
