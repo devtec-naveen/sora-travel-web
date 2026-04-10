@@ -49,9 +49,9 @@
 
                                                         {{-- Order Number & Ref --}}
                                                         <div class="text-slate-500 text-base font-normal leading-6">
-                                                            {{ $order->order_number }}
+                                                            Booking ID : <strong>{{ $order->id }}</strong>
                                                             @if ($p['booking_reference'] ?? null)
-                                                                &nbsp;·&nbsp; Ref:
+                                                                &nbsp;·&nbsp; PNR :
                                                                 <strong>{{ $p['booking_reference'] }}</strong>
                                                             @endif
                                                         </div>
@@ -386,7 +386,7 @@
                                                     {{-- Hotel Details --}}
                                                     <div class="flex-1 flex flex-col gap-3">
                                                         <div class="text-slate-500 text-base font-normal leading-6">
-                                                            {{ $order->order_number }}
+                                                            {{ $order->id }}
                                                         </div>
                                                         <div class="flex flex-col gap-1">
                                                             <span class="font-semibold text-lg text-slate-950">
@@ -527,7 +527,7 @@
                                                     {{-- Car Details --}}
                                                     <div class="flex-1 flex flex-col gap-3">
                                                         <div class="text-slate-500 text-base font-normal leading-6">
-                                                            {{ $order->order_number }}
+                                                            {{ $order->id }}
                                                         </div>
                                                         <div class="flex flex-col gap-1">
                                                             <span class="font-semibold text-lg text-slate-950">

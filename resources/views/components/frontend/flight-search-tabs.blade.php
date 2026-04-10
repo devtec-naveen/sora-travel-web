@@ -87,6 +87,7 @@
                             label="Return Date"
                             placeholder="Select date"
                             value="{{ $returnDate }}"
+                            min-date="{{ $departureDate ?: 'today' }}"
                         />
                         <x-frontend.travelers id="FlightRoundtrip" />
                         <button type="submit" class="btn btn-primary h-full md:col-span-2 lg:col-span-1">

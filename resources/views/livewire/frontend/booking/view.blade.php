@@ -56,9 +56,9 @@
                                     {{-- Booking ID & Status --}}
                                     <div class="flex items-center justify-between gap-2">
                                         <div class="text-sm md:text-base font-normal text-slate-500 leading-6">
-                                            {{ $o->order_number }}
+                                            BookingID : <strong>{{ $o->id }}</strong>
                                             @if ($p['booking_reference'] ?? null)
-                                                &nbsp;·&nbsp; Ref: <strong>{{ $p['booking_reference'] }}</strong>
+                                                &nbsp;·&nbsp; PNR : <strong>{{ $p['booking_reference'] }}</strong>
                                             @endif
                                         </div>
                                         @if ($flags['isCancelled'])

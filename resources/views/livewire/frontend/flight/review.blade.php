@@ -203,12 +203,19 @@
                             <div class="flex flex-col divide-y divide-slate-100">
                                 @foreach ($passengers as $idx => $pax)
                                     @php
-                                        $typeLabel = match($pax['type'] ?? 'adult') {
-                                            'adult'               => 'Adult',
-                                            'child'               => 'Child',
-                                            'infant_without_seat' => 'Infant',
-                                            default               => 'Passenger',
-                                        };
+                                        $typeLabel = 'Adult';
+
+                                        if (!empty($pax['type'])) {
+                                            $type = strtolower($pax['type']);
+
+                                            if (str_contains($type, 'infant')) {
+                                                $typeLabel = 'Infant';
+                                            } elseif ($type === 'child') {
+                                                $typeLabel = 'Child';
+                                            } elseif ($type === 'adult') {
+                                                $typeLabel = 'Adult';
+                                            }
+                                        }
                                         $title    = ucfirst($pax['title'] ?? '');
                                         $fname    = $pax['first_name']  ?? $pax['given_name']  ?? '';
                                         $lname    = $pax['last_name']   ?? $pax['family_name'] ?? '';
