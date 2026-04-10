@@ -305,8 +305,12 @@
                                             </div>
 
                                         @empty
-                                            <div class="card p-8 text-center text-slate-400 text-sm">
-                                                No {{ $statusLabel }} flights found.
+                                            <div class="card p-2 text-center">
+                                                <img class="w-[220px] mx-auto block"
+                                                    src="{{ asset('assets/images/booking-not-found.jpg') }}"
+                                                    alt="booking-not-found" loading="lazy" />
+                                                <p class="mt-1 pt-0  text-black-700 text-sm font-bold">No
+                                                    {{ $statusLabel }} Bookings.</p>
                                             </div>
                                         @endforelse
                                     @endif
@@ -442,8 +446,12 @@
                                             </div>
 
                                         @empty
-                                            <div class="card p-8 text-center text-slate-400 text-sm">
-                                                No {{ $statusLabel }} hotels found.
+                                            <div class="card p-2 text-center">
+                                                <img class="w-[220px] mx-auto block"
+                                                    src="{{ asset('assets/images/booking-not-found.jpg') }}"
+                                                    alt="booking-not-found" loading="lazy" />
+                                                <p class="mt-1 pt-0  text-black-700 text-sm font-bold">No
+                                                    {{ $statusLabel }} Bookings.</p>
                                             </div>
                                         @endforelse
                                     @endif
@@ -579,8 +587,12 @@
                                             </div>
 
                                         @empty
-                                            <div class="card p-8 text-center text-slate-400 text-sm">
-                                                No {{ $statusLabel }} car rentals found.
+                                            <div class="card p-2 text-center">
+                                                <img class="w-[220px] mx-auto block"
+                                                    src="{{ asset('assets/images/booking-not-found.jpg') }}"
+                                                    alt="booking-not-found" loading="lazy" />
+                                                <p class="mt-1 pt-0  text-black-700 text-sm font-bold">No
+                                                    {{ $statusLabel }} Bookings.</p>
                                             </div>
                                         @endforelse
                                     @endif
