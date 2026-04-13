@@ -159,7 +159,7 @@
 
                         <div class="space-y-3.5">
                             <div wire:loading.block
-                                wire:target="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline">
+                                wire:target="loadFlights,updatedSortBy,updatedMaxPrice,updatedStops,updatedAirlines,updatedRefundableOnly,clearFilters,removeAirline,removeStop,selectFlight">
                                 @for ($i = 0; $i < 2; $i++)
                                     <div class="card p-4 mt-5">
                                         <div class="flex flex-col gap-3">
@@ -263,7 +263,7 @@
                                         }
                                     @endphp
 
-                                    <div wire:loading.remove class="card p-4 transition-all hover:shadow-md">
+                                    <div class="card p-4 transition-all hover:shadow-md">
                                         <div class="flex flex-col lg:flex-row gap-3 md:gap-6">
                                             <div class="flex-1 flex flex-col gap-3">
 
@@ -452,23 +452,22 @@
                                         </div>
                                     </div>
                                 @endforeach
-
-                                @if (count($flights) < $total)
-                                    <div wire:loading.remove x-data="{ loading: false }"
-                                        x-intersect="
-                                            if (!loading) {
-                                                loading = true;
-                                                $wire.loadMore().then(() => loading = false);
-                                            }
-                                        "
-                                        class="h-16 flex items-center justify-center">
-                                        <div class="flex justify-center items-center">
-                                            <div
-                                                class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin">
-                                            </div>
-                                        </div>
+                            @endif
+                            @if (count($flights) < $total)
+                                <div wire:loading.remove
+                                    wire:target="loadFlights,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline,removeStop,selectFlight"
+                                    x-data="{ loading: false }"
+                                    x-intersect="
+                                                if (!loading) {
+                                                    loading = true;
+                                                    $wire.loadMore().then(() => loading = false);
+                                                }
+                                            "
+                                    class="h-16 flex items-center justify-center">
+                                    <div
+                                        class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin">
                                     </div>
-                                @endif
+                                </div>
                             @endif
                         </div>
                     </div>
