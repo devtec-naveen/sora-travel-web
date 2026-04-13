@@ -34,7 +34,7 @@
                                 <div class="flex items-center gap-4">
                                     <button wire:click="clearFilters"
                                         class="text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors uppercase">
-                                        Clear All {{ $tripType }}
+                                        Clear All
                                     </button>
                                     <button id="close-filter" class="md:hidden text-slate-400 hover:text-slate-950">
                                         <i data-tabler="x" data-size="22"></i>
