@@ -288,7 +288,7 @@
                             @foreach ($popularDestinations as $destinations)
                                 <div class="swiper-slide flex flex-col items-center text-center">
                                     <div class="w-[120px] h-[160px] rounded-full overflow-hidden shadow-md">
-                                        <img src="{{ asset('assets/uploads/popular_destination/' . $destinations->image) }}"
+                                        <img src="{{$destinations->image}}"
                                             class="w-full h-full object-cover" alt="{{$destinations->title}}">
                                     </div>
                                     <h4 class="mt-4 font-semibold text-slate-800">{{ $destinations->title }}</h4>
@@ -322,7 +322,7 @@
                     <div class="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar">
                         @foreach ($specialOffers as $offers)
                             <a href="#" class="snap-start shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[32%] rounded-xl overflow-hidden">
-                                <img src="{{asset('assets/uploads/special_offer/'.$offers->image)}}" class="w-full aspect-[16/6] object-cover" alt="{{$offers->title}}">
+                                <img src="{{$offers->image}}" class="w-full aspect-[16/6] object-cover" alt="{{$offers->title}}">
                             </a>
                         @endforeach
                     </div>
