@@ -8,6 +8,7 @@ use App\Http\Controllers\Frontend\HotelController;
 use App\Http\Controllers\Frontend\BookingController;
 use App\Http\Controllers\Frontend\CmsController as FrontendCmsController;
 use App\Http\Controllers\Backend\AuthController;
+use App\Http\Controllers\Backend\BookingController as BackendBookingController;
 use App\Http\Controllers\Backend\CmsController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\PopularDestinationController;
@@ -129,12 +130,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
             'edit'   => 'destinationsEdit',
             'show'   => 'destinationsView',
         ]);
+
+        Route::get('booking/flight',[BackendBookingController::class,'flightIndex'])->name('booking.flight');
+        Route::get('booking/flight/view/{id}',[BackendBookingController::class,'flightView'])->name('booking.flight.view');
+
+
+
+
+
+
     });
 });
 
 /*
 |--------------------------------------------------------------------------
-| Dynamic CMS Pages — sabse last mein rakho
+| Dynamic CMS Pages
 |--------------------------------------------------------------------------
 */
 

@@ -25,21 +25,28 @@
                     <span class="sidemenu-label">Email Template</span>
                 </a>
             </li>
+            <li class="nav-item {{ Str::contains(Request::url(), ['booking', 'flight']) ? 'active show' : '' }}">
+                <a class="nav-link with-sub" href="#"><span class="shape2"></span><span class="shape21"></span>
+                    <i class="ti-calendar sidemenu-icon"></i><span class="sidemenu-label">Booking</span>
+                    <i class="angle fe fe-chevron-right"></i></a>
+                <ul class="nav-sub">
+                    <li class="nav-sub-item">
+                        <a class="nav-sub-link" href="{{ route('admin.booking.flight') }}" wire:navigate>Flight</a>
+                    </li>
+                    <li class="nav-sub-item">
+                        <a class="nav-sub-link" href="{{ route('admin.faqList') }}" wire:navigate>Hotel</a>
+                    </li>
+                    <li class="nav-sub-item">
+                        <a class="nav-sub-link" href="{{ route('admin.pagesList') }}" wire:navigate>Car transfer</a>
+                    </li>
+                </ul>
+            </li>
             <li
                 class="nav-item {{ Str::contains(Request::url(), ['faq', 'faq-category', 'pages']) ? 'active show' : '' }}">
                 <a class="nav-link with-sub" href="#"><span class="shape2"></span><span class="shape21"></span>
                     <i class="ti-id-badge sidemenu-icon"></i><span class="sidemenu-label">CMS </span>
                     <i class="angle fe fe-chevron-right"></i></a>
                 <ul class="nav-sub">
-                    {{-- <li class="nav-sub-item ">
-                        <a class="nav-sub-link" href="">Page</a>
-                    </li>
-                    <li class="nav-sub-item">
-                        <a class="nav-sub-link" href="">Web Banners</a>
-                    </li> --}}
-                    {{-- <li class="nav-sub-item">
-                        <a class="nav-sub-link" href="">FAQ Categories</a>
-                    </li> --}}
                     <li class="nav-sub-item">
                         <a class="nav-sub-link" href="{{ route('admin.faqCategoryList') }}" wire:navigate>FAQ
                             Category</a>
@@ -50,27 +57,22 @@
                     <li class="nav-sub-item">
                         <a class="nav-sub-link" href="{{ route('admin.pagesList') }}" wire:navigate>Pages</a>
                     </li>
-                    {{-- <li class="nav-sub-item  ">
-                        <a class="nav-sub-link" href="">Testimonials</a>
-                    </li> --}}
                 </ul>
             </li>
-            {{-- @if (app()->environment('local')) --}}
-                <li class="nav-item {{ request()->routeIs('admin.offers*') ? 'active' : '' }}">
-                    <a class="nav-link" wire:navigate href="{{ route('admin.offersList') }}">
-                        <span class="shape1"></span>
-                        <span class="shape2"></span><i class="ti-gift sidemenu-icon"></i>
-                        <span class="sidemenu-label">Special Offers</span>
-                    </a>
-                </li>
-                <li class="nav-item {{ request()->routeIs('admin.destinations*') ? 'active' : '' }}">
-                    <a class="nav-link" wire:navigate href="{{ route('admin.destinationsList') }}">
-                        <span class="shape1"></span>
-                        <span class="shape2"></span><i class="ti-location-pin sidemenu-icon"></i>
-                        <span class="sidemenu-label">Popular Destinations</span>
-                    </a>
-                </li>
-            {{-- @endif --}}
+            <li class="nav-item {{ request()->routeIs('admin.offers*') ? 'active' : '' }}">
+                <a class="nav-link" wire:navigate href="{{ route('admin.offersList') }}">
+                    <span class="shape1"></span>
+                    <span class="shape2"></span><i class="ti-gift sidemenu-icon"></i>
+                    <span class="sidemenu-label">Special Offers</span>
+                </a>
+            </li>
+            <li class="nav-item {{ request()->routeIs('admin.destinations*') ? 'active' : '' }}">
+                <a class="nav-link" wire:navigate href="{{ route('admin.destinationsList') }}">
+                    <span class="shape1"></span>
+                    <span class="shape2"></span><i class="ti-location-pin sidemenu-icon"></i>
+                    <span class="sidemenu-label">Popular Destinations</span>
+                </a>
+            </li>
             <li class="nav-item {{ Route::currentRouteName() == 'admin.globalSettingList' ? 'active' : '' }}">
                 <a class="nav-link" wire:navigate href="{{ route('admin.globalSettingList') }}">
                     <span class="shape1"></span>

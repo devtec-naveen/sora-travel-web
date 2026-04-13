@@ -120,12 +120,26 @@ class Payment extends Component
     protected function mapPassengersForDuffel(array $formPassengers, array $flight, array $contact): array
     {
         $orderPassengers = [];
-        $offerPaxs = $flight['passengers'] ?? [];
-        $typeCounters = [];
-        $infantIds = [];
-        $infantIndex = 0;
+        $offerPaxs       = $flight['passengers'] ?? [];
 
-        // collect infant IDs
+        $adultCount   = 0;
+        $childCount   = 0;
+        $infantCount  = 0;
+        foreach ($offerPaxs as $pax) {
+            $t = $pax['type'] ?? 'adult';
+            if (str_starts_with($t, 'infant'))  $infantCount++;
+            elseif ($t === 'child')             $childCount++;
+            else                                $adultCount++;
+        }
+
+        $adultOffset  = 0;
+        $childOffset  = $adultCount;                   
+        $infantOffset = $adultCount + $childCount;     
+
+        $typeCounters = ['adult' => 0, 'child' => 0, 'infant' => 0];
+        $infantIds    = [];
+        $infantIndex  = 0;
+
         foreach ($offerPaxs as $pax) {
             if (str_starts_with($pax['type'] ?? '', 'infant')) {
                 $infantIds[] = $pax['id'];
@@ -133,24 +147,39 @@ class Payment extends Component
         }
 
         foreach ($offerPaxs as $offerPax) {
-            $offerType = $offerPax['type'] ?? 'adult';
+            $offerType      = $offerPax['type'] ?? 'adult';
             $normalizedType = str_starts_with($offerType, 'infant') ? 'infant' : $offerType;
 
-            $typeCounters[$normalizedType] = $typeCounters[$normalizedType] ?? 0;
-            $formPax = $formPassengers[$typeCounters[$normalizedType]] ?? null;
+            $formIndex = match($normalizedType) {
+                'child'  => $childOffset  + $typeCounters['child'],
+                'infant' => $infantOffset + $typeCounters['infant'],
+                default  => $adultOffset  + $typeCounters['adult'],
+            };
+
             $typeCounters[$normalizedType]++;
 
-            if (!$formPax) continue;
+            $formPax = $formPassengers[$formIndex] ?? null;
 
-            $bornOn = $formPax['dob'] ?? '';
-            try { $bornOn = $bornOn ? \Carbon\Carbon::parse($bornOn)->format('Y-m-d') : ''; } catch (\Throwable) {}
+            if (!$formPax) {
+                Log::warning("mapPassengersForDuffel: no form passenger at index {$formIndex} for type {$normalizedType}");
+                continue;
+            }
+
+            $bornOn = $formPax['dob'] ?? $formPax['born_on'] ?? '';
+            try {
+                $bornOn = $bornOn ? \Carbon\Carbon::parse($bornOn)->format('Y-m-d') : '';
+            } catch (\Throwable) {}
 
             $orderPax = [
                 'id'           => $offerPax['id'],
                 'title'        => strtolower($formPax['title'] ?? 'mr'),
                 'given_name'   => $formPax['given_name'] ?? $formPax['first_name'] ?? '',
                 'family_name'  => $formPax['family_name'] ?? $formPax['last_name'] ?? '',
-                'gender'       => match(strtolower($formPax['gender'] ?? 'm')) { 'male','m'=>'m','female','f'=>'f', default=>'m'},
+                'gender'       => match(strtolower($formPax['gender'] ?? 'm')) {
+                                    'male','m'   => 'm',
+                                    'female','f' => 'f',
+                                    default      => 'm',
+                                },
                 'born_on'      => $bornOn,
                 'email'        => $contact['email'] ?? '',
                 'phone_number' => ($contact['phone_code'] ?? '') . ($contact['phone'] ?? ''),
@@ -163,6 +192,23 @@ class Payment extends Component
 
             $orderPassengers[] = $orderPax;
         }
+
+        Log::info('mapPassengersForDuffel result', [
+            'form_passenger_count'  => count($formPassengers),
+            'offer_passenger_count' => count($offerPaxs),
+            'adult_count'           => $adultCount,
+            'child_count'           => $childCount,
+            'infant_count'          => $infantCount,
+            'mapped'                => array_map(fn($p) => [
+                'id'      => $p['id'],
+                'born_on' => $p['born_on'],
+                'type_inferred' => match(true) {
+                    \Carbon\Carbon::parse($p['born_on'])->age < 2  => 'infant',
+                    \Carbon\Carbon::parse($p['born_on'])->age < 12 => 'child',
+                    default => 'adult',
+                },
+            ], $orderPassengers),
+        ]);
 
         return $orderPassengers;
     }
