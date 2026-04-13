@@ -263,14 +263,6 @@
                                                         class="form-input appearance-none pr-10 rounded-r-none border-r-0"
                                                         wire:model.live.debounce.500ms="phoneCode">
                                                         <option value="+91">+91</option>
-                                                        <option value="+1">+1</option>
-                                                        <option value="+44">+44</option>
-                                                        <option value="+971">+971</option>
-                                                        <option value="+32">+32</option>
-                                                        <option value="+33">+33</option>
-                                                        <option value="+49">+49</option>
-                                                        <option value="+65">+65</option>
-                                                        <option value="+66">+66</option>
                                                     </select>
                                                     <div
                                                         class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
