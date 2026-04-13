@@ -207,7 +207,7 @@
             </div>
         </section>
 
-        <section class="">
+        <section class=" ">
             <div class="container">
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-6 w-full">
                     <!-- Item 1 -->
