@@ -12,8 +12,8 @@ class BookingController extends Controller
         return view('admin.booking.flight.index');
     }
 
-    public function flightView()
+    public function flightView(string $id)
     {
-        return 'Hello';
+        return view('admin.booking.flight.view',['id' => $id]);
     }
 }
