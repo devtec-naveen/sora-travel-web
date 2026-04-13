@@ -1,0 +1,26 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-BvUTjfXF.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-Dq8kf5oA.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "resources/js/modal.js"
+    ]
+  },
+  "resources/js/modal.js": {
+    "file": "assets/modal-CF_AktRy.js",
+    "name": "modal",
+    "src": "resources/js/modal.js",
+    "isEntry": true
+  }
+}

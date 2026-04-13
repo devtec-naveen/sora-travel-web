@@ -1,0 +1,1 @@
+window.addEventListener("open-modal",d=>{const e=document.getElementById(d.detail.id);e&&e.showModal(),Livewire.dispatch("modal-opened",{id:d.detail.id,data:d.detail.data??{}})});window.addEventListener("close-modal",d=>{const e=document.getElementById(d.detail.id);e&&e.close(),Livewire.dispatch("modal-closed",{id:d.detail.id})});

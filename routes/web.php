@@ -26,7 +26,7 @@ use App\Http\Middleware\CheckUserActive;
 Route::middleware([CheckUserActive::class])->group(function () {
 
     // Public
-    Route::get('/', fn() => view('index'))->name('home');
+    Route::get('/',[FrontendCmsController::class,'homePage'])->name('home');
     Route::post('/logout', [FrontendAuthController::class, 'logout'])->name('logout');
     Route::get('/flight-search', [AirportController::class, 'index'])->name('front.flightSearch');
     Route::get('/hotels-search',       [HotelController::class, 'index'])->name('front.hotelsSearch');
@@ -36,10 +36,8 @@ Route::middleware([CheckUserActive::class])->group(function () {
     // Protected
     Route::middleware(['user.auth'])->group(function () {
         Route::prefix('my-account')->group(function () {
-            Route::get('/personal-information', fn() => view('myaccount.personal-information'))
-                ->name('my-account.personal-information');
+            Route::get('/personal-information', fn() => view('myaccount.personal-information'))->name('my-account.personal-information');
         });
-
         Route::get('/my-booking',             [BookingController::class, 'myBooking'])->name('my-booking');
         Route::get('/my-booking/flight/{id}', [BookingController::class, 'myFlightViewBooking'])->name('booking.flight.show');
     });

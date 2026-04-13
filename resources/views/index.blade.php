@@ -37,9 +37,7 @@
                 </div>
             </div>
         </section>
-
-
-        <!-- search section end -->
+        
         <section class="py-10 pb-0">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div
@@ -107,6 +105,7 @@
                 </div>
             </div>
         </section>
+
         <section class="py-16 md:py-24">
             <div class="container">
                 <div class="w-full flex flex-col items-center gap-12">
@@ -207,6 +206,7 @@
                 </div>
             </div>
         </section>
+
         <section class="">
             <div class="container">
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-6 w-full">
@@ -267,6 +267,7 @@
                 </div>
             </div>
         </section>
+
         <section class="py-16 md:py-24">
             <div class="container relative">
                 <div class="flex flex-col items-center text-center gap-2 mb-12">
@@ -284,81 +285,17 @@
                 <div class="relative">
                     <div class="swiper DestinationsSlider">
                         <div class="swiper-wrapper">
-                            <!-- Slide 1 -->
-                            <div class="swiper-slide flex flex-col items-center text-center">
-                                <div class="w-[120px] h-[160px] rounded-full overflow-hidden shadow-md">
-                                    <img src="assets/images/img-1.jpg" class="w-full h-full object-cover">
+                            @foreach ($popularDestinations as $destinations)
+                                <div class="swiper-slide flex flex-col items-center text-center">
+                                    <div class="w-[120px] h-[160px] rounded-full overflow-hidden shadow-md">
+                                        <img src="{{ asset('assets/uploads/popular_destination/' . $destinations->image) }}"
+                                            class="w-full h-full object-cover" alt="{{$destinations->title}}">
+                                    </div>
+                                    <h4 class="mt-4 font-semibold text-slate-800">{{ $destinations->title }}</h4>
                                 </div>
-                                <h4 class="mt-4 font-semibold text-slate-800">Eiffel Tower</h4>
-                                <p class="text-sm text-slate-500">356 Tours</p>
-                            </div>
-                            <!-- Slide 2 -->
-                            <div class="swiper-slide flex flex-col items-center text-center">
-                                <div class="w-[120px] h-[160px] rounded-full overflow-hidden shadow-md">
-                                    <img src="assets/images/img-2.jpg" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="mt-4 font-semibold text-slate-800">Machu Picchu</h4>
-                                <p class="text-sm text-slate-500">356 Tours</p>
-                            </div>
-                            <!-- Slide 3 -->
-                            <div class="swiper-slide flex flex-col items-center text-center">
-                                <div class="w-[120px] h-[160px] rounded-full overflow-hidden shadow-md">
-                                    <img src="assets/images/img-3.jpg" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="mt-4 font-semibold text-slate-800">Great Wall</h4>
-                                <p class="text-sm text-slate-500">356 Tours</p>
-                            </div>
-                            <!-- Slide 4 -->
-                            <div class="swiper-slide flex flex-col items-center text-center">
-                                <div class="w-[120px] h-[160px] rounded-full overflow-hidden shadow-md">
-                                    <img src="assets/images/img-4.jpg" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="mt-4 font-semibold text-slate-800">Taj Mahal</h4>
-                                <p class="text-sm text-slate-500">356 Tours</p>
-                            </div>
-                            <!-- Slide 5 -->
-                            <div class="swiper-slide flex flex-col items-center text-center">
-                                <div class="w-[120px] h-[160px] rounded-full overflow-hidden shadow-md">
-                                    <img src="assets/images/img-5.jpg" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="mt-4 font-semibold text-slate-800">Colosseum</h4>
-                                <p class="text-sm text-slate-500">356 Tours</p>
-                            </div>
-                            <!-- Slide 6 -->
-                            <div class="swiper-slide flex flex-col items-center text-center">
-                                <div class="w-[120px] h-[160px] rounded-full overflow-hidden shadow-md">
-                                    <img src="assets/images/img-6.jpg" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="mt-4 font-semibold text-slate-800">Colosseum</h4>
-                                <p class="text-sm text-slate-500">356 Tours</p>
-                            </div>
-                            <!-- Slide 7 -->
-                            <div class="swiper-slide flex flex-col items-center text-center">
-                                <div class="w-[120px] h-[160px] rounded-full overflow-hidden shadow-md">
-                                    <img src="assets/images/img-7.jpg" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="mt-4 font-semibold text-slate-800">Colosseum</h4>
-                                <p class="text-sm text-slate-500">356 Tours</p>
-                            </div>
-                            <!-- Slide 8 -->
-                            <div class="swiper-slide flex flex-col items-center text-center">
-                                <div class="w-[120px] h-[160px] rounded-full overflow-hidden shadow-md">
-                                    <img src="assets/images/img-8.jpg" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="mt-4 font-semibold text-slate-800">Colosseum</h4>
-                                <p class="text-sm text-slate-500">356 Tours</p>
-                            </div>
-                            <!-- Slide 8 -->
-                            <div class="swiper-slide flex flex-col items-center text-center">
-                                <div class="w-[120px] h-[160px] rounded-full overflow-hidden shadow-md">
-                                    <img src="assets/images/img-8.jpg" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="mt-4 font-semibold text-slate-800">Colosseum</h4>
-                                <p class="text-sm text-slate-500">356 Tours</p>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
-                    <!-- Navigation -->
                     <div class="flex items-center justify-center gap-3 mt-10 lg:mt-0">
                         <div
                             class="swiper-button-prev1 !static lg:!absolute !mt-0 !left-auto lg:!-left-12 !right-auto !top-auto lg:!top-1/2 lg:!-translate-y-1/2 w-10 h-10 bg-[#e4e6e8] rounded-full flex items-center justify-center hover:bg-slate-300 transition after:hidden text-gray-900 border border-white shadow-sm">
@@ -372,6 +309,7 @@
                 </div>
             </div>
         </section>
+
         <section>
             <div class="container">
                 <div class="flex flex-col items-start gap-2 mb-5">
@@ -382,40 +320,16 @@
                 </div>
                 <div class="w-full overflow-hidden">
                     <div class="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar">
-                        <!-- Card -->
-                        <a href="#"
-                            class="snap-start shrink-0 
-                     w-[85%] sm:w-[60%] md:w-[45%] lg:w-[32%] 
-                     rounded-xl overflow-hidden">
-                            <img src="assets/images/banner-1.jpg" class="w-full aspect-[16/6] object-cover"
-                                alt="">
-                        </a>
-                        <a href="#"
-                            class="snap-start shrink-0 
-                     w-[85%] sm:w-[60%] md:w-[45%] lg:w-[32%] 
-                     rounded-xl overflow-hidden">
-                            <img src="assets/images/banner-2.jpg" class="w-full aspect-[16/6] object-cover"
-                                alt="">
-                        </a>
-                        <a href="#"
-                            class="snap-start shrink-0 
-                     w-[85%] sm:w-[60%] md:w-[45%] lg:w-[32%] 
-                     rounded-xl overflow-hidden">
-                            <img src="assets/images/banner-3.jpg" class="w-full aspect-[16/6] object-cover"
-                                alt="">
-                        </a>
-                        <!-- Extra -->
-                        <a href="#"
-                            class="snap-start shrink-0 
-                     w-[85%] sm:w-[60%] md:w-[45%] lg:w-[32%] 
-                     rounded-xl overflow-hidden">
-                            <img src="assets/images/banner-2.jpg" class="w-full aspect-[16/6] object-cover"
-                                alt="">
-                        </a>
+                        @foreach ($specialOffers as $offers)
+                            <a href="#" class="snap-start shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[32%] rounded-xl overflow-hidden">
+                                <img src="{{asset('assets/uploads/special_offer/'.$offers->image)}}" class="w-full aspect-[16/6] object-cover" alt="{{$offers->title}}">
+                            </a>
+                        @endforeach
                     </div>
                 </div>
             </div>
         </section>
+
         <section class="py-16 md:py-24">
             <div class="container">
                 <div

@@ -68,7 +68,7 @@ class DuffelService
                 ],
                 "passengers" => $this->buildPassengers($data),
                 "cabin_class" => strtolower($data['cabin'] ?? 'economy'),
-                "max_connections" => 0
+                "max_connections" => 1
             ]
         ];
 
