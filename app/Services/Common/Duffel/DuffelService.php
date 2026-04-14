@@ -361,6 +361,7 @@ class DuffelService
 
     public function filterAndSort(array $offers, array $filters = []): array
     {
+        $minPrice = $filters['min_price'] ?? 0;
         $maxPrice      = $filters['max_price']  ?? PHP_INT_MAX;
         $stops         = $filters['stops']      ?? [];
         $airlines      = $filters['airlines']   ?? [];
@@ -369,9 +370,11 @@ class DuffelService
 
         $collection = collect($offers);
 
-        $collection = $collection->filter(
-            fn($o) => (float) ($o['total_amount'] ?? 0) <= $maxPrice
-        );
+        $collection = $collection->filter(function ($o) use ($minPrice, $maxPrice) {
+            $price = (float) ($o['total_amount'] ?? 0);
+
+            return $price >= ($minPrice - 1) && $price <= ($maxPrice + 1);
+        });
 
         if (! empty($stops)) {
             $selectedStops = array_map('intval', $stops);
@@ -492,9 +495,7 @@ class DuffelService
         }
 
         return (float) ($offer['total_amount'] ?? 0);
-    }
-
-    
+    }   
 
     
 }

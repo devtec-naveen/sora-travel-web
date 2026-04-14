@@ -34,6 +34,7 @@ class Listing extends Component
     public $cursor = null;
     public $limit;
     private $allFlights = [];
+    public int $minPrice = 0;
 
     public string $tripType = 'one_way';
     public array $trips = [
@@ -268,9 +269,13 @@ class Listing extends Component
             ->map(fn($o) => (float) ($o['total_amount'] ?? 0))
             ->filter();
 
-        $this->minPossiblePrice = (int) ($prices->min() ?? 0);
-        $this->maxPossiblePrice = (int) ($prices->max() ?? 0);
+        $this->minPossiblePrice = (float) ($prices->min() ?? 0);
+        $this->maxPossiblePrice = (float) ($prices->max() ?? 0);
 
+        if ($this->minPrice === 0) {
+            $this->minPrice = $this->minPossiblePrice;
+        }
+        
         if ($this->maxPrice === 0) {
             $this->maxPrice = $this->maxPossiblePrice;
         }
@@ -285,19 +290,20 @@ class Listing extends Component
     {
         $duffelService = $this->duffelService ?? app(DuffelService::class);
         $allFlights = session('allFlights', []);
+
         $filters = [
             'stops'      => is_array($this->stops) ? $this->stops : [],
             'airlines'   => is_array($this->airlines) ? $this->airlines : [],
             'refundable' => $this->refundableOnly,
             'sort'       => $this->sortBy,
+            'min_price'  => (float) $this->minPrice,
+            'max_price'  => (float) $this->maxPrice,
         ];
 
-        if ($this->maxPrice && $this->maxPrice < $this->maxPossiblePrice) {
-            $filters['max_price'] = $this->maxPrice;
-        }
-
         $filtered = $duffelService->filterAndSort($allFlights, $filters);
+
         $this->total = count($filtered);
+
         $this->flights = collect($filtered)
             ->take($this->page * $this->limit)
             ->values()
@@ -330,7 +336,7 @@ class Listing extends Component
 
     public function render()
     {
-        
+
         return view('livewire.frontend.flight.listing', [
             'flights'           => $this->flights,
             'total'             => $this->total,
