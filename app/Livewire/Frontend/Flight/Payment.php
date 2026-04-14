@@ -31,6 +31,7 @@ class Payment extends Component
     public string $errorMessage   = '';
     public bool $isLoading = true;
     public float $platformFee = 0;
+    public float $taxAmount = 0;
     
     protected $listeners = ['confirm-payment' => 'confirmPayment'];
 
@@ -56,6 +57,7 @@ class Payment extends Component
         $bookingInfo = session('booking_info', []);
         $seatsInfo   = session('seats_info',   []);
         $addonsInfo  = session('addons_info',  []);
+        $selFlight   = session('selected_flight', []);
 
         $source = $bookingInfo ?: $seatsInfo ?: $addonsInfo;
 
@@ -66,16 +68,18 @@ class Payment extends Component
         $this->children       = (int) ($source['children'] ?? 0);
         $this->infants        = (int) ($source['infants']  ?? 0);
         $this->services       = $source['services']   ?? [];
+
         $sf             = $this->selectedFlight;
         $this->currency = $sf['total_currency'] ?? $source['currency'] ?? '';
-        $this->baseTotal   = (float) ($sf['base_amount']  ?? $source['base_amount']  ?? 0);        
-        $this->platformFee = (float) ($sf['platform_fee'] ?? $source['platform_fee'] ?? 0);        
-        $this->addonsTotal = (float) ($source['addonsTotal'] ?? 0);
-        $this->seatTotal   = (float) ($source['seatTotal']   ?? 0);        
-        $this->grandTotal  = $this->baseTotal 
-                        + $this->platformFee 
-                        + $this->addonsTotal 
-                        + $this->seatTotal;
+
+        $this->baseTotal   = (float) ($source['base_amount']  ?? $selFlight['base_amount']  ?? $sf['base_amount']  ?? 0);
+        $this->taxAmount   = (float) ($source['tax_amount']   ?? $selFlight['tax_amount']   ?? $sf['tax_amount']   ?? 0);
+        $this->platformFee = (float) ($source['platform_fee'] ?? $selFlight['platform_fee'] ?? $sf['platform_fee'] ?? 0);
+        $this->addonsTotal = (float) ($source['addonsTotal']  ?? 0);
+        $this->seatTotal   = (float) ($source['seatTotal']    ?? 0);
+        $this->grandTotal  = $this->baseTotal + $this->taxAmount + $this->platformFee + $this->addonsTotal + $this->seatTotal;
+
+        $this->isLoading = false;
     }
 
     public function updated(string $field): void
@@ -97,13 +101,13 @@ class Payment extends Component
             $orderService = app(OrderService::class);
             $response = $orderService->create([
                 'user_id'      => Auth::id(),
-                'currency'     => $bookingInfo['currency'] ?? $this->currency,
-                'base_amount'  => $bookingInfo['base_amount'] ?? $this->baseTotal,
-                'addons_total' => $bookingInfo['addons_total'] ?? $this->addonsTotal,
-                'seat_total'   => $bookingInfo['seat_total'] ?? $this->seatTotal,
+                'currency'     => $bookingInfo['currency']     ?? $this->currency,
+                'base_amount'  => $bookingInfo['base_amount']  ?? $this->baseTotal,
+                'tax_amount'   => $bookingInfo['tax_amount']   ?? $this->taxAmount,
+                'addons_total' => $bookingInfo['addonsTotal']  ?? $this->addonsTotal,
+                'seat_total'   => $bookingInfo['seatTotal']    ?? $this->seatTotal,
                 'platform_fee' => $bookingInfo['platform_fee'] ?? $this->platformFee,
             ]);
-
             $orderPassengers = $this->mapPassengersForDuffel($this->passengers, $this->selectedFlight, $this->contact);
             $order = $orderService->confirmPayment($response['payment_id'],$this->selectedFlight['id'],$orderPassengers);
             session()->forget(['booking_info', 'addons_info', 'seats_info']);
@@ -220,8 +224,10 @@ class Payment extends Component
         $segment = $slice['segments'][0] ?? [];
 
         return view('livewire.frontend.flight.payment', [
-            'segment' => $segment,
-            'slice'   => $slice,
+            'segment'     => $segment,
+            'slice'       => $slice,
+            'taxAmount'   => $this->taxAmount,
+            'platformFee' => $this->platformFee,
         ]);
     }
 }

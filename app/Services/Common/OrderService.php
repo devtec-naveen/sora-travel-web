@@ -29,17 +29,20 @@ class OrderService
         $addonsAmount = (float) ($data['addons_total'] ?? 0);
         $seatAmount   = (float) ($data['seat_total']   ?? 0);
         $platformFee  = (float) ($data['platform_fee'] ?? 0);
-        $totalAmount  = $baseAmount + $addonsAmount + $seatAmount + $platformFee;
+        $taxAmount  = (float) ($data['tax_amount'] ?? 0);
+
+        $totalAmount = $baseAmount + $taxAmount + $addonsAmount + $seatAmount + $platformFee;
 
         if ($totalAmount <= 0) {
             throw new \Exception('Invalid amount: ' . $totalAmount);
         }
 
-        [$order, $payment] = DB::transaction(function () use ($data, $baseAmount, $addonsAmount, $seatAmount, $platformFee, $totalAmount, $currency) {
+        [$order, $payment] = DB::transaction(function () use ($data, $baseAmount, $addonsAmount, $seatAmount, $platformFee, $totalAmount, $currency,$taxAmount) {
             $payment = PaymentModel::create([
                 'user_id'        => $data['user_id'],
                 'payment_id'     => 'PENDING-' . Str::uuid(),
                 'payment_method' => 'stripe',
+                'tax_amount'     => $taxAmount,
                 'base_amount'    => $baseAmount,
                 'platform_fee'   => $platformFee,
                 'amount'         => $totalAmount,
@@ -52,6 +55,7 @@ class OrderService
                 'order_number'  => 'ORD-' . strtoupper(Str::random(10)),
                 'payment_id'    => $payment->id,
                 'base_amount'   => $baseAmount,
+                'tax_amount'    => $taxAmount,
                 'addons_amount' => $addonsAmount,
                 'seat_amount'   => $seatAmount,
                 'platform_fee'  => $platformFee,

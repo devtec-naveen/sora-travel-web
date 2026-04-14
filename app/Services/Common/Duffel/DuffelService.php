@@ -35,14 +35,18 @@ class DuffelService
         }
         $percent = (float) getSetting('platform_commission_percent', 0);
         $offers = $this->getOffers($offerRequestId);
-
         $offers['offers'] = collect($offers['offers'] ?? [])
             ->map(function ($offer) use ($percent) {
-                $baseAmount = (float) ($offer['total_amount'] ?? 0);
-                $commission = ($baseAmount * $percent) / 100;
-                $offer['base_amount']  = $baseAmount;
-                $offer['platform_fee'] = round($commission, 2);
-                $offer['total_amount'] = round($baseAmount + $commission, 2);
+                $baseAmount  = (float) ($offer['base_amount'] ?? 0);
+                $taxAmount   = (float) ($offer['tax_amount'] ?? 0);
+                $totalAmount = (float) ($offer['total_amount'] ?? 0);
+
+                $commission  = ($totalAmount * $percent) / 100;
+                $offer['base_amount']    = round($baseAmount, 2);                       // Fare excluding taxes
+                $offer['tax_amount']     = round($taxAmount, 2);                        // Tax only
+                $offer['original_total'] = round($totalAmount, 2);                      // Duffel original total (base + tax)
+                $offer['platform_fee']   = round($commission, 2);                       // Platform commission
+                $offer['total_amount']   = round($totalAmount + $commission, 2);        // Final amount charged to user
 
                 return $offer;
             })

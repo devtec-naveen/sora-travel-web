@@ -119,22 +119,27 @@ class PassengerInfo extends Component
     {
         $this->validate();
 
+        $session = session('selected_flight', []);
+
         session([
             'passenger_info' => [
-                'flight'     => $this->selectedFlight,
-                'base_amount'  => $this->baseAmount, 
-                'platform_fee' => $this->platformFee,
-                'passengers' => $this->passengers,
-                'contact'    => [
+                'flight'          => $this->selectedFlight,
+                'base_amount'     => (float) ($session['base_amount']    ?? $this->selectedFlight['base_amount']    ?? 0),  // Fare excluding taxes
+                'tax_amount'      => (float) ($session['tax_amount']     ?? $this->selectedFlight['tax_amount']     ?? 0),  // Tax only
+                'original_total'  => (float) ($session['original_total'] ?? $this->selectedFlight['original_total'] ?? 0),  // Duffel total (base + tax)
+                'platform_fee'    => (float) ($session['platform_fee']   ?? $this->selectedFlight['platform_fee']   ?? 0),  // Platform commission
+                'total_amount'    => (float) ($session['total_amount']   ?? $this->selectedFlight['total_amount']   ?? 0),  // Final amount charged to user
+                'passengers'      => $this->passengers,
+                'contact'         => [
                     'email'      => $this->email,
                     'phone_code' => $this->phoneCode,
                     'phone'      => $this->phone,
                 ],
-                'adults'     => $this->adults,
-                'children'   => $this->children,
-                'infants'    => $this->infants,
-                'cabinClass' => $this->cabinClass,
-                'return_date' => $this->returnDate,
+                'adults'          => $this->adults,
+                'children'        => $this->children,
+                'infants'         => $this->infants,
+                'cabinClass'      => $this->cabinClass,
+                'return_date'     => $this->returnDate,
             ],
         ]);
 
@@ -153,25 +158,30 @@ class PassengerInfo extends Component
     public function render()
     {
         $sf      = $this->selectedFlight;
-        $reuturnDate      = $this->returnDate;
         $slice   = $sf['slices'][0]      ?? [];
         $segment = $slice['segments'][0] ?? [];
 
-        $price    = $sf['total_amount']   ?? '';
-        $currency = $sf['total_currency'] ?? '';
+        $currency       = $sf['total_currency'] ?? '';
+        $totalPassengers = max(1, $this->adults + $this->children + $this->infants);
 
-        $baseFare = $price ? round((float) $price / max(1, $this->adults + $this->children + $this->infants), 2) : 0;
-        $taxes    = $price ? round((float) $price - ($baseFare * ($this->adults + $this->children + $this->infants)), 2) : 0;
+        $session        = session('selected_flight', []);
+        $baseFare       = (float) ($session['base_amount']    ?? $sf['base_amount']    ?? 0);
+        $taxes          = (float) ($session['tax_amount']     ?? $sf['tax_amount']     ?? 0);
+        $platformFee    = (float) ($session['platform_fee']   ?? $sf['platform_fee']   ?? 0);
+        $totalAmount    = (float) ($session['total_amount']   ?? $sf['total_amount']   ?? 0);
+
+        $baseFarePerPax = round($baseFare / $totalPassengers, 2);
 
         return view('livewire.frontend.flight.passengers-info', [
-            'sf'       => $sf,
-            'slice'    => $slice,
-            'segment'  => $segment,
-            'price'    => $price,
-            'currency' => $currency,
-            'baseFare' => $baseFare,
-            'taxes'    => $taxes,
-            'reuturnDate' => $reuturnDate
+            'sf'             => $sf,
+            'slice'          => $slice,
+            'segment'        => $segment,
+            'currency'       => $currency,
+            'baseFare'       => $baseFarePerPax,   
+            'taxes'          => $taxes,
+            'platformFee'    => $platformFee,
+            'price'          => $totalAmount,      
+            'reuturnDate'    => $this->returnDate,
         ]);
     }
 }

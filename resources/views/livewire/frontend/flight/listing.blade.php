@@ -159,7 +159,7 @@
 
                         <div class="space-y-3.5">
                             <div wire:loading.block
-                                wire:target="loadFlights,updatedSortBy,updatedMaxPrice,updatedStops,updatedAirlines,updatedRefundableOnly,clearFilters,removeAirline,removeStop,selectFlight">
+                                wire:target="loadFlights,updatedSortBy,updatedMaxPrice,updatedStops,updatedAirlines,updatedRefundableOnly,clearFilters,removeAirline,removeStop">
                                 @for ($i = 0; $i < 2; $i++)
                                     <div class="card p-4 mt-5">
                                         <div class="flex flex-col gap-3">
@@ -436,12 +436,15 @@
                                                 class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between lg:min-w-[153px] gap-4">
                                                 <div class="flex flex-col lg:items-end">
                                                     <span class="font-normal text-sm text-slate-500">From</span>
-                                                    <span
-                                                        class="font-semibold text-[24px] leading-[36px] text-blue-600">
+                                                    <span class="font-semibold text-[24px] leading-[36px] text-blue-600">
                                                         {{ $currency }} {{ number_format((float) $price, 2) }}
                                                     </span>
                                                     <span class="font-normal text-sm text-slate-500">
-                                                        {{ $tripType === 'multi_city' ? 'total for all legs' : 'per person' }}
+                                                        @php
+                                                            $totalPax = max(1, $adults + $childrens + $infants);
+                                                            $perPerson = (float) $price / $totalPax;
+                                                        @endphp
+                                                        Avg {{ $currency }} {{ number_format($perPerson, 2) }} / person
                                                     </span>
                                                 </div>
                                                 <button wire:click="selectFlight({{ $index }})"

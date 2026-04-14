@@ -291,125 +291,83 @@
                                 <div class="flex-1 p-4 md:p-5 flex flex-col gap-4 md:gap-6">
                                     <div class="flex flex-col gap-3 md:gap-3.5">
 
-                                        @php
-                                            $baggageServices = collect($services ?? [])->where('type', 'baggage');
-                                            $seatServices = collect($services ?? [])->where('type', 'seat');
-                                            $otherServices = collect($services ?? [])->whereNotIn('type', [
-                                                'baggage',
-                                                'seat',
-                                            ]);
-                                            $servicesTotal = collect($services ?? [])->sum(
-                                                fn($s) => (float) ($s['amount'] ?? 0),
-                                            );
-                                            $grandTotal = $o->amount;
-                                            $baseFare = $grandTotal - $servicesTotal;
-                                        @endphp
-
                                         {{-- Base Fare --}}
-                                        <div class="flex justify-between items-center gap-2">
-                                            <div class="text-xs md:text-sm font-normal text-slate-950 leading-5">Base
-                                                Fare</div>
-                                            <div
-                                                class="text-xs md:text-sm font-normal text-slate-500 leading-5 whitespace-nowrap">
-                                                {{ $o->currency }} {{ number_format($baseFare, 2) }}
+                                        @if ($o->base_amount > 0)
+                                            <div class="flex justify-between items-center gap-2">
+                                                <span class="text-xs md:text-sm font-normal text-slate-950">Base
+                                                    Fare</span>
+                                                <span
+                                                    class="text-xs md:text-sm font-normal text-slate-500 whitespace-nowrap">
+                                                    {{ $o->currency }} {{ number_format($o->base_amount, 2) }}
+                                                </span>
                                             </div>
-                                        </div>
+                                        @endif
 
                                         {{-- Taxes & Fees --}}
                                         @if ($o->tax_amount > 0)
                                             <div class="flex justify-between items-center gap-2">
-                                                <div class="text-xs md:text-sm font-normal text-slate-950 leading-5">
-                                                    Taxes & Fees</div>
-                                                <div
-                                                    class="text-xs md:text-sm font-normal text-slate-500 leading-5 whitespace-nowrap">
+                                                <span class="text-xs md:text-sm font-normal text-slate-950">Taxes &
+                                                    Fees</span>
+                                                <span
+                                                    class="text-xs md:text-sm font-normal text-slate-500 whitespace-nowrap">
                                                     {{ $o->currency }} {{ number_format($o->tax_amount, 2) }}
-                                                </div>
+                                                </span>
                                             </div>
                                         @endif
 
-                                        {{-- Baggage --}}
-                                        @foreach ($baggageServices as $svc)
+                                        {{-- Platform Fee --}}
+                                        @if ($o->platform_fee > 0)
                                             <div class="flex justify-between items-center gap-2">
-                                                <div
-                                                    class="text-xs md:text-sm font-normal text-slate-950 leading-5 flex items-center gap-1.5">
+                                                <span class="text-xs md:text-sm font-normal text-slate-950">Platform
+                                                    Fee</span>
+                                                <span
+                                                    class="text-xs md:text-sm font-normal text-slate-500 whitespace-nowrap">
+                                                    {{ $o->currency }} {{ number_format($o->platform_fee, 2) }}
+                                                </span>
+                                            </div>
+                                        @endif
+
+                                        {{-- Extra Baggage --}}
+                                        @if ($o->addons_amount > 0)
+                                            <div class="flex justify-between items-center gap-2">
+                                                <span
+                                                    class="text-xs md:text-sm font-normal text-slate-950 flex items-center gap-1.5">
                                                     <i data-tabler="luggage" data-size="14" class="text-blue-500"></i>
                                                     Extra Baggage
-                                                    @if (!empty($svc['weight_kg']))
-                                                        <span class="text-slate-400">({{ $svc['weight_kg'] }}kg)</span>
-                                                    @endif
-                                                    @if (($svc['quantity'] ?? 1) > 1)
-                                                        <span class="text-slate-400">× {{ $svc['quantity'] }}</span>
-                                                    @endif
-                                                </div>
-                                                <div
-                                                    class="text-xs md:text-sm font-normal text-slate-500 leading-5 whitespace-nowrap">
-                                                    @if ($svc['amount'])
-                                                        {{ $svc['currency'] }} {{ number_format($svc['amount'], 2) }}
-                                                    @else
-                                                        Included
-                                                    @endif
-                                                </div>
+                                                </span>
+                                                <span
+                                                    class="text-xs md:text-sm font-normal text-slate-500 whitespace-nowrap">
+                                                    {{ $o->currency }} {{ number_format($o->addons_amount, 2) }}
+                                                </span>
                                             </div>
-                                        @endforeach
+                                        @endif
 
                                         {{-- Seat Selection --}}
-                                        @foreach ($seatServices as $svc)
+                                        @if ($o->seat_amount > 0)
                                             <div class="flex justify-between items-center gap-2">
-                                                <div
-                                                    class="text-xs md:text-sm font-normal text-slate-950 leading-5 flex items-center gap-1.5">
+                                                <span
+                                                    class="text-xs md:text-sm font-normal text-slate-950 flex items-center gap-1.5">
                                                     <i data-tabler="armchair" data-size="14"
                                                         class="text-amber-500"></i>
                                                     Seat Selection
-                                                    @if (($svc['quantity'] ?? 1) > 1)
-                                                        <span class="text-slate-400">× {{ $svc['quantity'] }}</span>
-                                                    @endif
-                                                </div>
-                                                <div
-                                                    class="text-xs md:text-sm font-normal text-slate-500 leading-5 whitespace-nowrap">
-                                                    @if ($svc['amount'])
-                                                        {{ $svc['currency'] }} {{ number_format($svc['amount'], 2) }}
-                                                    @else
-                                                        Included
-                                                    @endif
-                                                </div>
+                                                </span>
+                                                <span
+                                                    class="text-xs md:text-sm font-normal text-slate-500 whitespace-nowrap">
+                                                    {{ $o->currency }} {{ number_format($o->seat_amount, 2) }}
+                                                </span>
                                             </div>
-                                        @endforeach
-
-                                        {{-- Other Add-ons --}}
-                                        @foreach ($otherServices as $svc)
-                                            <div class="flex justify-between items-center gap-2">
-                                                <div
-                                                    class="text-xs md:text-sm font-normal text-slate-950 leading-5 flex items-center gap-1.5">
-                                                    <i data-tabler="package" data-size="14"
-                                                        class="text-slate-400"></i>
-                                                    {{ ucfirst($svc['type'] ?? 'Add-on') }}
-                                                    @if (($svc['quantity'] ?? 1) > 1)
-                                                        <span class="text-slate-400">× {{ $svc['quantity'] }}</span>
-                                                    @endif
-                                                </div>
-                                                <div
-                                                    class="text-xs md:text-sm font-normal text-slate-500 leading-5 whitespace-nowrap">
-                                                    @if ($svc['amount'])
-                                                        {{ $svc['currency'] }} {{ number_format($svc['amount'], 2) }}
-                                                    @else
-                                                        Included
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        @endforeach
+                                        @endif
 
                                         <div class="h-px bg-slate-200"></div>
 
                                         {{-- Total --}}
                                         <div class="flex justify-between items-center gap-2">
-                                            <div
-                                                class="text-base md:text-lg font-semibold text-slate-950 leading-6 md:leading-7">
-                                                Total
-                                            </div>
-                                            <div
-                                                class="text-base md:text-lg font-semibold leading-6 md:leading-7 whitespace-nowrap {{ $priceColor }}">
-                                                {{ $o->currency }} {{ number_format($grandTotal, 2) }}
-                                            </div>
+                                            <span
+                                                class="text-base md:text-lg font-semibold text-slate-950">Total</span>
+                                            <span
+                                                class="text-base md:text-lg font-semibold whitespace-nowrap {{ $priceColor }}">
+                                                {{ $o->currency }} {{ number_format($o->total_amount, 2) }}
+                                            </span>
                                         </div>
 
                                     </div>

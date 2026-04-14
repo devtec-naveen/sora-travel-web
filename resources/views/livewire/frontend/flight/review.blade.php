@@ -313,7 +313,7 @@
 
                         {{-- ─── CONTACT INFO ────────────────────────────────────── --}}
                         <div class="card overflow-hidden">
-                            <div class="flex items-center gap-3 px-4 py-4 md:p-5 border-b border-slate-100">
+                            <div class="flex items-center gap-3 px-5 py-2 md:p-5 border-b border-slate-100">
                                 <i data-tabler="mail" class="text-slate-600 shrink-0" data-size="18"></i>
                                 <h2 class="font-semibold text-base md:text-lg text-slate-950">Contact Information</h2>
                             </div>
@@ -553,6 +553,7 @@
                                     $totalPax2 = max(1, $adults + $children);
                                     $perPax2   = round($baseTotal / $totalPax2, 2);
                                 @endphp
+
                                 @if (($paxTypes2['adult'] ?? 0) > 0)
                                     <div class="flex justify-between items-center">
                                         <span class="text-sm text-slate-700">Base Fare ({{ $paxTypes2['adult'] }} {{ $paxTypes2['adult'] > 1 ? 'Adults' : 'Adult' }})</span>
@@ -565,9 +566,21 @@
                                         <span class="text-sm text-slate-500">{{ $currency }} {{ number_format($perPax2 * $paxTypes2['child'], 2) }}</span>
                                     </div>
                                 @endif
+                                @if ($taxAmount > 0)
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-slate-700">Taxes & Fees</span>
+                                        <span class="text-sm text-slate-500">{{ $currency }} {{ number_format($taxAmount, 2) }}</span>
+                                    </div>
+                                @endif
+                                @if ($platformFee > 0)
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-slate-700">Platform Fee</span>
+                                        <span class="text-sm text-slate-500">{{ $currency }} {{ number_format($platformFee, 2) }}</span>
+                                    </div>
+                                @endif
                                 @if ($addonsTotal > 0)
                                     <div class="flex justify-between items-center">
-                                        <span class="text-sm text-slate-700">Add-ons</span>
+                                        <span class="text-sm text-slate-700">Extra Baggage</span>
                                         <span class="text-sm text-slate-500">{{ $currency }} {{ number_format($addonsTotal, 2) }}</span>
                                     </div>
                                 @endif
@@ -590,7 +603,6 @@
                             </div>
                         </div>
                     </div>{{-- end sidebar --}}
-
                 </div>
             </div>
         </div>

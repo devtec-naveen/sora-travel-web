@@ -73,9 +73,9 @@
                                     };
                                 @endphp
                                 <div class="card">
-                                    <div class="flex items-center gap-3 p-5 border-b border-slate-100">
+                                    <div class="flex items-center gap-3 px-5 py-2 border-b border-slate-100">
                                         <i data-tabler="user" class="text-slate-500" data-size="22"></i>
-                                        <span class="font-semibold text-[20px] leading-[32px] text-slate-950">
+                                        <span class="font-semibold text-[14px] leading-[32px] text-slate-950">
                                             Passenger {{ $idx + 1 }} ({{ $typeLabel }})
                                         </span>
                                     </div>
@@ -173,7 +173,8 @@
                                                 <div class="dtp-field relative" data-dtp-id="{{ $dobId }}"
                                                     data-mode="date" data-max-date="{{ $maxDate }}"
                                                     data-min-year="{{ $minYear }}"
-                                                    data-max-year="{{ $maxYear }}">
+                                                    data-max-year="{{ $maxYear }}"
+                                                    data-order="desc" >
                                                     <div
                                                         class="form-input flex items-center justify-between cursor-pointer select-none gap-2">
                                                         <span id="dtp_lbl_{{ $dobId }}"
@@ -238,9 +239,9 @@
                                 </div>
                             @endforeach
                             <div class="card">
-                                <div class="flex items-center gap-3 p-5 border-b border-slate-100">
+                                <div class="flex items-center gap-3 py-2 px-5 border-b border-slate-100">
                                     <i data-tabler="mail" class="text-slate-500" data-size="22"></i>
-                                    <span class="font-semibold text-[20px] leading-[32px] text-slate-950">Contact
+                                    <span class="font-semibold text-[14px] leading-[32px] text-slate-950">Contact
                                         Information</span>
                                 </div>
                                 <div class="p-5 lg:p-6 flex flex-col gap-6">
@@ -359,6 +360,7 @@
                                             {{ number_format($baseFare * $this->adults, 2) }}</span>
                                     </div>
                                 @endif
+
                                 @if ($this->children > 0)
                                     <div class="flex justify-between items-center self-stretch">
                                         <span class="font-normal text-sm text-slate-950">Base Fare
@@ -367,6 +369,7 @@
                                             {{ number_format($baseFare * $this->children, 2) }}</span>
                                     </div>
                                 @endif
+
                                 @if ($this->infants > 0)
                                     <div class="flex justify-between items-center self-stretch">
                                         <span class="font-normal text-sm text-slate-950">Base Fare
@@ -375,6 +378,7 @@
                                             {{ number_format($baseFare * $this->infants, 2) }}</span>
                                     </div>
                                 @endif
+
                                 @if ($taxes > 0)
                                     <div class="flex justify-between items-center self-stretch">
                                         <span class="font-normal text-sm text-slate-950">Taxes & Fees</span>
@@ -382,14 +386,23 @@
                                             {{ number_format($taxes, 2) }}</span>
                                     </div>
                                 @endif
+
+                                @if ($platformFee > 0)
+                                    <div class="flex justify-between items-center self-stretch">
+                                        <span class="font-normal text-sm text-slate-950">Platform Fee</span>
+                                        <span class="font-normal text-sm text-slate-500">{{ $currency }}
+                                            {{ number_format($platformFee, 2) }}</span>
+                                    </div>
+                                @endif
+
                                 <hr class="border-slate-100">
+
                                 <div class="flex justify-between items-center self-stretch pt-2">
                                     <span class="font-semibold text-lg text-slate-950">Total</span>
                                     <span class="font-bold text-xl text-slate-950">{{ $currency }}
                                         {{ number_format((float) $price, 2) }}</span>
                                 </div>
                             </div>
-
                             <div class="card p-4 space-y-3">
                                 <h4 class="font-semibold text-sm text-slate-950">Travellers</h4>
                                 @if ($this->adults > 0)

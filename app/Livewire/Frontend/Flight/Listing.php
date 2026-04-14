@@ -185,9 +185,11 @@ class Listing extends Component
         session([
             'selected_flight' => [
                 'flight'     => $this->selectedFlight,
-                'base_amount'  => $this->selectedFlight['base_amount'] ?? 0,
-                'platform_fee' => $this->selectedFlight['platform_fee'] ?? 0,
-                'total_amount' => $this->selectedFlight['total_amount'] ?? 0,
+                'base_amount'    => $this->selectedFlight['base_amount']    ?? 0,  // Fare excluding taxes
+                'tax_amount'     => $this->selectedFlight['tax_amount']     ?? 0,  // Tax only
+                'original_total' => $this->selectedFlight['original_total'] ?? 0,  // Duffel total (base + tax)
+                'platform_fee'   => $this->selectedFlight['platform_fee']   ?? 0,  // Platform commission
+                'total_amount'   => $this->selectedFlight['total_amount']   ?? 0,  // Final amount charged to user
                 'adults'     => $this->adults,
                 'children'   => $this->childrens,
                 'infants'    => $this->infants,
@@ -234,7 +236,6 @@ class Listing extends Component
         }
 
         $response = $duffelService->searchFlightsMain($requestData);
-
         $this->offerRequestId = $response['offer_request_id'] ?? null;
 
         $allOffers = $response['offers'] ?? [];

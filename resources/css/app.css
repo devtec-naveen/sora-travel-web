@@ -144,7 +144,6 @@
 .iti .iti__search-input {
   @apply h-10 border border-slate-200 rounded-md px-3 text-sm focus:outline-none;
 }
-
   /* checkbox custom start */
 
   .checkbox {

@@ -281,6 +281,18 @@
                                     <span class="font-normal text-sm text-slate-950">Base Fare</span>
                                     <span class="font-normal text-sm text-slate-500">{{ $currency }} {{ number_format($baseTotal, 2) }}</span>
                                 </div>
+                                @if ($taxAmount > 0)
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-normal text-sm text-slate-950">Taxes & Fees</span>
+                                        <span class="font-normal text-sm text-slate-500">{{ $currency }} {{ number_format($taxAmount, 2) }}</span>
+                                    </div>
+                                @endif
+                                @if ($platformFee > 0)
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-normal text-sm text-slate-950">Platform Fee</span>
+                                        <span class="font-normal text-sm text-slate-500">{{ $currency }} {{ number_format($platformFee, 2) }}</span>
+                                    </div>
+                                @endif
                                 @if ($addonsTotal > 0)
                                     <div class="flex justify-between items-center">
                                         <span class="font-normal text-sm text-slate-950">Extra Baggage</span>

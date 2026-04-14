@@ -272,13 +272,6 @@
                                                                 {{ $order->currency }}
                                                                 {{ number_format($order->amount, 2) }}
                                                             </span>
-                                                            @if ($order->tax_amount > 0)
-                                                                <span class="text-xs text-slate-400">
-                                                                    Base
-                                                                    {{ number_format($order->amount - $order->tax_amount, 2) }}
-                                                                    + Tax {{ number_format($order->tax_amount, 2) }}
-                                                                </span>
-                                                            @endif
                                                             @if ($flags['isCancelled'])
                                                                 <span
                                                                     class="text-xs text-red-500 font-medium">Cancelled</span>

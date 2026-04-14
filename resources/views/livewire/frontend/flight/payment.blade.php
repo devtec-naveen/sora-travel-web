@@ -1,8 +1,5 @@
 <div wire:init="loadData">
-    <x-loader
-        message="Please Wait..."
-        targets="loadData"
-    />
+    <x-loader message="Please Wait..." targets="loadData" />
     <div x-data="{ isLoggedIn: {{ Auth::check() ? 'true' : 'false' }} }" x-on:require-login.window="login_modal.showModal()">
         <main class="bg-slate-50 min-h-[800px]">
             {{-- Booking Progress --}}
@@ -31,34 +28,37 @@
                     </div>
                 </div>
             </div>
-    
+
             <div class="back-btn container px-4">
                 <button onclick="history.back()" class="btn btn-white">
                     <i data-tabler="chevron-left" data-size="16"></i>Back
                 </button>
             </div>
-    
+
             <div class="booking-page-content py-8 lg:py-16">
                 <div class="container px-4">
                     <div class="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-start">
-    
+
                         {{-- LEFT --}}
                         <div class="flex-1 flex flex-col gap-5 min-w-0">
-    
+
                             <div class="flex flex-col gap-1.5">
                                 <h1 class="font-semibold text-xl md:text-[24px] leading-tight text-slate-800">Complete
                                     Payment</h1>
-                                <span class="font-normal text-sm md:text-base text-slate-500">Choose your preferred payment
+                                <span class="font-normal text-sm md:text-base text-slate-500">Choose your preferred
+                                    payment
                                     method</span>
                             </div>
-    
+
                             {{-- Guest Login Notice --}}
                             @guest
                                 <div class="card p-4 flex items-start gap-3 border border-blue-100 bg-blue-50">
                                     <i data-tabler="info-circle" class="text-blue-500 shrink-0 mt-0.5" data-size="18"></i>
                                     <div class="flex-1 min-w-0">
-                                        <p class="font-semibold text-sm text-blue-700">Login required to complete payment</p>
-                                        <p class="text-xs text-blue-600 mt-0.5">Please login or create an account to proceed.
+                                        <p class="font-semibold text-sm text-blue-700">Login required to complete payment
+                                        </p>
+                                        <p class="text-xs text-blue-600 mt-0.5">Please login or create an account to
+                                            proceed.
                                         </p>
                                     </div>
                                     <button onclick="login_modal.showModal()"
@@ -67,25 +67,27 @@
                                     </button>
                                 </div>
                             @endguest
-    
+
                             {{-- Error Alert --}}
                             @if ($paymentError)
                                 <div class="card p-4 flex items-start gap-3 border border-red-100 bg-red-50">
-                                    <i data-tabler="alert-triangle" class="text-red-500 shrink-0 mt-0.5" data-size="18"></i>
+                                    <i data-tabler="alert-triangle" class="text-red-500 shrink-0 mt-0.5"
+                                        data-size="18"></i>
                                     <div>
                                         <p class="font-semibold text-sm text-red-700">Payment Failed</p>
                                         <p class="text-sm text-red-500 mt-0.5">{{ $errorMessage }}</p>
                                     </div>
                                 </div>
                             @endif
-    
+
                             {{-- Payment Method --}}
                             <div class="card overflow-hidden">
                                 <div class="px-4 py-4 md:p-5 border-b border-slate-100">
-                                    <h2 class="font-semibold text-base md:text-lg text-slate-950">Select Payment Method</h2>
+                                    <h2 class="font-semibold text-base md:text-lg text-slate-950">Select Payment Method
+                                    </h2>
                                 </div>
                                 <div class="p-4 md:p-5 flex flex-col gap-3">
-    
+
                                     {{-- Card --}}
                                     {{-- <label class="relative cursor-pointer group">
                                         <input type="radio" name="payment_method" value="card"
@@ -107,7 +109,7 @@
                                             </div>
                                         </div>
                                     </label> --}}
-    
+
                                     {{-- Stripe --}}
                                     <label class="relative cursor-pointer group">
                                         <input type="radio" name="payment_method" value="stripe"
@@ -130,15 +132,16 @@
                                             <div
                                                 class="w-5 h-5 rounded-full border shrink-0 flex items-center justify-center ml-3 transition-all
                                                 group-has-[:checked]:bg-[#f3b515] group-has-[:checked]:border-[#f3b515] border-slate-300">
-                                                <i data-tabler="check" class="hidden group-has-[:checked]:block text-white"
-                                                    data-size="12" data-stroke="3"></i>
+                                                <i data-tabler="check"
+                                                    class="hidden group-has-[:checked]:block text-white" data-size="12"
+                                                    data-stroke="3"></i>
                                             </div>
                                         </div>
                                     </label>
-    
+
                                 </div>
                             </div>
-    
+
                             {{-- Card Details --}}
                             {{-- @if ($paymentMethod === 'card')
                                 <div class="card overflow-hidden">
@@ -215,7 +218,7 @@
                                     </div>
                                 </div>
                             @endif --}}
-    
+
                             {{-- Stripe info --}}
                             @if ($paymentMethod === 'stripe')
                                 <div class="card overflow-hidden">
@@ -223,7 +226,7 @@
                                         <h2 class="font-semibold text-base md:text-lg text-slate-950">Card Details</h2>
                                     </div>
                                     <div class="p-4 md:p-5 lg:p-6 flex flex-col gap-5">
-    
+
                                         <div class="form-control">
                                             <label class="form-label">Card Number *</label>
                                             <div class="relative">
@@ -239,7 +242,7 @@
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror
                                         </div>
-    
+
                                         <div class="form-control">
                                             <label class="form-label">Cardholder Name *</label>
                                             <input type="text" wire:model.live.debounce.500ms="cardHolder"
@@ -249,7 +252,7 @@
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror
                                         </div>
-    
+
                                         {{-- Expiry + CVV: stack on xs, 2-col on sm+ --}}
                                         <div class="grid grid-cols-2 gap-3 md:gap-4">
                                             <div class="form-control">
@@ -278,7 +281,8 @@
                                                 <div class="relative">
                                                     <input type="password" wire:model.live.debounce.500ms="cardCvv"
                                                         class="form-input pr-10 @error('cardCvv') border-red-400 @enderror"
-                                                        placeholder="•••" maxlength="4"  autocomplete="cc-csc" name="cc-csc"/>
+                                                        placeholder="•••" maxlength="4" autocomplete="cc-csc"
+                                                        name="cc-csc" />
                                                     <i data-tabler="lock"
                                                         class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"
                                                         data-size="15"></i>
@@ -288,18 +292,19 @@
                                                 @enderror
                                             </div>
                                         </div>
-    
+
                                         <div class="flex items-center gap-2 bg-slate-50 rounded-xl p-3">
                                             <i data-tabler="shield-check" class="text-green-500 shrink-0"
                                                 data-size="16"></i>
-                                            <span class="text-xs text-slate-500">Your payment information is encrypted and
+                                            <span class="text-xs text-slate-500">Your payment information is encrypted
+                                                and
                                                 secure.</span>
                                         </div>
-    
+
                                     </div>
                                 </div>
                             @endif
-    
+
                             {{-- Mobile Price Summary --}}
                             <div class="block lg:hidden card p-4 space-y-3">
                                 <h3 class="font-semibold text-base text-slate-800">Price Summary</h3>
@@ -328,6 +333,20 @@
                                             {{ number_format($perPaxMob * $paxTypesMob['child'], 2) }}</span>
                                     </div>
                                 @endif
+                                @if ($taxAmount > 0)
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-slate-600">Taxes & Fees</span>
+                                        <span class="text-slate-700 font-medium">{{ $currency }}
+                                            {{ number_format($taxAmount, 2) }}</span>
+                                    </div>
+                                @endif
+                                @if ($platformFee > 0)
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-slate-600">Platform Fee</span>
+                                        <span class="text-slate-700 font-medium">{{ $currency }}
+                                            {{ number_format($platformFee, 2) }}</span>
+                                    </div>
+                                @endif
                                 @if ($addonsTotal > 0)
                                     <div class="flex justify-between text-sm">
                                         <span class="text-slate-600">Add-ons</span>
@@ -348,12 +367,12 @@
                                         {{ number_format($grandTotal, 2) }}</span>
                                 </div>
                             </div>
-    
+
                             {{-- Actions --}}
                             <div class="flex justify-between items-center gap-4 py-2">
                                 <button onclick="history.back()"
                                     class="btn btn-white min-w-[110px] sm:min-w-[130px]">Back</button>
-    
+
                                 @guest
                                     <button onclick="login_modal.showModal()"
                                         class="btn btn-primary flex-1 sm:flex-none sm:min-w-[160px]">
@@ -369,21 +388,22 @@
                                             <span class="whitespace-nowrap">Pay {{ $currency }}
                                                 {{ number_format($grandTotal, 2) }}</span>
                                         </span>
-                                        <span wire:loading wire:target="pay" class="flex items-center justify-center gap-2">
+                                        <span wire:loading wire:target="pay"
+                                            class="flex items-center justify-center gap-2">
                                             <span class="loading loading-spinner loading-xs"></span>
                                             Processing...
                                         </span>
                                     </button>
                                 @endauth
                             </div>
-    
+
                         </div>
-    
+
                         {{-- RIGHT: Sidebar (desktop only) --}}
                         <div class="hidden lg:block w-[304px] shrink-0 sticky top-24">
                             <div class="flex flex-col gap-5">
                                 <h3 class="font-semibold text-[24px] leading-[36px] text-slate-800">Price details</h3>
-    
+
                                 @php
                                     $dep = $segment['departing_at'] ?? null;
                                     $arr = $segment['arriving_at'] ?? null;
@@ -397,7 +417,7 @@
                                     $dur = $segment['duration'] ?? '';
                                     $stps = count($slice['segments'] ?? []) - 1;
                                 @endphp
-    
+
                                 @if ($logo || $airl)
                                     <div class="card p-4 flex items-center gap-3">
                                         @if ($logo)
@@ -440,7 +460,8 @@
                                         </div>
                                     </div>
                                 @endif
-    
+
+                                {{-- Sidebar breakdown --}}
                                 <div class="card p-5 space-y-3.5">
                                     @php
                                         $paxTypes = [];
@@ -451,6 +472,7 @@
                                         $totalPax = max(1, $adults + $children);
                                         $perPax = round($baseTotal / $totalPax, 2);
                                     @endphp
+
                                     @if (($paxTypes['adult'] ?? 0) > 0)
                                         <div class="flex justify-between items-center">
                                             <span class="text-sm text-slate-700">Base Fare ({{ $paxTypes['adult'] }}
@@ -467,9 +489,23 @@
                                                 {{ number_format($perPax * $paxTypes['child'], 2) }}</span>
                                         </div>
                                     @endif
+                                    @if ($taxAmount > 0)
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-slate-700">Taxes & Fees</span>
+                                            <span class="text-sm text-slate-500">{{ $currency }}
+                                                {{ number_format($taxAmount, 2) }}</span>
+                                        </div>
+                                    @endif
+                                    @if ($platformFee > 0)
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-slate-700">Platform Fee</span>
+                                            <span class="text-sm text-slate-500">{{ $currency }}
+                                                {{ number_format($platformFee, 2) }}</span>
+                                        </div>
+                                    @endif
                                     @if ($addonsTotal > 0)
                                         <div class="flex justify-between items-center">
-                                            <span class="text-sm text-slate-700">Add-ons</span>
+                                            <span class="text-sm text-slate-700">Extra Baggage</span>
                                             <span class="text-sm text-slate-500">{{ $currency }}
                                                 {{ number_format($addonsTotal, 2) }}</span>
                                         </div>
@@ -488,14 +524,15 @@
                                             {{ number_format($grandTotal, 2) }}</span>
                                     </div>
                                 </div>
-    
+
                                 <div class="flex items-center gap-2 px-1">
                                     <i data-tabler="shield-check" class="text-green-600 shrink-0" data-size="18"></i>
-                                    <span class="text-xs text-slate-500">256-bit SSL encrypted — your data is safe</span>
+                                    <span class="text-xs text-slate-500">256-bit SSL encrypted — your data is
+                                        safe</span>
                                 </div>
                             </div>
                         </div>
-    
+
                     </div>
                 </div>
             </div>

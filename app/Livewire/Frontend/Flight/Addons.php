@@ -17,6 +17,7 @@ class Addons extends Component
     public string $currency        = '';
     public float  $baseTotal       = 0;
     public float  $platformFee     = 0;
+    public float  $taxAmount     = 0;
 
     public array $availableServices = [];
     public array $selectedBaggage   = [];
@@ -38,11 +39,12 @@ class Addons extends Component
         $this->adults         = (int) ($session['adults']   ?? 1);
         $this->children       = (int) ($session['children'] ?? 0);
         $this->infants        = (int) ($session['infants']  ?? 0);
+        $this->baseTotal   = (float) ($session['base_amount']    ?? $sf['base_amount']    ?? 0);
+        $this->taxAmount   = (float) ($session['tax_amount']     ?? $sf['tax_amount']     ?? 0);
+        $this->platformFee = (float) ($session['platform_fee']   ?? $sf['platform_fee']   ?? 0);
 
         $sf              = $this->selectedFlight;
-        $this->currency  = $sf['total_currency'] ?? '';
-        $this->baseTotal   = (float) ($sf['base_amount']  ?? $sf['total_amount'] ?? 0);
-        $this->platformFee = (float) ($sf['platform_fee'] ?? $session['platform_fee'] ?? 0);
+        $this->currency  = $sf['total_currency'] ?? '';   
 
         Log::info('ADDONS loadData START', [
             'session_base_amount'  => $session['base_amount']  ?? 'NOT FOUND',
@@ -54,8 +56,14 @@ class Addons extends Component
             'final_platformFee'    => $this->platformFee,
         ]);
 
-
         $this->isLoading = false;
+
+        $offerId = $this->selectedFlight['id'] ?? null;
+        if ($offerId) {
+            $this->fetchServices($offerId);
+        } else {
+            $this->noServicesAvailable = true;
+        }
     }
 
     protected function fetchServices(string $offerId): void
@@ -88,7 +96,6 @@ class Addons extends Component
                 $paxSession['base_amount']  = $this->baseTotal;
                 $paxSession['platform_fee'] = $this->platformFee;
                 session(['passenger_info' => $paxSession]);
-
             }
 
             if (empty($this->availableServices)) {
@@ -222,7 +229,7 @@ class Addons extends Component
                 'currency'    => $this->currency,
                 'base_amount'  => $this->baseTotal,
                 'platform_fee' => $this->platformFee,
-                'grandTotal'   => $this->baseTotal + $this->platformFee + $addonsTotal,
+                'grandTotal' => $this->baseTotal + $this->taxAmount + $this->platformFee + $addonsTotal,
             ],
         ]);
 
@@ -232,7 +239,7 @@ class Addons extends Component
     public function render()
     {
         $addonsTotal = $this->getAddonsTotal();
-        $grandTotal  = $this->baseTotal + $this->platformFee + $addonsTotal;
+        $grandTotal = $this->baseTotal + $this->taxAmount + $this->platformFee + $addonsTotal;
 
         $sf      = $this->selectedFlight;
         $slice   = $sf['slices'][0]      ?? [];

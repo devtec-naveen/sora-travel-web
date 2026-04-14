@@ -27,6 +27,7 @@ class Seats extends Component
     public bool $isLoading = true;
     public array $passengerMeta = [];
     public float $platformFee = 0;
+    public float $taxAmount = 0;
 
 
     public function mount(): void {}
@@ -45,13 +46,13 @@ class Seats extends Component
         $this->children       = (int) ($addonsInfo['children'] ?? $session['children'] ?? 0);
         $this->infants        = (int) ($addonsInfo['infants']  ?? $session['infants']  ?? 0);
         $this->addonsInfo     = $addonsInfo;
-
         $sf             = $this->selectedFlight;
         $this->currency = $sf['total_currency'] ?? '';
-
-        $this->baseTotal   = (float) ($addonsInfo['base_amount']  ?? $session['base_amount']  ?? $sf['base_amount']  ?? 0);
-        $this->platformFee = (float) ($addonsInfo['platform_fee'] ?? $session['platform_fee'] ?? $sf['platform_fee'] ?? 0);
         $this->addonsTotal = (float) ($addonsInfo['addonsTotal']  ?? 0);
+        $this->baseTotal   = (float) ($addonsInfo['base_amount']   ?? $session['base_amount']   ?? $sf['base_amount']   ?? 0);
+        $this->taxAmount   = (float) ($addonsInfo['tax_amount']    ?? $session['tax_amount']    ?? $sf['tax_amount']    ?? 0);
+        $this->platformFee = (float) ($addonsInfo['platform_fee']  ?? $session['platform_fee']  ?? $sf['platform_fee']  ?? 0);
+        $this->addonsTotal = (float) ($addonsInfo['addonsTotal']   ?? 0);
 
         foreach ($this->passengers as $idx => $pax) {
             if (($pax['type'] ?? '') === 'infant') continue;
@@ -202,8 +203,9 @@ class Seats extends Component
                 'seatTotal'     => $seatTotal,
                 'grandTotal'    => $this->baseTotal + $this->platformFee + $this->addonsTotal + $seatTotal,
                 'currency'      => $this->currency,
-                'base_amount'   => $this->baseTotal,    
-                'platform_fee'  => $this->platformFee, 
+                'base_amount'   => $this->baseTotal,
+                'platform_fee'  => $this->platformFee,
+                'tax_amount'    => $this->taxAmount,
             ],
         ]);
 
@@ -213,7 +215,7 @@ class Seats extends Component
     public function render()
     {
         $seatTotal  = $this->getSeatTotal();
-        $grandTotal = $this->platformFee + $this->baseTotal + $this->addonsTotal + $seatTotal;
+        $grandTotal = $this->baseTotal + $this->taxAmount + $this->platformFee + $this->addonsTotal + $seatTotal;
 
         return view('livewire.frontend.flight.seats', [
             'seatTotal'  => $seatTotal,

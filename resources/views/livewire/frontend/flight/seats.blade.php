@@ -510,29 +510,36 @@
                             <div class="card p-5 space-y-4">
                                 <div class="flex justify-between items-center">
                                     <span class="font-normal text-sm text-slate-950">Base Fare</span>
-                                    <span class="font-normal text-sm text-slate-500">{{ $currency }}
-                                        {{ number_format($baseTotal, 2) }}</span>
+                                    <span class="font-normal text-sm text-slate-500">{{ $currency }} {{ number_format($baseTotal, 2) }}</span>
                                 </div>
+                                @if ($taxAmount > 0)
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-normal text-sm text-slate-950">Taxes & Fees</span>
+                                        <span class="font-normal text-sm text-slate-500">{{ $currency }} {{ number_format($taxAmount, 2) }}</span>
+                                    </div>
+                                @endif
+                                @if ($platformFee > 0)
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-normal text-sm text-slate-950">Platform Fee</span>
+                                        <span class="font-normal text-sm text-slate-500">{{ $currency }} {{ number_format($platformFee, 2) }}</span>
+                                    </div>
+                                @endif
                                 @if ($addonsTotal > 0)
                                     <div class="flex justify-between items-center">
-                                        <span class="font-normal text-sm text-slate-950">Add-ons</span>
-                                        <span class="font-normal text-sm text-slate-500">{{ $currency }}
-                                            {{ number_format($addonsTotal, 2) }}</span>
+                                        <span class="font-normal text-sm text-slate-950">Extra Baggage</span>
+                                        <span class="font-normal text-sm text-slate-500">{{ $currency }} {{ number_format($addonsTotal, 2) }}</span>
                                     </div>
                                 @endif
                                 @if ($seatTotal > 0)
                                     <div wire:key="seat-total-line" class="flex justify-between items-center">
                                         <span class="font-normal text-sm text-slate-950">Seat Selection</span>
-                                        <span class="font-normal text-sm text-slate-500">{{ $currency }}
-                                            {{ number_format($seatTotal, 2) }}</span>
+                                        <span class="font-normal text-sm text-slate-500">{{ $currency }} {{ number_format($seatTotal, 2) }}</span>
                                     </div>
                                 @endif
                                 <hr class="border-slate-100">
                                 <div class="flex justify-between items-center pt-2">
                                     <span class="font-semibold text-[20px] text-slate-950">Total</span>
-                                    <span wire:key="grand-total"
-                                        class="font-bold text-[24px] text-slate-950">{{ $currency }}
-                                        {{ number_format($grandTotal, 2) }}</span>
+                                    <span wire:key="grand-total" class="font-bold text-[24px] text-slate-950">{{ $currency }} {{ number_format($grandTotal, 2) }}</span>
                                 </div>
                             </div>
                         </div>

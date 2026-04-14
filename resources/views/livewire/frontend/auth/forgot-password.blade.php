@@ -41,7 +41,7 @@
     @endif
     {{-- ───────────── STEP 2 : OTP VERIFY ───────────── --}}
     @if ($step === 'otp')
-        <div class="w-full space-y-4 mt-7">
+        <div class="w-full space-y-4 mt-7 text-center">
             <p class="text-sm text-[#4a5565]">
                 We sent a 6-digit OTP to <span class="font-semibold text-gray-800">{{ $email }}</span>
             </p>

@@ -1018,6 +1018,13 @@ function dtpInit(fieldEl) {
             : new Date().getFullYear() + 5,
     };
 
+    _dtp[id].order = fieldEl.dataset.order || "asc";
+
+    if (_dtp[id].order === "desc" && maxD) {
+        _dtp[id].navYear = maxD.getFullYear();
+        _dtp[id].navMonth = maxD.getMonth();
+    }
+
     const hiddenInp = document.getElementById(`dtp_val_${id}`);
     const endInp = document.getElementById(`dtp_end_${id}`);
 
@@ -1109,10 +1116,12 @@ function dtpRender(id) {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMo = new Date(year, month + 1, 0).getDate();
 
-    const yearOpts = Array.from(
+    const yearList = Array.from(
         { length: s.maxYear - s.minYear + 1 },
         (_, i) => s.minYear + i,
-    )
+    );
+    if (s.order === "desc") yearList.reverse();
+    const yearOpts = yearList
         .map(
             (y) =>
                 `<option value="${y}"${y === year ? " selected" : ""}>${y}</option>`,
@@ -1181,10 +1190,6 @@ function dtpRender(id) {
       </div>
       <div class="grid grid-cols-7 gap-y-0.5">${cells}</div>
       ${rangeHint}
-      <div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-100">
-        <button type="button" class="dtp-clear btn-outline text-xs py-1.5 px-3">Clear</button>
-        <button type="button" class="dtp-done btn-primary text-xs py-1.5 px-3">Done</button>
-      </div>
     </div>`;
 
     body.querySelector(".dtp-prev").onclick = () => {
@@ -1202,49 +1207,6 @@ function dtpRender(id) {
     body.querySelector(".dtp-year").onchange = (e) => {
         s.navYear = +e.target.value;
         dtpRender(id);
-    };
-
-    body.querySelector(".dtp-clear").onclick = () => {
-        s.date = null;
-        s.endDate = null;
-        s.selecting = false;
-        const lbl = document.getElementById(`dtp_lbl_${id}`);
-        const val = document.getElementById(`dtp_val_${id}`);
-        const endVal = document.getElementById(`dtp_end_${id}`);
-        if (lbl) {
-            lbl.textContent =
-                s.mode === "range" ? "Select dates" : "Select date";
-            lbl.style.cssText = "color:#94a3b8;font-weight:400;";
-        }
-        dtpWireSet(val, "");
-        dtpWireSet(endVal, "");
-        dtpSyncLinked(id);
-        dtpRender(id);
-    };
-
-    body.querySelector(".dtp-done").onclick = () => {
-        const lbl = document.getElementById(`dtp_lbl_${id}`);
-        const val = document.getElementById(`dtp_val_${id}`);
-        const endVal = document.getElementById(`dtp_end_${id}`);
-        if (s.mode === "range") {
-            if (!s.date || !s.endDate) return;
-            if (lbl) {
-                lbl.textContent = `${dtpFmt(s.date)} – ${dtpFmt(s.endDate)}`;
-                lbl.style.cssText = "color:#1e293b;font-weight:500;";
-            }
-            dtpWireSet(val, dtpLocalISO(s.date));
-            dtpWireSet(endVal, dtpLocalISO(s.endDate));
-        } else {
-            if (!s.date) return;
-            if (lbl) {
-                lbl.textContent = dtpFmt(s.date);
-                lbl.style.cssText = "color:#1e293b;font-weight:500;";
-            }
-            dtpWireSet(val, dtpLocalISO(s.date));
-        }
-        console.log(`[DTP DONE] id=${id} date=${dtpLocalISO(s.date)}`);
-        dtpSyncLinked(id);
-        dtpClose(id);
     };
 
     body.querySelectorAll(".dtp-day[data-d]").forEach((cell) => {
@@ -1268,9 +1230,29 @@ function dtpRender(id) {
                         s.endDate = dt;
                     }
                     s.selecting = false;
+                    const lbl = document.getElementById(`dtp_lbl_${id}`);
+                    const val = document.getElementById(`dtp_val_${id}`);
+                    const endVal = document.getElementById(`dtp_end_${id}`);
+                    if (lbl) {
+                        lbl.textContent = `${dtpFmt(s.date)} – ${dtpFmt(s.endDate)}`;
+                        lbl.style.cssText = "color:#1e293b;font-weight:500;";
+                    }
+                    dtpWireSet(val, dtpLocalISO(s.date));
+                    dtpWireSet(endVal, dtpLocalISO(s.endDate));
+                    dtpSyncLinked(id);
+                    dtpClose(id);
                 }
             } else {
                 s.date = dt;
+                const lbl = document.getElementById(`dtp_lbl_${id}`);
+                const val = document.getElementById(`dtp_val_${id}`);
+                if (lbl) {
+                    lbl.textContent = dtpFmt(s.date);
+                    lbl.style.cssText = "color:#1e293b;font-weight:500;";
+                }
+                dtpWireSet(val, dtpLocalISO(s.date));
+                dtpSyncLinked(id);
+                dtpClose(id);
             }
             dtpRender(id);
         };
@@ -1972,6 +1954,7 @@ document.addEventListener("click", (e) => {
 function reinitAfterLivewire() {
     initAllApFields();
     initAllDtpFields();
+    initIntlTelInputs();
     dtpLinkDepartureReturn("round_fl_dep", "round_fl_return");
     initTablerIcons();
     initTabs();

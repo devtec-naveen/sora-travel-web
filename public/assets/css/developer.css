@@ -657,3 +657,13 @@
   width: 50%;
   height: 60vh;
 }
+
+.iti__country-name {
+  font-size:12px;
+  font-weight:600;
+}
+
+.iti__selected-dial-code{
+  font-size:13px;
+  font-weight:600;
+}
