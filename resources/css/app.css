@@ -112,9 +112,38 @@
     @apply font-semibold text-sm text-slate-950;
   }
 
-  .form-input {
-    @apply w-full h-10 text-sm gap-2.5 self-stretch bg-white p-2.5 rounded-md border border-slate-200 shadow-sm font-normal focus:outline-none focus:ring-0;
-  }
+.form-input {
+  @apply w-full h-10 text-sm gap-2.5 self-stretch bg-white p-2.5 rounded-md border border-slate-200 shadow-sm font-normal focus:outline-none focus:ring-0;
+}
+
+.iti {
+  @apply w-full;
+}
+
+.iti__tel-input.form-input,
+.iti input.form-input {
+  @apply w-full pl-24;
+}
+
+.iti--separate-dial-code .iti__selected-country {
+  @apply rounded-l-md border-r border-slate-200 bg-white;
+}
+
+.iti--separate-dial-code .iti__selected-country-primary {
+  @apply h-10 px-3;
+}
+
+.iti .iti__country-container {
+  @apply left-0;
+}
+
+.iti .iti__dropdown-content {
+  @apply border border-slate-200 shadow-lg rounded-md;
+}
+
+.iti .iti__search-input {
+  @apply h-10 border border-slate-200 rounded-md px-3 text-sm focus:outline-none;
+}
 
   /* checkbox custom start */
 
@@ -176,5 +205,4 @@ button{
 hr{
   color: #e5e7eb;
 }
-
 

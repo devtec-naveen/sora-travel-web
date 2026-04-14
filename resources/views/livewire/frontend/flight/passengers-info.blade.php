@@ -257,22 +257,18 @@
                                         </div>
                                         <div class="form-control">
                                             <span class="form-label">Phone Number *</span>
-                                            <div class="flex gap-0">
-                                                <div class="w-24 shrink-0 relative group">
-                                                    <select
-                                                        class="form-input appearance-none pr-10 rounded-r-none border-r-0"
-                                                        wire:model.live.debounce.500ms="phoneCode">
-                                                        <option value="+91">+91</option>
-                                                    </select>
-                                                    <div
-                                                        class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                                        <i data-tabler="chevron-down" data-size="14"></i>
-                                                    </div>
-                                                </div>
-                                                <input type="tel" placeholder="Phone number"
-                                                    class="form-input flex-1 rounded-l-none @error('phone') border-red-400 @enderror"
-                                                    wire:model.live.debounce.500ms="phone" />
+                                            <div class="w-full">
+                                                <input type="tel" id="contact-phone-input"
+                                                    placeholder="Phone number"
+                                                    class="form-input intl-phone-input @error('phone') border-red-400 @enderror"
+                                                    data-phone-code="{{ $phoneCode }}"
+                                                    data-phone-number="{{ $phone }}"
+                                                    autocomplete="tel" />
                                             </div>
+                                            <input type="hidden" id="contact-phone-code-hidden"
+                                                wire:model.defer="phoneCode" />
+                                            <input type="hidden" id="contact-phone-hidden"
+                                                wire:model.defer="phone" />
                                             @error('phone')
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror

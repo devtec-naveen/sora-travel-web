@@ -24,6 +24,7 @@ class PassengerInfo extends Component
     {
         $session = session('selected_flight', []);
         $this->returnDate = $session['return_date'] ?? null;
+        $this->resetValidation();
     }
 
     protected function rules()
@@ -142,6 +143,10 @@ class PassengerInfo extends Component
 
     public function updated(string $field): void
     {
+        if ($field === 'phoneCode') {
+            return;
+        }
+
         $this->validateOnly($field);
     }
 

@@ -1,6 +1,8 @@
 import "./bootstrap";
 import "./modal.js";
 import "./payment.js";
+import intlTelInput from "intl-tel-input";
+import "intl-tel-input/styles";
 /**
  * app.js — Global Application Script
  * Sections:
@@ -32,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initOneWayValidator();
     initRoundTripValidator();
     initMulticityValidator();
+    initIntlTelInputs();
 });
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1857,6 +1860,80 @@ function showMulticityFormError(message) {
     container.prepend(err);
 }
 
+function setNativeValue(element, value) {
+    const descriptor = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        "value",
+    );
+    descriptor?.set?.call(element, value);
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function getCountryIsoFromDialCode(dialCode = "") {
+    const normalizedDialCode = String(dialCode).replace(/\D/g, "");
+
+    if (!normalizedDialCode) return "in";
+
+    const match = intlTelInput
+        .getCountryData()
+        .find((country) => country.dialCode === normalizedDialCode);
+
+    return match?.iso2 || "in";
+}
+
+function initIntlTelInputs() {
+    document.querySelectorAll(".intl-phone-input").forEach((input) => {
+        const codeField = document.getElementById("contact-phone-code-hidden");
+        const phoneField = document.getElementById("contact-phone-hidden");
+
+        if (!codeField || !phoneField) return;
+
+        const applyLocalValues = () => {
+            const selectedCountry = input._iti?.getSelectedCountryData();
+            const dialCode = selectedCountry?.dialCode
+                ? `+${selectedCountry.dialCode}`
+                : "";
+
+            codeField.value = dialCode;
+            phoneField.value = input.value.trim();
+        };
+
+        const syncToLivewire = () => {
+            applyLocalValues();
+
+            setNativeValue(codeField, codeField.value);
+            setNativeValue(phoneField, input.value.trim());
+        };
+
+        if (input._iti) {
+            applyLocalValues();
+            return;
+        }
+
+        const latestCode = input.dataset.phoneCode || codeField.value || "+91";
+        const latestPhone = input.dataset.phoneNumber || phoneField.value || "";
+
+        const iti = intlTelInput(input, {
+            initialCountry: getCountryIsoFromDialCode(latestCode),
+            separateDialCode: true,
+            nationalMode: true,
+            strictMode: true,
+            autoPlaceholder: "polite",
+            loadUtils: () => import("intl-tel-input/utils"),
+        });
+
+        input._iti = iti;
+        input.value = latestPhone;
+        iti.setCountry(getCountryIsoFromDialCode(latestCode));
+        applyLocalValues();
+
+        input.addEventListener("input", applyLocalValues);
+        input.addEventListener("blur", syncToLivewire);
+        input.addEventListener("countrychange", syncToLivewire);
+    });
+}
+
 function initHeroToggle() {
     const box = document.getElementById("addon-rows-container");
     const icon = document.getElementById("hero-toggle-icon");
@@ -1913,6 +1990,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initDestinationsSwiper();
     initAllApFields();
     initAllDtpFields();
+    initIntlTelInputs();
     initTripTypeTabs();
     initHG();
     refreshButtons();
