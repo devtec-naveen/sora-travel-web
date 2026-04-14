@@ -129,8 +129,18 @@ class AuthController extends Controller
 
             $check = $this->authService->findByEmail($request->input('email'));
 
+            if ($check === null ) {
+                return $this->error(
+                    'Email not found.',
+                    config('constant.httpCode.UNPROCESSABLE_ENTITY')
+                );
+            }
+
             if (!$check['status']) {
-                return $this->error($check['message'], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+                return $this->error(
+                    $check['message'],
+                    config('constant.httpCode.UNPROCESSABLE_ENTITY')
+                );
             }
 
             $result = $this->authService->forgotPassword($request->only(['email']));
