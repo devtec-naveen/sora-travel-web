@@ -45,6 +45,7 @@ class PaymentController extends Controller
             $baseAmount   = (float) $request->input('amount');
             $addonsTotal  = (float) $request->input('addons_total', 0);
             $seatTotal    = (float) $request->input('seat_total', 0);
+            $taxAmount    = (float) $request->input('tax_amount', 0);
 
             $commissionPercent = (float) getSetting('platform_commission_percent', 0);
             $platformFee       = round($baseAmount * $commissionPercent / 100, 2);
@@ -54,7 +55,8 @@ class PaymentController extends Controller
                 'base_amount'  => $baseAmount,
                 'addons_total' => $addonsTotal,
                 'seat_total'   => $seatTotal,
-                'platform_fee' => $platformFee, 
+                'platform_fee' => $platformFee,
+                'tax_amount' => $taxAmount,
                 'currency'     => strtoupper($request->input('currency')),
             ]);
 

@@ -121,10 +121,10 @@ class OrderService
 
         Log::info('>>> [STEP 2] Fetching offer from Duffel', ['offer_id' => $offerId]);
 
-        $offerAmount = $this->duffel->getOfferAmount($offerId);
+        $offerDetails = $this->duffel->getOfferAmount($offerId);
+        $offerAmount = $offerDetails['total_amount'] ?? 0;
 
         try {
-            $offerDetails = $this->duffel->getOfferAmount($offerId);
             $duffelPassengers = $offerDetails['passengers'] ?? $offerDetails['data']['passengers'] ?? [];
 
             Log::info('>>> [STEP 2] Duffel offer passengers (expected types)', [
