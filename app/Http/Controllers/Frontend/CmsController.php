@@ -17,9 +17,11 @@ class CmsController extends Controller
 
    public function homePage()
    {
-      $popularDestinations = $this->service->getPopularDestinations();
-      $specialOffers = $this->service->getSpecialOffers();
-      return view('index',compact('popularDestinations','specialOffers'));
+        session()->forget('flight_search_tabs');
+        session()->forget('selected_flight');
+        $popularDestinations = $this->service->getPopularDestinations();
+        $specialOffers = $this->service->getSpecialOffers();
+        return view('index',compact('popularDestinations','specialOffers'));
    }
 
     public function show(string $slug)
