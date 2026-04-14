@@ -46,9 +46,7 @@ class PaymentController extends Controller
             $addonsTotal  = (float) $request->input('addons_total', 0);
             $seatTotal    = (float) $request->input('seat_total', 0);
             $taxAmount    = (float) $request->input('tax_amount', 0);
-
-            $commissionPercent = (float) getSetting('platform_commission_percent', 0);
-            $platformFee       = round($baseAmount * $commissionPercent / 100, 2);
+            $platformFee       = (float) $request->input('platform_fee', 0);
 
             $result = $this->orderService->create([
                 'user_id'      => Auth::id(),
