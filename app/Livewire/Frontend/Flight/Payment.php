@@ -93,7 +93,7 @@ class Payment extends Component
             $this->dispatch('require-login');
             return;
         }
-
+        $this->validate();
         $this->isProcessing = true;
 
         try {
