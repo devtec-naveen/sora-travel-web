@@ -1,8 +1,8 @@
 <div>
     <div class="flex flex-col justify-center gap-4 self-stretch bg-white p-2 md:p-4 rounded-xl shadow-sm border border-slate-100">
         <div class="flex items-center gap-2">
-            <button type="button" class="trip-tab tabs {{ $tripType === 'oneway'    ? 'active' : '' }}" data-trip="oneway">One way</button>
             <button type="button" class="trip-tab tabs {{ $tripType === 'roundtrip' ? 'active' : '' }}" data-trip="roundtrip">Round trip</button>
+            <button type="button" class="trip-tab tabs {{ $tripType === 'oneway'    ? 'active' : '' }}" data-trip="oneway">One way</button>
             <button type="button" class="trip-tab tabs {{ $tripType === 'multicity' ? 'active' : '' }}" data-trip="multicity">Multi city</button>
         </div>
         <div class="subTabs-content">

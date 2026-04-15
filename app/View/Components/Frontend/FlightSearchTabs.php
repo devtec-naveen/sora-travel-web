@@ -32,7 +32,7 @@ class FlightSearchTabs extends Component
 
         if ($hasRequest) {
             $data = [
-                'tripType'      => request('trip_type', 'oneway'),
+                'tripType'      => request('trip_type', 'roundtrip'),
                 'origins'       => Arr::wrap(request('origin', [])),
                 'destinations'  => Arr::wrap(request('destination', [])),
                 'originCities'  => Arr::wrap(request('origin_city', [])),
@@ -44,7 +44,7 @@ class FlightSearchTabs extends Component
             session(['flight_search_tabs' => $data]);
         } else {
             $data = session('flight_search_tabs', [
-                'tripType'      => 'oneway',
+                'tripType'      => 'roundtrip',
                 'origins'       => [],
                 'destinations'  => [],
                 'originCities'  => [],

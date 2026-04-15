@@ -180,12 +180,12 @@ function initTabs() {
     const activeMainTab = mainTabsContainer.querySelector(".tabs-border.active");
     if (activeMainTab) mainTabsContainer.prepend(activeMainTab);
 
-    document.querySelectorAll(".subTabs-content").forEach((subTabsContent) => {
-        const subTabsContainer = subTabsContent.previousElementSibling;
-        if (!subTabsContainer) return;
-        const activeSubTab = subTabsContainer.querySelector(".trip-tab.active");
-        if (activeSubTab) subTabsContainer.prepend(activeSubTab);
-    });
+    // document.querySelectorAll(".subTabs-content").forEach((subTabsContent) => {
+    //     const subTabsContainer = subTabsContent.previousElementSibling;
+    //     if (!subTabsContainer) return;
+    //     const activeSubTab = subTabsContainer.querySelector(".trip-tab.active");
+    //     if (activeSubTab) subTabsContainer.prepend(activeSubTab);
+    // });
 
     mainTabsContainer.querySelectorAll(".tabs-border").forEach((tab) => {
         tab.addEventListener("click", () => {
