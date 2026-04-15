@@ -30,8 +30,8 @@ class PassengerInfo extends Component
     protected function rules()
     {
         return [
-            'passengers.*.first_name' => 'required|string',
-            'passengers.*.last_name'  => 'required|string',
+            'passengers.*.first_name' => ['required', 'string', 'regex:/^[a-zA-Z\s]+$/', 'min:3', 'max:10'],
+            'passengers.*.last_name'  => ['required', 'string', 'regex:/^[a-zA-Z\s]+$/', 'min:3', 'max:10'],
             'passengers.*.gender'     => 'required|string',
             'passengers.*.dob'        => 'required|string',
             'email'                   => 'required|email',
@@ -43,7 +43,15 @@ class PassengerInfo extends Component
     {
         return [
             'passengers.*.first_name.required' => 'First name is required for all passengers.',
+            'passengers.*.first_name.regex'    => 'First name must contain only letters.',
+            'passengers.*.first_name.min'      => 'First name must be at least 3 characters.',
+            'passengers.*.first_name.max'      => 'First name must not exceed 10 characters.',
+
             'passengers.*.last_name.required'  => 'Last name is required for all passengers.',
+            'passengers.*.last_name.regex'     => 'Last name must contain only letters.',
+            'passengers.*.last_name.min'       => 'Last name must be at least 3 characters.',
+            'passengers.*.last_name.max'       => 'Last name must not exceed 10 characters.',
+
             'passengers.*.gender.required'     => 'Gender is required for all passengers.',
             'passengers.*.dob.required'        => 'Date of birth is required for all passengers.',
 
