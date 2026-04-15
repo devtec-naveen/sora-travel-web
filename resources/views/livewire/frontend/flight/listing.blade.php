@@ -421,21 +421,27 @@
                                                                     : asset('assets/images/carry_on.svg');
                                                         @endphp
                                                         <div class="tag tag-gray flex items-center gap-1.5">
-                                                            <img src="{{ $bagIcon }}" alt="icon"
-                                                                class="w-[22px]" />
-                                                            <span>{{ $bag['quantity'] }} {{ $bagLabel }}</span>
+                                                            <img src="{{ $bagIcon }}" alt="icon" class="w-[22px]" />
+                                                            <span class="text-[10px] md:text-[12px]">
+                                                                {{ $bag['quantity'] }} {{ $bagLabel }}
+                                                            </span>
                                                         </div>
                                                     @endforeach
+
                                                     @if ($aircraft)
                                                         <div class="tag tag-gray">
-                                                            <span>Aircraft: {{ $aircraft }}</span>
+                                                            <span class="text-[10px] md:text-[12px]">
+                                                                Aircraft: {{ $aircraft }}
+                                                            </span>
                                                         </div>
                                                     @endif
+
                                                     @if ($isRefundable)
                                                         <div class="tag tag-green">
-                                                            <img src="{{ asset('assets/images/checked.svg') }}"
-                                                                alt="icon" class="w-[15px]" />
-                                                            <span>Refundable</span>
+                                                            <img src="{{ asset('assets/images/checked.svg') }}" alt="icon" class="w-[15px]" />
+                                                            <span class="text-[10px] md:text-[12px]">
+                                                                Refundable
+                                                            </span>
                                                         </div>
                                                     @endif
                                                 </div>
@@ -557,7 +563,7 @@
                 <div class="flex items-center gap-4">
                     <div class="w-11 h-11 rounded-xl bg-slate-50 overflow-hidden border border-slate-100">
                         <img src="{{ $sfLogo }}" alt="{{ $sfAirline }}"
-                            class="w-full h-full object-cover">
+                            class="w-full h-full">
                     </div>
                     <div class="flex flex-col">
                         <span class="font-semibold text-base text-slate-950">{{ $sfAirline }}</span>
