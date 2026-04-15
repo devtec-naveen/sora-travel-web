@@ -15,8 +15,8 @@ use Stripe\Stripe;
 class FlightController extends Controller
 {
     public function __construct(
-    protected DuffelService $duffelService,
-    protected OrderService  $orderService,
+        protected DuffelService $duffelService,
+        protected OrderService  $orderService,
     ) {}
 
     public function listing(Request $request)
@@ -198,6 +198,9 @@ class FlightController extends Controller
                 'passengers.*.identity_documents.*.expires_on'              => ['required_with:passengers.*.identity_documents', 'date_format:Y-m-d', 'after:today'],
                 'passengers.*.identity_documents.*.issuing_country_code'     => ['required_with:passengers.*.identity_documents', 'string', 'size:2'],
                 'passengers.*.identity_documents.*.type'                     => ['required_with:passengers.*.identity_documents', 'string', 'in:passport,tax_id'],
+                'services'            => ['nullable', 'array'],
+                'services.*.id'       => ['required_with:services', 'string'],
+                'services.*.quantity' => ['nullable', 'integer', 'min:1'],
             ]);
 
             if ($validator->fails()) {
@@ -227,6 +230,12 @@ class FlightController extends Controller
                 ], 422);
             }
 
+            $services = collect($request->input('services', []))
+                ->map(fn($s) => [
+                    'id'       => $s['id'],
+                    'quantity' => $s['quantity'] ?? 1,
+                ])->toArray();
+
             $passengers = collect($request->input('passengers'))
                 ->map(function ($pax) {
                     $pax['born_on'] = Carbon::parse($pax['born_on'])->format('Y-m-d');
@@ -249,6 +258,7 @@ class FlightController extends Controller
                 $paymentId,
                 $request->input('offer_id'),
                 $passengers,
+                $services
             );
 
             if (is_array($order) && !empty($order['errors'])) {
@@ -269,7 +279,6 @@ class FlightController extends Controller
                 'total_amount'      => $order->total_amount,
                 'currency'          => $order->currency,
             ], 200);
-
         } catch (\Throwable $e) {
             Log::error('[confirmAndBook] EXCEPTION', [
                 'message' => $e->getMessage(),
