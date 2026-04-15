@@ -9,13 +9,13 @@
                     @include('include.tabs')
                     <div class="search-tab-content">
                         <div data-panel="0">
-                            <x-frontend.flight-search-tabs/>
+                            <x-frontend.flight-search-tabs :hidden="false" />
                         </div>
                         <div data-panel="1" class="hidden">
-                            <x-frontend.hotel-search-tabs/>
+                            <x-frontend.hotel-search-tabs :hidden="false" />
                         </div>
                         <div data-panel="2" class="hidden">
-                            <x-frontend.car-search-tabs/>
+                            <x-frontend.car-search-tabs :hidden="false" />
                         </div>
                     </div>
                     <div
