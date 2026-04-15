@@ -339,7 +339,7 @@
                                                                             class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200">
                                                                         </div>
                                                                         <div
-                                                                            class="relative z-10 bg-white px-2 leading-none">
+                                                                            class="relative bg-white px-2 leading-none">
                                                                             <i data-tabler="plane"
                                                                                 class="text-slate-400"
                                                                                 data-size="18"></i>
@@ -387,7 +387,7 @@
                                                                 <div
                                                                     class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200">
                                                                 </div>
-                                                                <div class="relative z-10 bg-white px-2 leading-none">
+                                                                <div class="relative  bg-white px-2 leading-none">
                                                                     <i data-tabler="plane" class="text-slate-400"
                                                                         data-size="18"></i>
                                                                 </div>
@@ -607,7 +607,7 @@
                                                 </div>
                                                 <div class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200">
                                                 </div>
-                                                <div class="relative z-10 bg-white px-2 leading-none">
+                                                <div class="relative bg-white px-2 leading-none">
                                                     <i data-tabler="plane" class="text-slate-400" data-size="18"></i>
                                                 </div>
                                             </div>
@@ -643,7 +643,7 @@
                                     <div class="absolute w-full h-px bg-slate-200"></div>
                                     <div class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-200"></div>
                                     <div class="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-200"></div>
-                                    <div class="relative z-10 bg-white px-2 leading-none">
+                                    <div class="relative bg-white px-2 leading-none">
                                         <i data-tabler="plane" class="text-slate-400" data-size="18"></i>
                                     </div>
                                 </div>
