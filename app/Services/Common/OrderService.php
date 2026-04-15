@@ -29,7 +29,7 @@ class OrderService
         $addonsAmount = (float) ($data['addons_total'] ?? 0);
         $seatAmount   = (float) ($data['seat_total']   ?? 0);
         $platformFee  = (float) ($data['platform_fee'] ?? 0);
-        $taxAmount  = (float) ($data['tax_amount'] ?? 0);
+        $taxAmount    = (float) ($data['tax_amount']   ?? 0);
 
         $totalAmount = $baseAmount + $taxAmount + $addonsAmount + $seatAmount + $platformFee;
 
@@ -37,7 +37,7 @@ class OrderService
             throw new \Exception('Invalid amount: ' . $totalAmount);
         }
 
-        [$order, $payment] = DB::transaction(function () use ($data, $baseAmount, $addonsAmount, $seatAmount, $platformFee, $totalAmount, $currency,$taxAmount) {
+        [$order, $payment] = DB::transaction(function () use ($data, $baseAmount, $addonsAmount, $seatAmount, $platformFee, $totalAmount, $currency, $taxAmount) {
             $payment = PaymentModel::create([
                 'user_id'        => $data['user_id'],
                 'payment_id'     => 'PENDING-' . Str::uuid(),
@@ -51,18 +51,18 @@ class OrderService
             ]);
 
             $order = OrderModel::create([
-                'user_id'       => $data['user_id'],
-                'order_number'  => 'ORD-' . strtoupper(Str::random(10)),
-                'payment_id'    => $payment->id,
-                'base_amount'   => $baseAmount,
-                'tax_amount'    => $taxAmount,
-                'addons_amount' => $addonsAmount,
-                'seat_amount'   => $seatAmount,
-                'platform_fee'  => $platformFee,
-                'total_amount'  => $totalAmount,
-                'amount'        => $totalAmount,
-                'currency'      => $currency,
-                'status'        => 'pending',
+                'user_id'           => $data['user_id'],
+                'order_number'      => 'ORD-' . strtoupper(Str::random(10)),
+                'payment_id'        => $payment->id,
+                'base_amount'       => $baseAmount,
+                'tax_amount'        => $taxAmount,
+                'addons_amount'     => $addonsAmount,
+                'seat_amount'       => $seatAmount,
+                'platform_fee'      => $platformFee,
+                'total_amount'      => $totalAmount,
+                'amount'            => $totalAmount,
+                'currency'          => $currency,
+                'status'            => 'pending',
                 'payment_intent_id' => null,
             ]);
 
@@ -73,6 +73,11 @@ class OrderService
             'amount'     => $totalAmount,
             'currency'   => $currency,
             'payment_id' => $payment->id,
+            'card_number' => $data['card_number'],
+            'exp_month'   => $data['exp_month'],
+            'exp_year'    => $data['exp_year'],
+            'cvc'         => $data['cvc'],
+            'card_holder' => $data['card_holder'],
         ]);
 
         $order->update(['payment_intent_id' => $intent->id]);
@@ -90,9 +95,8 @@ class OrderService
         ];
     }
 
-    public function confirmPayment($paymentId, $offerId, array $passengers)
+    public function confirmPayment($paymentId, $offerId, array $passengers, array $services = [])
     {
-
         Log::info('>>> [STEP 1] confirmPayment called', [
             'payment_id'      => $paymentId,
             'offer_id'        => $offerId,
@@ -119,27 +123,7 @@ class OrderService
             throw new \Exception('offer_id is missing');
         }
 
-        Log::info('>>> [STEP 2] Fetching offer from Duffel', ['offer_id' => $offerId]);
-
-        $offerAmount = $this->duffel->getOfferAmount($offerId);
-
-        try {
-            $offerDetails = $this->duffel->getOfferAmount($offerId);
-            $duffelPassengers = $offerDetails['passengers'] ?? $offerDetails['data']['passengers'] ?? [];
-
-            Log::info('>>> [STEP 2] Duffel offer passengers (expected types)', [
-                'duffel_passengers' => array_map(fn($dp) => [
-                    'id'       => $dp['id']       ?? '?',
-                    'type'     => $dp['type']      ?? '?',
-                    'age'      => $dp['age']       ?? '?',
-                    'born_on'  => $dp['born_on']   ?? '?',
-                ], $duffelPassengers),
-            ]);
-        } catch (\Throwable $e) {
-            Log::warning('>>> [STEP 2] Could not fetch full offer details', ['error' => $e->getMessage()]);
-        }
-
-        return DB::transaction(function () use ($paymentId, $offerId, $passengers, $offerAmount) {
+        return DB::transaction(function () use ($paymentId, $offerId, $passengers, $services) {
             $payment = PaymentModel::lockForUpdate()->findOrFail($paymentId);
             $order   = OrderModel::lockForUpdate()->where('payment_id', $payment->id)->firstOrFail();
 
@@ -147,6 +131,20 @@ class OrderService
                 Log::warning('>>> Order already confirmed', ['order_id' => $order->id]);
                 return $order;
             }
+
+            // Order ka actual total use karo — getOfferAmount() nahi
+            $offerAmountStr = number_format(
+                (float) $order->base_amount + (float) $order->tax_amount + (float) $order->seat_amount + (float) $order->addons_amount,
+                2,
+                '.',
+                ''
+            );
+            $offerCurrency  = strtoupper($order->currency);
+
+            Log::info('>>> [STEP 2] Using order total as Duffel payment amount', [
+                'total_amount' => $offerAmountStr,
+                'currency'     => $offerCurrency,
+            ]);
 
             Log::info('>>> [STEP 3] Formatting passengers...');
 
@@ -187,7 +185,7 @@ class OrderService
                     'gender'       => match (strtolower($p['gender'] ?? 'm')) {
                         'male', 'm'   => 'm',
                         'female', 'f' => 'f',
-                        default      => 'm',
+                        default       => 'm',
                     },
                     'born_on'      => $bornOn,
                     'email'        => $p['email'] ?? $p['contact']['email'] ?? '',
@@ -200,17 +198,17 @@ class OrderService
                 }
 
                 Log::info(">>> [STEP 3] Passenger [{$index}] formatted", [
-                    'passenger_id'         => $formatted['id'],
-                    'born_on_raw'          => $bornOnRaw,
-                    'born_on_final'        => $bornOn,
-                    'born_on_empty'        => empty($bornOn)            ? '*** EMPTY - WILL FAIL ***'  : 'OK',
-                    'id_empty'             => empty($formatted['id'])   ? '*** EMPTY - WILL FAIL ***'  : 'OK',
-                    'email_empty'          => empty($formatted['email']) ? '*** EMPTY - WILL FAIL ***'  : 'OK',
-                    'phone_empty'          => empty($formatted['phone_number']) ? '*** EMPTY ***'      : 'OK',
-                    'calculated_age'       => $calculatedAge,
-                    'calculated_type'      => $calculatedType,
-                    'has_infant_key'       => isset($p['infant_passenger_id']) ? 'YES → ' . $p['infant_passenger_id'] : 'no',
-                    'formatted_payload'    => $formatted,
+                    'passenger_id'      => $formatted['id'],
+                    'born_on_raw'       => $bornOnRaw,
+                    'born_on_final'     => $bornOn,
+                    'born_on_empty'     => empty($bornOn)                   ? '*** EMPTY - WILL FAIL ***' : 'OK',
+                    'id_empty'          => empty($formatted['id'])           ? '*** EMPTY - WILL FAIL ***' : 'OK',
+                    'email_empty'       => empty($formatted['email'])        ? '*** EMPTY - WILL FAIL ***' : 'OK',
+                    'phone_empty'       => empty($formatted['phone_number']) ? '*** EMPTY ***'             : 'OK',
+                    'calculated_age'    => $calculatedAge,
+                    'calculated_type'   => $calculatedType,
+                    'has_infant_key'    => isset($p['infant_passenger_id']) ? 'YES → ' . $p['infant_passenger_id'] : 'no',
+                    'formatted_payload' => $formatted,
                 ]);
 
                 return $formatted;
@@ -223,11 +221,18 @@ class OrderService
                     'passengers'      => $formattedPassengers,
                     'payments'        => [[
                         'type'     => 'balance',
-                        'currency' => $order->currency,
-                        'amount'   => $offerAmount,
+                        'currency' => $offerCurrency,
+                        'amount'   => $offerAmountStr,
                     ]],
                 ],
             ];
+
+            if (!empty($services)) {
+                $payload['data']['services'] = array_map(fn($s) => [
+                    'id'       => $s['service_id'] ?? $s['id'],
+                    'quantity' => $s['quantity'] ?? 1,
+                ], $services);
+            }
 
             Log::info('>>> [STEP 4] FINAL payload to Duffel', [
                 'payload' => $payload,
@@ -235,11 +240,10 @@ class OrderService
 
             $bornOns = array_column($formattedPassengers, 'born_on');
             if (count($bornOns) !== count(array_unique($bornOns))) {
-                Log::warning('>>> [STEP 4] *** WARNING: Multiple passengers share the same born_on — infant likely has wrong DOB ***', [
+                Log::warning('>>> [STEP 4] *** WARNING: Multiple passengers share the same born_on ***', [
                     'born_ons' => $bornOns,
                 ]);
             }
-
 
             Log::info('>>> [STEP 5] Calling Duffel createDuffelOrder...');
 

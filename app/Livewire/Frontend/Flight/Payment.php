@@ -32,7 +32,7 @@ class Payment extends Component
     public bool $isLoading = true;
     public float $platformFee = 0;
     public float $taxAmount = 0;
-    
+
     protected $listeners = ['confirm-payment' => 'confirmPayment'];
 
     protected function rules(): array
@@ -41,15 +41,12 @@ class Payment extends Component
         return [
             'cardHolder' => 'required|string|min:2',
             'cardNumber' => ['required', 'regex:/^(\d{4}\s?){3,4}\d{1,4}$/'],
-            'cardExpiry' => ['required','regex:/^(0[1-9]|1[0-2])\/\d{2}$/'],
+            'cardExpiry' => ['required', 'regex:/^(0[1-9]|1[0-2])\/\d{2}$/'],
             'cardCvv'    => 'required|digits_between:3,4',
         ];
     }
 
-    public function mount():void 
-    {
-
-    }
+    public function mount(): void {}
 
     public function loadData(): void
     {
@@ -98,6 +95,8 @@ class Payment extends Component
 
         try {
             $bookingInfo = session('booking_info', []);
+            $services = $bookingInfo['services'] ?? [];
+
             $orderService = app(OrderService::class);
             $response = $orderService->create([
                 'user_id'      => Auth::id(),
@@ -107,12 +106,16 @@ class Payment extends Component
                 'addons_total' => $bookingInfo['addonsTotal']  ?? $this->addonsTotal,
                 'seat_total'   => $bookingInfo['seatTotal']    ?? $this->seatTotal,
                 'platform_fee' => $bookingInfo['platform_fee'] ?? $this->platformFee,
+                'card_number'  => str_replace(' ', '', $this->cardNumber),
+                'exp_month'    => explode('/', $this->cardExpiry)[0],
+                'exp_year'     => '20' . explode('/', $this->cardExpiry)[1],
+                'cvc'          => $this->cardCvv,
+                'card_holder'  => $this->cardHolder,
             ]);
             $orderPassengers = $this->mapPassengersForDuffel($this->passengers, $this->selectedFlight, $this->contact);
-            $order = $orderService->confirmPayment($response['payment_id'],$this->selectedFlight['id'],$orderPassengers);
+            $orderService->confirmPayment($response['payment_id'], $this->selectedFlight['id'], $orderPassengers, $services);
             session()->forget(['booking_info', 'addons_info', 'seats_info']);
             return redirect()->route('airport.confirmation');
-
         } catch (\Throwable $e) {
             $this->paymentError = true;
             $this->errorMessage = $e->getMessage();
@@ -137,8 +140,8 @@ class Payment extends Component
         }
 
         $adultOffset  = 0;
-        $childOffset  = $adultCount;                   
-        $infantOffset = $adultCount + $childCount;     
+        $childOffset  = $adultCount;
+        $infantOffset = $adultCount + $childCount;
 
         $typeCounters = ['adult' => 0, 'child' => 0, 'infant' => 0];
         $infantIds    = [];
@@ -154,7 +157,7 @@ class Payment extends Component
             $offerType      = $offerPax['type'] ?? 'adult';
             $normalizedType = str_starts_with($offerType, 'infant') ? 'infant' : $offerType;
 
-            $formIndex = match($normalizedType) {
+            $formIndex = match ($normalizedType) {
                 'child'  => $childOffset  + $typeCounters['child'],
                 'infant' => $infantOffset + $typeCounters['infant'],
                 default  => $adultOffset  + $typeCounters['adult'],
@@ -172,18 +175,19 @@ class Payment extends Component
             $bornOn = $formPax['dob'] ?? $formPax['born_on'] ?? '';
             try {
                 $bornOn = $bornOn ? \Carbon\Carbon::parse($bornOn)->format('Y-m-d') : '';
-            } catch (\Throwable) {}
+            } catch (\Throwable) {
+            }
 
             $orderPax = [
                 'id'           => $offerPax['id'],
                 'title'        => strtolower($formPax['title'] ?? 'mr'),
                 'given_name'   => $formPax['given_name'] ?? $formPax['first_name'] ?? '',
                 'family_name'  => $formPax['family_name'] ?? $formPax['last_name'] ?? '',
-                'gender'       => match(strtolower($formPax['gender'] ?? 'm')) {
-                                    'male','m'   => 'm',
-                                    'female','f' => 'f',
-                                    default      => 'm',
-                                },
+                'gender'       => match (strtolower($formPax['gender'] ?? 'm')) {
+                    'male', 'm'   => 'm',
+                    'female', 'f' => 'f',
+                    default      => 'm',
+                },
                 'born_on'      => $bornOn,
                 'email'        => $contact['email'] ?? '',
                 'phone_number' => ($contact['phone_code'] ?? '') . ($contact['phone'] ?? ''),
@@ -206,7 +210,7 @@ class Payment extends Component
             'mapped'                => array_map(fn($p) => [
                 'id'      => $p['id'],
                 'born_on' => $p['born_on'],
-                'type_inferred' => match(true) {
+                'type_inferred' => match (true) {
                     \Carbon\Carbon::parse($p['born_on'])->age < 2  => 'infant',
                     \Carbon\Carbon::parse($p['born_on'])->age < 12 => 'child',
                     default => 'adult',
