@@ -172,37 +172,80 @@ function initTablerIcons() {
  * Initialise main `.tabs-border` tabs and nested `.tabs` sub-tabs.
  */
 function initTabs() {
-    const mainTabs = document.querySelectorAll(".tabs-border");
-    const mainPanels = document.querySelectorAll(".search-tab-content > div");
+    const mainTabsContainer = document.getElementById('mainTabsContainer');
+    if (!mainTabsContainer) return;
+    if (mainTabsContainer.dataset.tabsInit === 'true') return;
+    mainTabsContainer.dataset.tabsInit = 'true';
 
-    if (mainTabs.length && mainPanels.length) {
-        mainTabs.forEach((tab, index) => {
+    const activeMainTab = mainTabsContainer.querySelector(".tabs-border.active");
+    if (activeMainTab) mainTabsContainer.prepend(activeMainTab);
+
+    document.querySelectorAll(".subTabs-content").forEach((subTabsContent) => {
+        const subTabsContainer = subTabsContent.previousElementSibling;
+        if (!subTabsContainer) return;
+        const activeSubTab = subTabsContainer.querySelector(".trip-tab.active");
+        if (activeSubTab) subTabsContainer.prepend(activeSubTab);
+    });
+
+    mainTabsContainer.querySelectorAll(".tabs-border").forEach((tab) => {
+        tab.addEventListener("click", () => {
+            const tabIndex = tab.dataset.tab;
+            mainTabsContainer.querySelectorAll(".tabs-border").forEach((t) => t.classList.remove("active"));
+            tab.classList.add("active");
+
+            document.querySelectorAll("[data-panel]").forEach((panel) => {
+                const isActive = panel.dataset.panel === tabIndex;
+                panel.classList.toggle("hidden", !isActive);
+
+                if (isActive) {
+                    const subTabsContainer = panel.querySelector(".flex.items-center.gap-2");
+                    const subTabsContent = panel.querySelector(".subTabs-content");
+                    if (!subTabsContainer || !subTabsContent) return;
+
+                    const subTabs = subTabsContainer.querySelectorAll(".trip-tab");
+                    const subPanels = subTabsContent.querySelectorAll("[data-subtab]");
+
+                    const hasActive = [...subTabs].some(t => t.classList.contains("active"));
+                    if (!hasActive && subTabs.length) {
+                        subTabs[0].classList.add("active");
+                    }
+
+                    const activeSubTab = subTabsContainer.querySelector(".trip-tab.active");
+                    if (activeSubTab && subPanels.length) {
+                        const tripType = activeSubTab.dataset.trip;
+                        subPanels.forEach((p) => {
+                            p.classList.toggle("hidden", p.dataset.subtab !== tripType);
+                        });
+                    }
+                }
+            });
+        });
+    });
+
+    document.querySelectorAll("[data-panel]").forEach((panel) => {
+        const subTabsContainer = panel.querySelector(".flex.items-center.gap-2");
+        const subTabsContent = panel.querySelector(".subTabs-content");
+        if (!subTabsContainer || !subTabsContent) return;
+
+        const subTabs = subTabsContainer.querySelectorAll(".trip-tab");
+        const subPanels = subTabsContent.querySelectorAll("[data-subtab]");
+        if (!subTabs.length || !subPanels.length) return;
+
+        subTabs.forEach((tab) => {
             tab.addEventListener("click", () => {
-                mainTabs.forEach((t) => t.classList.remove("active"));
+                const tripType = tab.dataset.trip;
+                subTabs.forEach((t) => t.classList.remove("active"));
                 tab.classList.add("active");
-                mainPanels.forEach((panel, pIndex) => {
-                    panel.classList.toggle("hidden", index !== pIndex);
+                subPanels.forEach((p) => {
+                    p.classList.toggle("hidden", p.dataset.subtab !== tripType);
                 });
             });
         });
-    }
-
-    document.querySelectorAll(".search-tab-content > div").forEach((panel) => {
-        const subTabs = panel.querySelectorAll(".tabs");
-        const subPanels = panel.querySelectorAll(".subTabs-content > div");
-        if (subTabs.length && subPanels.length) {
-            subTabs.forEach((tab, index) => {
-                tab.addEventListener("click", () => {
-                    subTabs.forEach((t) => t.classList.remove("active"));
-                    tab.classList.add("active");
-                    subPanels.forEach((subPanel, pIndex) => {
-                        subPanel.classList.toggle("hidden", index !== pIndex);
-                    });
-                });
-            });
-        }
     });
 }
+
+document.addEventListener("DOMContentLoaded", initTabs);
+
 
 /* ═══════════════════════════════════════════════════════════════
    6. FILTER SIDEBAR  (Mobile)

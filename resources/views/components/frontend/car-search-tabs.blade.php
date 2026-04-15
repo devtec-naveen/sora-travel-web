@@ -1,12 +1,13 @@
+@props(['hidden' => false])
 <div
-    class="hidden flex flex-col justify-center gap-4 self-stretch bg-white p-2 md:p-4 rounded-xl shadow-sm border border-slate-100">
+    class="{{ $hidden ? 'hidden' : '' }} flex flex-col justify-center gap-4 self-stretch bg-white p-2 md:p-4 rounded-xl shadow-sm border border-slate-100">
     <div class="flex items-center gap-2">
-        <button class="tabs active">One-way</button>
-        <button class="tabs">Round trip</button>
+        <button class="trip-tab tabs active" data-trip="oneway">One-way</button>
+        <button class="trip-tab tabs" data-trip="roundtrip">Round trip</button>
     </div>
     <div class="subTabs-content">
         {{-- ====================================== One Way Trip ======================================= --}}
-        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-3 w-full">
+        <div data-subtab="oneway" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-3 w-full">
             <div class="md:col-span-4 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div
                     class="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200 hover:border-blue-400 transition cursor-pointer">
@@ -73,7 +74,7 @@
             </button>
         </div>
         {{-- ====================================== Round Trip ======================================= --}}
-        <div class="hidden grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-3 w-full">
+        <div data-subtab="roundtrip" class="hidden grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-3 w-full">
             <div class="md:col-span-4 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div
                     class="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200 hover:border-blue-400 transition cursor-pointer">

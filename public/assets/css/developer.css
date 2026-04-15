@@ -667,3 +667,12 @@
   font-size:13px;
   font-weight:600;
 }
+
+#homeHero #heroTabs .active{
+    border-color: var(--color-blue-700);
+    border-width:1px;
+}
+
+#listingHeroBanner .tabs-border{
+  border-color:currentColor ;
+}

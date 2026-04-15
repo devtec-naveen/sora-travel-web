@@ -1,27 +1,22 @@
 <x-frontend.main-layout>
     <main>
         <section class="py-6 bg-cover bg-center relative min-h-[500px]"
-            style="background-image: url('{{ asset('assets/images/search-bg.jpg') }}');">
+            style="background-image: url('{{ asset('assets/images/search-bg.jpg') }}');" id="homeHero">
             <div class="bg-gradient-to-b from-blue-950 via-blue-950 to-blue-950/0 absolute top-0 left-0 w-full h-full">
             </div>
             <div class="container ">
                 <div class="flex flex-col gap-4 md:gap-9 relative z-[1]">
-                    <div class="flex items-center gap-2 md:gap-3.5">
-                        <button class="tabs-border flex-1 md:flex-none active">
-                            <i data-tabler="plane-inflight" class="size-5 md:size-7"></i> Flights
-                        </button>
-                        <button class="tabs-border flex-1 md:flex-none">
-                            <i data-tabler="building" class="size-5 md:size-7"></i> Hotels
-                        </button>
-                        <button class="tabs-border flex-1 md:flex-none">
-                            <i data-tabler="car" class="size-5 md:size-7"></i> Car
-                            Rental
-                        </button>
-                    </div>
+                    @include('include.tabs')
                     <div class="search-tab-content">
-                        <x-frontend.flight-search-tabs />
-                        <x-frontend.hotel-search-tabs />
-                        <x-frontend.car-search-tabs />
+                        <div data-panel="0">
+                            <x-frontend.flight-search-tabs/>
+                        </div>
+                        <div data-panel="1" class="hidden">
+                            <x-frontend.hotel-search-tabs/>
+                        </div>
+                        <div data-panel="2" class="hidden">
+                            <x-frontend.car-search-tabs/>
+                        </div>
                     </div>
                     <div
                         class="w-full inline-flex flex-col justify-center items-center gap-1.5 text-center lg:text-left">
@@ -37,7 +32,7 @@
                 </div>
             </div>
         </section>
-        
+
         <section class="py-10 pb-0">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div
@@ -288,8 +283,8 @@
                             @foreach ($popularDestinations as $destinations)
                                 <div class="swiper-slide flex flex-col items-center text-center">
                                     <div class="w-[120px] h-[160px] rounded-full overflow-hidden shadow-md">
-                                        <img src="{{$destinations->image}}"
-                                            class="w-full h-full object-cover" alt="{{$destinations->title}}">
+                                        <img src="{{ $destinations->image }}" class="w-full h-full object-cover"
+                                            alt="{{ $destinations->title }}">
                                     </div>
                                     <h4 class="mt-4 font-semibold text-slate-800">{{ $destinations->title }}</h4>
                                 </div>
@@ -321,8 +316,10 @@
                 <div class="w-full overflow-hidden">
                     <div class="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar">
                         @foreach ($specialOffers as $offers)
-                            <a href="#" class="snap-start shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[32%] rounded-xl overflow-hidden">
-                                <img src="{{$offers->image}}" class="w-full aspect-[16/6] object-cover" alt="{{$offers->title}}">
+                            <a href="#"
+                                class="snap-start shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[32%] rounded-xl overflow-hidden">
+                                <img src="{{ $offers->image }}" class="w-full aspect-[16/6] object-cover"
+                                    alt="{{ $offers->title }}">
                             </a>
                         @endforeach
                     </div>

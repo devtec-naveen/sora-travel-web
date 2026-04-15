@@ -7,7 +7,7 @@
         </div>
         <div class="subTabs-content">
             {{-- ONE WAY --}}
-            <div class="{{ $tripType === 'oneway' ? '' : 'hidden' }}">
+            <div data-subtab="oneway" class="{{ $tripType === 'oneway' ? '' : 'hidden' }}">
                 <form method="get" action="{{ route('front.flightSearch') }}" id="flightOneWayForm">
                     <input type="hidden" name="trip_type" id="trip_type" value="{{ config('constant.flight_trip_types.oneway') }}">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 w-full">
@@ -48,7 +48,7 @@
                 </form>
             </div>
             {{-- ROUND TRIP --}}
-            <div class="{{ $tripType === 'roundtrip' ? 'block' : 'hidden' }}">
+            <div data-subtab="roundtrip" class="{{ $tripType === 'roundtrip' ? 'block' : 'hidden' }}">
                 <form method="get" action="{{ route('front.flightSearch') }}">
                     <input type="hidden" name="trip_type" value="{{ config('constant.flight_trip_types.roundtrip') }}">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3 w-full">
@@ -97,7 +97,7 @@
                 </form>
             </div>
             {{-- MULTI CITY --}}
-            <div class="{{ $tripType === 'multicity' ? 'block' : 'hidden' }}">
+            <div data-subtab="multicity" class="{{ $tripType === 'multicity' ? 'block' : 'hidden' }}">
                 <form method="get" action="{{ route('front.flightSearch') }}" id="multicity-form">
                     <input type="hidden" name="trip_type" value="{{ config('constant.flight_trip_types.multicity') }}">
 

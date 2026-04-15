@@ -1,7 +1,7 @@
 @php
     $rooms = request('rooms', 1);
     $adults = request('adults', 1);
-    $children = request('children', 0);
+    $children = request('childrens', 0);
 @endphp
 <div class="{{$hidden ? 'hidden' : ''}} flex flex-col justify-center gap-4 self-stretch bg-white p-2 md:p-4 rounded-xl shadow-sm border border-slate-100">
     <form method="get" action="{{ route('front.hotelsSearch') }}" id="hotelMain">
@@ -48,7 +48,7 @@
                 </div>
                 <input type="hidden" name="rooms" id="hg_rooms" value="{{ $rooms }}" />
                 <input type="hidden" name="adults" id="hg_adults" value="{{ $adults }}" />
-                <input type="hidden" name="children" id="hg_children" value="{{ $children }}" />
+                <input type="hidden" name="childrens" id="hg_children" value="{{ $children }}" />
 
                 <div id="hgDropdown"
                     class="hidden absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 p-5"

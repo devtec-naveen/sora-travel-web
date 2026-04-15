@@ -1,11 +1,22 @@
 <div wire:init="loadFlights">
     <x-loader message="Please Wait, We are searching for the flights on this route"
         targets="loadFlights,selectFlight,sortBy,maxPrice,stops,airlines,refundableOnly,clearFilters,removeAirline" />
-    <main class="bg-slate-50">
+    <main class="bg-slate-50" id="listingHeroBanner">
         <section class="search-panel-inner py-5 bg-gradient-to-b from-[#075fc6] to-[#0d529b]">
             <div class="container">
-                <div class="search-tab-content">
-                    <x-frontend.flight-search-tabs />
+                <div class="flex flex-col gap-4 md:gap-9 relative z-[1]">
+                    @include('include.tabs')
+                    <div class="search-tab-content">
+                        <div data-panel="0">
+                            <x-frontend.flight-search-tabs :hidden="false" />
+                        </div>
+                        <div data-panel="1" class="hidden">
+                            <x-frontend.hotel-search-tabs :hidden="false" />
+                        </div>
+                        <div data-panel="2" class="hidden">
+                            <x-frontend.car-search-tabs :hidden="false" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -436,7 +447,8 @@
                                                 class="flex flex-row lg:flex-col justify-between items-center lg:items-end lg:justify-between lg:min-w-[153px] gap-4">
                                                 <div class="flex flex-col lg:items-end">
                                                     <span class="font-normal text-sm text-slate-500">From</span>
-                                                    <span class="font-semibold text-[24px] leading-[36px] text-blue-600">
+                                                    <span
+                                                        class="font-semibold text-[24px] leading-[36px] text-blue-600">
                                                         {{ $currency }} {{ number_format((float) $price, 2) }}
                                                     </span>
                                                     <span class="font-normal text-sm text-slate-500">
@@ -444,7 +456,8 @@
                                                             $totalPax = max(1, $adults + $childrens + $infants);
                                                             $perPerson = (float) $price / $totalPax;
                                                         @endphp
-                                                        Avg {{ $currency }} {{ number_format($perPerson, 2) }} / person
+                                                        Avg {{ $currency }} {{ number_format($perPerson, 2) }} /
+                                                        person
                                                     </span>
                                                 </div>
                                                 <button wire:click="selectFlight({{ $index }})"
