@@ -73,11 +73,11 @@ class OrderService
             'amount'     => $totalAmount,
             'currency'   => $currency,
             'payment_id' => $payment->id,
-            'card_number' => $data['card_number'],
-            'exp_month'   => $data['exp_month'],
-            'exp_year'    => $data['exp_year'],
-            'cvc'         => $data['cvc'],
-            'card_holder' => $data['card_holder'],
+            'card_number' => $data['card_number'] ?? null,
+            'exp_month'   => $data['exp_month'] ?? null,
+            'exp_year'    => $data['exp_year'] ?? null,
+            'cvc'         => $data['cvc'] ?? null,
+            'card_holder' => $data['card_holder'] ?? null,
         ]);
 
         $order->update(['payment_intent_id' => $intent->id]);
