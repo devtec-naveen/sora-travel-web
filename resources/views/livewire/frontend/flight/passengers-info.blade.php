@@ -289,7 +289,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="w-full lg:w-[304px] shrink-0 sticky top-24" wire:ignore>
+                    <div class="w-full lg:w-[304px] shrink-0 sticky top-24">
                         <div class="flex flex-col md:gap-7 gap-2">
                             <div class="flex flex-col gap-2.5">
                                 <h3 class="font-semibold text-[24px] leading-[36px] text-slate-800">Price details</h3>
@@ -352,12 +352,17 @@
                                 </div>
                             @endif
                             <div class="card p-5 space-y-4">
+                                @php
+                                    $totalPax = max(1, $this->adults + $this->children + $this->infants);
+                                    $baseFarePerPax = round($this->baseAmount / $totalPax, 2);
+                                @endphp
+
                                 @if ($this->adults > 0)
                                     <div class="flex justify-between items-center self-stretch">
                                         <span class="font-normal text-sm text-slate-950">Base Fare
                                             ({{ $this->adults }} Adult{{ $this->adults > 1 ? 's' : '' }})</span>
                                         <span class="font-normal text-sm text-slate-500">{{ $currency }}
-                                            {{ number_format($baseFare * $this->adults, 2) }}</span>
+                                            {{ number_format($baseFarePerPax * $this->adults, 2) }}</span>
                                     </div>
                                 @endif
 
@@ -366,7 +371,7 @@
                                         <span class="font-normal text-sm text-slate-950">Base Fare
                                             ({{ $this->children }} Child{{ $this->children > 1 ? 'ren' : '' }})</span>
                                         <span class="font-normal text-sm text-slate-500">{{ $currency }}
-                                            {{ number_format($baseFare * $this->children, 2) }}</span>
+                                            {{ number_format($baseFarePerPax * $this->children, 2) }}</span>
                                     </div>
                                 @endif
 
@@ -375,32 +380,34 @@
                                         <span class="font-normal text-sm text-slate-950">Base Fare
                                             ({{ $this->infants }} Infant{{ $this->infants > 1 ? 's' : '' }})</span>
                                         <span class="font-normal text-sm text-slate-500">{{ $currency }}
-                                            {{ number_format($baseFare * $this->infants, 2) }}</span>
+                                            {{ number_format($baseFarePerPax * $this->infants, 2) }}</span>
                                     </div>
                                 @endif
 
-                                @if ($taxes > 0)
+                                @if ($this->taxAmount > 0)
                                     <div class="flex justify-between items-center self-stretch">
                                         <span class="font-normal text-sm text-slate-950">Taxes & Fees</span>
                                         <span class="font-normal text-sm text-slate-500">{{ $currency }}
-                                            {{ number_format($taxes, 2) }}</span>
+                                            {{ number_format($this->taxAmount, 2) }}</span>
                                     </div>
                                 @endif
 
-                                @if ($platformFee > 0)
-                                    <div class="flex justify-between items-center self-stretch">
-                                        <span class="font-normal text-sm text-slate-950">Platform Fee</span>
-                                        <span class="font-normal text-sm text-slate-500">{{ $currency }}
-                                            {{ number_format($platformFee, 2) }}</span>
-                                    </div>
-                                @endif
+                                <div class="flex justify-between items-center self-stretch">
+                                    <span class="font-normal text-sm text-slate-950 flex items-center gap-1">
+                                        Platform Fee
+                                        <span class="text-xs text-slate-400 font-normal">(Service charge)</span>
+                                    </span>
+                                    <span class="font-normal text-sm {{ $this->platformFee > 0 ? 'text-slate-500' : 'text-green-600' }}">
+                                        {{ $this->platformFee > 0 ? $currency . ' ' . number_format($this->platformFee, 2) : 'Free' }}
+                                    </span>
+                                </div>
 
                                 <hr class="border-slate-100">
 
                                 <div class="flex justify-between items-center self-stretch pt-2">
                                     <span class="font-semibold text-lg text-slate-950">Total</span>
                                     <span class="font-bold text-xl text-slate-950">{{ $currency }}
-                                        {{ number_format((float) $price, 2) }}</span>
+                                        {{ number_format($this->totalAmount, 2) }}</span>
                                 </div>
                             </div>
                             <div class="card p-4 space-y-3">

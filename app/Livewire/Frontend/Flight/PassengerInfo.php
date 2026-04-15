@@ -17,13 +17,19 @@ class PassengerInfo extends Component
     public string $phone          = '';
     public bool   $isLoading      = true;
     public $returnDate;
-    public float $baseAmount  = 0;
-    public float $platformFee = 0;
+    public float $baseAmount   = 0;
+    public float $taxAmount    = 0;
+    public float $platformFee  = 0;
+    public float $totalAmount  = 0;
 
     public function mount(): void
     {
         $session = session('selected_flight', []);
-        $this->returnDate = $session['return_date'] ?? null;
+        $this->returnDate   = $session['return_date']  ?? null;
+        $this->baseAmount   = (float) ($session['base_amount']  ?? 0);
+        $this->taxAmount    = (float) ($session['tax_amount']   ?? 0);
+        $this->platformFee  = (float) ($session['platform_fee'] ?? 0);
+        $this->totalAmount  = (float) ($session['total_amount'] ?? 0);
         $this->resetValidation();
     }
 
@@ -75,7 +81,9 @@ class PassengerInfo extends Component
         $this->cabinClass     = $session['cabinClass'] ?? request('cabin_class', 'Economy');
         $this->returnDate = $session['return_date'] ?? null;
         $this->baseAmount  = (float) ($session['base_amount']  ?? 0);
+        $this->taxAmount   = (float) ($session['tax_amount']   ?? 0);
         $this->platformFee = (float) ($session['platform_fee'] ?? 0);
+        $this->totalAmount = (float) ($session['total_amount'] ?? 0);
 
         $saved = session('passenger_info', []);
         if (! empty($saved['passengers'])) {
