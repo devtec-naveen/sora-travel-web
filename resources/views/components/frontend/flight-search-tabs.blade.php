@@ -177,7 +177,7 @@
                                             label="Going to"
                                             name="destination[]"
                                             value="{{ $destinations[$i] ?? 'DEL' }}"
-                                            display="{{ isset($destinations[$i]) ? ($destinations[$i].' – '.($depCities[$i] ?? '')) : 'DEL – Delhi' }}"
+                                            display="{{ isset($destinations[$i]) ? ($destinations[$i].' – '.($depCities[$i] ?? '')) : 'DEL – New Delhi' }}"
                                             placeholder="Search airport or city…"
                                             type="airport"
                                             icon="dropoff.svg"

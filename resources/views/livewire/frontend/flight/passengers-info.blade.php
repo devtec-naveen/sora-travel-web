@@ -4,7 +4,7 @@
         targets="loadData"
      />
     <main class="bg-slate-50 min-h-[800px]">
-        <div class="booking-progress-container py-6">
+        <div class="booking-progress-container py-6" wire:ignore>
             <div class="container">
                 <div class="flex items-center justify-between max-w-5xl mx-auto">
                     <div class="flex flex-col items-center gap-2 group shrink-0">
@@ -46,7 +46,7 @@
                 </div>
             </div>
         </div>
-        <div class="back-btn container">
+        <div class="back-btn container" wire:ignore>
             <button onclick="history.back()" class="btn btn-white">
                 <i data-tabler="chevron-left" data-size="16"></i>Back
             </button>
@@ -55,7 +55,7 @@
             <div class="container">
                 <div class="flex flex-col lg:flex-row gap-8 lg:items-start">
                     <div class="flex-1 flex flex-col gap-4 md:gap-9">
-                        <div class="flex flex-col items-center lg:items-start gap-2.5 px-4 lg:px-0">
+                        <div class="flex flex-col items-center lg:items-start gap-2.5 px-4 lg:px-0" wire:ignore>
                             <h1 class="font-semibold text-[24px] leading-[36px] text-slate-800">Passenger Details</h1>
                             <span class="font-normal text-base text-slate-500">Please provide details for all
                                 passengers</span>
@@ -73,7 +73,7 @@
                                     };
                                 @endphp
                                 <div class="card">
-                                    <div class="flex items-center gap-3 px-5 py-2 border-b border-slate-100">
+                                    <div class="flex items-center gap-3 px-5 py-2 border-b border-slate-100" wire:ignore>
                                         <i data-tabler="user" class="text-slate-500" data-size="22"></i>
                                         <span class="font-semibold text-[14px] leading-[32px] text-slate-950">
                                             Passenger {{ $idx + 1 }} ({{ $typeLabel }})
@@ -86,7 +86,7 @@
                                                 <span class="form-label">Title *</span>
                                                 <div class="relative group">
                                                     <select class="form-input appearance-none pr-10"
-                                                        wire:model.live.debounce.500ms="passengers.{{ $idx }}.title">
+                                                        wire:model.live.debounce.400ms="passengers.{{ $idx }}.title">
                                                         <option>Mr</option>
                                                         <option>Ms</option>
                                                         <option>Mrs</option>
@@ -104,7 +104,7 @@
                                                         passport/ID)</span></span>
                                                 <input type="text" placeholder="Enter name"
                                                     class="form-input @error('passengers.' . $idx . '.first_name') border-red-400 @enderror"
-                                                    wire:model.live.debounce.500ms="passengers.{{ $idx }}.first_name" />
+                                                    wire:model.live.debounce.400ms="passengers.{{ $idx }}.first_name" />
                                                 @error('passengers.' . $idx . '.first_name')
                                                     <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                                 @enderror
@@ -116,7 +116,7 @@
                                                     passport/ID)</span></span>
                                             <input type="text" placeholder="Enter name"
                                                 class="form-input @error('passengers.' . $idx . '.last_name') border-red-400 @enderror"
-                                                wire:model.live.debounce.500ms="passengers.{{ $idx }}.last_name" />
+                                                wire:model.live.debounce.400ms="passengers.{{ $idx }}.last_name" />
                                             @error('passengers.' . $idx . '.last_name')
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror
@@ -127,7 +127,7 @@
                                                 <div class="relative group">
                                                     <select
                                                         class="form-input appearance-none pr-10 @error('passengers.' . $idx . '.gender') border-red-400 @enderror"
-                                                        wire:model.live.debounce.500ms="passengers.{{ $idx }}.gender">
+                                                        wire:model.live.debounce.400ms="passengers.{{ $idx }}.gender">
                                                         <option value="" disabled>Choose</option>
                                                         <option value="m">Male</option>
                                                         <option value="f">Female</option>
@@ -190,7 +190,7 @@
                                                     </div>
                                                 </div>
                                                 <input type="hidden" id="dtp_val_{{ $dobId }}"
-                                                    wire:model.live.debounce.500ms="passengers.{{ $idx }}.dob"
+                                                    wire:model.live.debounce.400ms="passengers.{{ $idx }}.dob"
                                                     value="{{ $pax['dob'] ?? '' }}" />
                                                 @error('passengers.' . $idx . '.dob')
                                                     <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
@@ -203,7 +203,7 @@
                                                     <span class="form-label">Passport Number</span>
                                                     <input type="text" placeholder="Enter Passport Number"
                                                         class="form-input"
-                                                        wire:model.live.debounce.500ms="passengers.{{ $idx }}.passport_no" />
+                                                        wire:model.live.debounce.400ms="passengers.{{ $idx }}.passport_no" />
                                                 </div>
                                                 <div class="form-control">
                                                     <span class="form-label">Passport Expiry Date</span>
@@ -230,7 +230,7 @@
                                                         </div>
                                                     </div>
                                                     <input type="hidden" id="dtp_val_{{ $expId }}"
-                                                        wire:model.live.debounce.500ms="passengers.{{ $idx }}.passport_expiry"
+                                                        wire:model.live.debounce.400ms="passengers.{{ $idx }}.passport_expiry"
                                                         value="{{ $pax['passport_expiry'] ?? '' }}" />
                                                 </div>
                                             </div>
@@ -239,7 +239,7 @@
                                 </div>
                             @endforeach
                             <div class="card">
-                                <div class="flex items-center gap-3 py-2 px-5 border-b border-slate-100">
+                                <div class="flex items-center gap-3 py-2 px-5 border-b border-slate-100" wire:ignore>
                                     <i data-tabler="mail" class="text-slate-500" data-size="22"></i>
                                     <span class="font-semibold text-[14px] leading-[32px] text-slate-950">Contact
                                         Information</span>
@@ -251,14 +251,14 @@
                                             <span class="form-label">Email Address *</span>
                                             <input type="email" placeholder="Enter email address"
                                                 class="form-input @error('email') border-red-400 @enderror"
-                                                wire:model.live.debounce.500ms="email" name="new-password-email" autocomplete="new-password-email" />
+                                                wire:model.live.debounce.400ms="email" name="new-password-email" autocomplete="new-password-email" />
                                             @error('email')
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror
                                         </div>
                                         <div class="form-control">
                                             <span class="form-label">Phone Number *</span>
-                                            <div class="w-full">
+                                            <div class="w-full" wire:ignore>
                                                 <input type="tel" id="contact-phone-input"
                                                     placeholder="Phone number"
                                                     class="form-input intl-phone-input @error('phone') border-red-400 @enderror"
@@ -267,9 +267,9 @@
                                                     autocomplete="tel" />
                                             </div>
                                             <input type="hidden" id="contact-phone-code-hidden"
-                                                wire:model.defer="phoneCode" />
+                                                wire:model.live.debounce.400ms="phoneCode" />
                                             <input type="hidden" id="contact-phone-hidden"
-                                                wire:model.defer="phone" />
+                                                wire:model.live.debounce.400ms="phone" />
                                             @error('phone')
                                                 <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
                                             @enderror
@@ -289,7 +289,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="w-full lg:w-[304px] shrink-0 sticky top-24">
+                    <div class="w-full lg:w-[304px] shrink-0 sticky top-24" wire:ignore>
                         <div class="flex flex-col md:gap-7 gap-2">
                             <div class="flex flex-col gap-2.5">
                                 <h3 class="font-semibold text-[24px] leading-[36px] text-slate-800">Price details</h3>

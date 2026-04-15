@@ -1516,6 +1516,19 @@ function addMultiCity() {
 
     const container = document.getElementById("addon-rows-container");
     const firstRow = container.querySelector(".addon-city-row");
+
+    const allExistingRows = container.querySelectorAll(".addon-city-row");
+    const lastExistingRow = allExistingRows[allExistingRows.length - 1];
+    let prevDest = { code: "", city: "", display: "" };
+    if (lastExistingRow) {
+        const destField = lastExistingRow.querySelectorAll(".ap-field")[1];
+        if (destField) {
+            prevDest.code    = destField.querySelector(".ap-hidden")?.value?.trim()      || "";
+            prevDest.city    = destField.querySelector(".ap-city-hidden")?.value?.trim() || "";
+            prevDest.display = destField.querySelector(".ap-display")?.textContent?.trim() || "";
+        }
+    }
+
     const clone = firstRow.cloneNode(true);
 
     multiCityCount++;
@@ -1563,6 +1576,24 @@ function addMultiCity() {
     clone
         .querySelectorAll(".ap-hidden, .ap-city-hidden")
         .forEach((el) => (el.value = ""));
+
+    // Naye row ki origin = pichle row ki destination
+    if (prevDest.code) {
+        const newOriginField = clone.querySelectorAll(".ap-field")[0];
+        if (newOriginField) {
+            const h = newOriginField.querySelector(".ap-hidden");
+            const c = newOriginField.querySelector(".ap-city-hidden");
+            const d = newOriginField.querySelector(".ap-display");
+            if (h) h.value = prevDest.code;
+            if (c) c.value = prevDest.city;
+            if (d) {
+                d.textContent = prevDest.display || `${prevDest.code} – ${prevDest.city}`;
+                d.classList.remove("text-slate-400");
+                d.classList.add("text-slate-800");
+            }
+        }
+    }
+
     clone
         .querySelectorAll(".ap-dropdown")
         .forEach((el) => el.classList.remove("open"));
