@@ -132,7 +132,6 @@ class OrderService
                 return $order;
             }
 
-            // Order ka actual total use karo — getOfferAmount() nahi
             $offerAmountStr = number_format(
                 (float) $order->base_amount + (float) $order->tax_amount + (float) $order->seat_amount + (float) $order->addons_amount,
                 2,

@@ -14,7 +14,6 @@ class PaymentService
         return PaymentIntent::create([
             'amount'   => (int) ($data['amount'] * 100),
             'currency' => strtolower($data['currency'] ?? 'usd'),
-            'confirm'  => true,
             'payment_method' => 'pm_card_visa',
             // 'payment_method_data' => [
             //     'type' => 'card',
