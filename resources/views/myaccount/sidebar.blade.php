@@ -11,9 +11,10 @@
             class="lg:hidden ml-auto mb-2 flex items-center gap-1 px-3 py-1.5 rounded transition-colors hover:bg-slate-100 text-slate-600 focus:outline-none">
             <i data-tabler="x" class="size-6"></i>
         </button>
-        <a href="personal-information.php"
-            class="sidebar-link flex items-center gap-2.5 px-2.5 py-3.5 rounded-xl text-slate-600 text-base font-normal hover:bg-slate-100 transition-colors"
-            data-page="personal-information.php">
+        <a href="{{ route('my-account.personal-information') }}"
+        class="sidebar-link flex items-center gap-2.5 px-2.5 py-3.5 rounded-xl text-base font-normal transition-colors
+        {{ request()->routeIs('my-account.personal-information') ? 'bg-primary-600 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+            
             <i data-tabler="user" class="size-6 shrink-0"></i>
             <span>Personal Information</span>
         </a>

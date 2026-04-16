@@ -5,10 +5,12 @@ namespace App\Livewire\Frontend\Auth;
 use Livewire\Component;
 use App\Services\Common\Auth\AuthService;
 use Illuminate\Support\Facades\Auth;
-
+use App\Traits\Toast;
 
 class Register extends Component
 {
+    use Toast;
+
     public string $step = 'signup';
 
     public string $name                  = '';
@@ -110,11 +112,10 @@ class Register extends Component
 
         $this->step      = 'otp';
         $this->canResend = false;
-
         $this->dispatch('otp-sent');
     }
 
-    public function verifyOtp(AuthService $auth): void
+    public function verifyOtp(AuthService $auth)
     {
         $entered = implode('', $this->otp);
 
@@ -132,7 +133,8 @@ class Register extends Component
 
         Auth::login($otpResult['user']);
         $this->resetForm();
-        $this->dispatch('auth-success');
+        $this->SessionToast('success', 'Login successfully!');
+        return redirect()->route('home');
     }
 
     public function resendOtp(AuthService $auth): void

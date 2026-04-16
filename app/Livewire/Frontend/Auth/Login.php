@@ -4,9 +4,13 @@ namespace App\Livewire\Frontend\Auth;
 
 use Livewire\Component;
 use App\Services\Common\Auth\AuthService;
+use App\Traits\Toast;
+
 
 class Login extends Component
 {
+    use Toast;
+
     public string $email      = '';
     public string $password   = '';
     public bool   $rememberMe = false;
@@ -55,7 +59,7 @@ class Login extends Component
         $this->dispatch('open-modal', id: 'signup_modal');
     }
 
-    public function login(AuthService $auth): void
+    public function login(AuthService $auth)
     {
         $this->validate();
 
@@ -72,7 +76,8 @@ class Login extends Component
         }
 
         $this->resetForm();
-        $this->dispatch('auth-success');
+        $this->SessionToast('success', 'Login successfully!');
+        return redirect()->route('home');
     }
 
     public function updated($field): void

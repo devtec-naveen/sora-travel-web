@@ -659,20 +659,25 @@
 }
 
 .iti__country-name {
-  font-size:12px;
-  font-weight:600;
+  font-size: 12px;
+  font-weight: 600;
 }
 
-.iti__selected-dial-code{
-  font-size:13px;
-  font-weight:600;
+.iti__selected-dial-code {
+  font-size: 13px;
+  font-weight: 600;
 }
 
-#homeHero #heroTabs .active{
-    border-color: var(--color-blue-700);
-    border-width:1px;
+#homeHero #heroTabs .active {
+  border-color: var(--color-blue-700);
+  border-width: 1px;
 }
 
-#listingHeroBanner .tabs-border{
-  border-color:currentColor ;
+#listingHeroBanner .tabs-border {
+  border-color: currentColor;
+}
+
+.toast-content .message .text-2 {
+  font-size: 14px !important;
+  font-weight: 700 !important;
 }
