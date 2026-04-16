@@ -34,9 +34,9 @@ class MyAccountService
         $settings = $record?->settings ?? [];
 
         return [
-            'booking_updates' => (bool) ($settings['booking_updates'] ?? false),
-            'promotions'      => (bool) ($settings['promotions']      ?? false),
-            'payment_alerts'  => (bool) ($settings['payment_alerts']  ?? false),
+            'booking_updates' => (bool) ($settings['booking_updates'] ?? true),
+            'promotions'      => (bool) ($settings['promotions']      ?? true),
+            'payment_alerts'  => (bool) ($settings['payment_alerts']  ?? true),
         ];
     }
 

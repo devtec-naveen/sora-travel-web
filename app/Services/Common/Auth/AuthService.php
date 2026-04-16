@@ -3,6 +3,7 @@
 namespace App\Services\Common\Auth;
 
 use App\Repositories\Common\Auth\AuthRepository;
+use App\Repositories\Common\MyAccountRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Jobs\SendEmail;
@@ -14,8 +15,11 @@ class AuthService
 {
     protected $fileService;
 
-    public function __construct(protected AuthRepository $authRepo, FileService $fileService)
-    {
+    public function __construct(
+        protected AuthRepository    $authRepo,
+        protected MyAccountRepository $myAccountRepo,
+        FileService $fileService
+    ) {
         $this->fileService = $fileService;
     }
 
@@ -106,6 +110,13 @@ class AuthService
         DB::beginTransaction();
         try {
             $user = $this->authRepo->activateUser($user);
+
+            $this->myAccountRepo->updateNotificationSettings($user->id, [
+                'booking_updates' => true,
+                'promotions'      => true,
+                'payment_alerts'  => true,
+            ]);
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
