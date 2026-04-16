@@ -30,6 +30,7 @@ class User extends Authenticatable
         'status',
         'otp_expires_at',
         'passport_id',
+        'profile_image'
     ];
 
     /**
