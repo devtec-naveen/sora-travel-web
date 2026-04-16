@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AirportController;
 use App\Http\Controllers\Api\CmsController;
 use App\Http\Controllers\Api\FlightController;
 use App\Http\Controllers\Api\HotelController;
+use App\Http\Controllers\Api\MyAccountController;
 use App\Http\Controllers\Api\MyBookingController;
 use App\Http\Controllers\Api\PaymentController;
 
@@ -44,7 +45,7 @@ Route::middleware('check.active')->group(function () {
     //================== Auth Sanctum ======================
 
     Route::middleware('auth:sanctum')->group(function () {        
-        Route::put('/profile/update', [AuthController::class, 'updateProfile']);
+        Route::put('/profile/update', [MyAccountController::class, 'updateProfile']);
         Route::get('/mybooking', [MyBookingController::class, 'indexFlight']);
         Route::get('/mybooking/flight/{id}', [MyBookingController::class, 'viewFlight']);
         Route::post('/logout', [AuthController::class, 'logout']);

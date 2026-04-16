@@ -23,11 +23,13 @@ class User extends Authenticatable
         'email',
         'password',
         'phone_number',
+        'country_code',
         'tc',
         'fcm_token',
         'otp',
         'status',
-        'otp_expires_at'
+        'otp_expires_at',
+        'passport_id',
     ];
 
     /**

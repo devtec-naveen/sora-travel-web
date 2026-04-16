@@ -358,6 +358,7 @@ class AuthService
 
             $this->authRepo->updateProfile($user, [
                 'name'        => $data['name']        ?? $user->name,
+                'email'        => $data['email'] ?? $user->email,
                 'phone_number'=> $data['phone_number'] ?? $user->phone_number,
                 'passport_id' => $data['passport_id'] ?? $user->passport_id,
             ]);
