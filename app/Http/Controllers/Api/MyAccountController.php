@@ -32,21 +32,32 @@ class MyAccountController extends Controller
                 'phone_number' => ['nullable', 'string', 'max:13'],
                 'country_code' => ['nullable', 'string', 'max:5'],
                 'passport_id'  => ['nullable', 'string', 'max:20'],
+                'profile_image'=> ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:1024'],
             ]);
 
-            $result = $this->commonAuthService->updateProfile($request->only([
-                'name',
-                'email',
-                'phone_number',
-                'country_code',
-                'passport_id',
-            ]));
+            $result = $this->commonAuthService->updateProfile([
+                ...$request->only([
+                    'name',
+                    'email',
+                    'phone_number',
+                    'country_code',
+                    'passport_id',
+                ]),
+                'profile_image' => $request->file('profile_image'),
+            ]);
 
             if (!$result['status']) {
                 return $this->error($result['message'], config('constant.httpCode.UNPROCESSABLE_ENTITY'));
             }
 
-            return $this->success('Profile updated successfully.', $result['user'], config('constant.httpCode.SUCCESS_OK'));
+            $base = config('constant.image_base_url');
+            $folder = 'user_profile/';
+
+            $user = $result['user'];
+
+            $user->profile_image = $user->profile_image ? $base . $folder . $user->profile_image : null;
+
+            return $this->success('Profile updated successfully.',$user,config('constant.httpCode.SUCCESS_OK'));
         } catch (ValidationException $e) {
             return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
         } catch (Exception $e) {

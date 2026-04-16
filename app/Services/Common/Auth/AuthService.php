@@ -8,10 +8,16 @@ use Illuminate\Support\Facades\Hash;
 use App\Jobs\SendEmail;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use App\Services\Common\FileService;
 
 class AuthService
 {
-    public function __construct(protected AuthRepository $authRepo) {}
+    protected $fileService;
+
+    public function __construct(protected AuthRepository $authRepo, FileService $fileService)
+    {
+        $this->fileService = $fileService;
+    }
 
     public function sendRegisterOtp(array $data): array
     {
@@ -160,7 +166,7 @@ class AuthService
                 ];
             }
 
-            Auth::login($user,$data['remember'] ?? false);
+            Auth::login($user, $data['remember'] ?? false);
             request()->session()->regenerate();
 
             return [
@@ -282,7 +288,7 @@ class AuthService
                 ];
             }
 
-            if ((!$user->otp || $data['otp'] !== $user->otp) && $data['otp'] !== '123456'){
+            if ((!$user->otp || $data['otp'] !== $user->otp) && $data['otp'] !== '123456') {
                 return [
                     'status'  => false,
                     'message' => 'Invalid or expired OTP.',
@@ -356,13 +362,32 @@ class AuthService
                 ];
             }
 
-            $this->authRepo->updateProfile($user, [
-                'name'        => $data['name']        ?? $user->name,
+            $updateData = [
+                'name'         => $data['name'] ?? $user->name,
                 'email'        => $data['email'] ?? $user->email,
-                'phone_number'=> $data['phone_number'] ?? $user->phone_number,
+                'phone_number' => $data['phone_number'] ?? $user->phone_number,
                 'country_code' => $data['country_code'] ?? $user->country_code,
-                'passport_id' => $data['passport_id'] ?? $user->passport_id,
-            ]);
+                'passport_id'  => $data['passport_id'] ?? $user->passport_id,
+            ];
+
+            if (!empty($data['profile_image'])) {
+
+                if ($user->profile_image) {
+                    $this->fileService->remove('user_profile/' . $user->profile_image);
+                }
+
+                $fileName = $this->fileService->upload(
+                    $data['profile_image'],
+                    'user_profile',
+                    'user'
+                );
+
+                if ($fileName) {
+                    $updateData['profile_image'] = $fileName;
+                }
+            }
+
+            $this->authRepo->updateProfile($user,$updateData);
 
             return [
                 'status'  => true,
