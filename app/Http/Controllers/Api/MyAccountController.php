@@ -30,6 +30,7 @@ class MyAccountController extends Controller
                 'name'         => ['required', 'string', 'max:255'],
                 'email'        => ['required', 'email', 'max:255'],
                 'phone_number' => ['nullable', 'string', 'max:13'],
+                'country_code' => ['nullable', 'string', 'max:5'],
                 'passport_id'  => ['nullable', 'string', 'max:20'],
             ]);
 
@@ -37,6 +38,7 @@ class MyAccountController extends Controller
                 'name',
                 'email',
                 'phone_number',
+                'country_code',
                 'passport_id',
             ]));
 

@@ -360,6 +360,7 @@ class AuthService
                 'name'        => $data['name']        ?? $user->name,
                 'email'        => $data['email'] ?? $user->email,
                 'phone_number'=> $data['phone_number'] ?? $user->phone_number,
+                'country_code' => $data['country_code'] ?? $user->country_code,
                 'passport_id' => $data['passport_id'] ?? $user->passport_id,
             ]);
 
