@@ -681,3 +681,10 @@
   font-size: 14px !important;
   font-weight: 700 !important;
 }
+
+.iti--inline-dropdown:not(.iti--container) .iti__dropdown-content{
+  border-radius:10px;
+}
+.iti--inline-dropdown .iti__dropdown-content{
+  box-shadow:none !important;
+}

@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\Api\AuthService;
-use App\Services\Common\Auth\AuthService as CommonAuthService;
+use App\Services\Common\MyAccountService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class MyAccountController extends Controller
@@ -15,12 +16,12 @@ class MyAccountController extends Controller
     use ApiResponse;
 
     protected $authService;
-    protected $commonAuthService;
+    protected $myAccountService;
 
-    public function __construct(AuthService $authService, CommonAuthService $commonAuthService)
+    public function __construct(AuthService $authService, MyAccountService $myAccountService)
     {
         $this->authService = $authService;
-        $this->commonAuthService = $commonAuthService;
+        $this->myAccountService = $myAccountService;
     }
 
     public function updateProfile(Request $request)
@@ -35,7 +36,7 @@ class MyAccountController extends Controller
                 'profile_image'=> ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:1024'],
             ]);
 
-            $result = $this->commonAuthService->updateProfile([
+            $result = $this->myAccountService->updateProfile([
                 ...$request->only([
                     'name',
                     'email',
@@ -58,6 +59,66 @@ class MyAccountController extends Controller
             $user->profile_image = $user->profile_image ? $base . $folder . $user->profile_image : null;
 
             return $this->success('Profile updated successfully.',$user,config('constant.httpCode.SUCCESS_OK'));
+        } catch (ValidationException $e) {
+            return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+        } catch (Exception $e) {
+            return $this->error($e->getMessage(), config('constant.httpCode.INTERNAL_SERVER_ERROR'));
+        }
+    }
+
+    public function getUser(Request $request)
+    {
+        try {
+            $userId = Auth::id();
+            $user = $this->myAccountService->getUserById($userId);
+
+            if (!$user) {
+                return $this->error(
+                    'User not found',
+                    config('constant.httpCode.NOT_FOUND')
+                );
+            }
+
+            $base = config('constant.image_base_url');
+            $folder = 'user_profile/';
+
+            $user->profile_image = $user->profile_image ? $base . $folder . $user->profile_image : null;
+            return $this->success('User fetched successfully',$user,config('constant.httpCode.SUCCESS_OK'));
+        } catch (Exception $e) {
+            return $this->error(
+                $e->getMessage(),
+                config('constant.httpCode.INTERNAL_SERVER_ERROR')
+            );
+        }
+    }
+
+    public function getNotificationSettings()
+    {
+        try {
+            $settings = $this->myAccountService->getNotificationSettings();
+
+            return $this->success('Notification settings fetched successfully.', $settings, config('constant.httpCode.SUCCESS_OK'));
+        } catch (Exception $e) {
+            return $this->error($e->getMessage(), config('constant.httpCode.INTERNAL_SERVER_ERROR'));
+        }
+    }
+
+    public function updateNotificationSettings(Request $request)
+    {
+        try {
+            $request->validate([
+                'booking_updates' => ['required', 'boolean'],
+                'promotions'      => ['required', 'boolean'],
+                'payment_alerts'  => ['required', 'boolean'],
+            ]);
+
+            $data = $this->myAccountService->updateNotificationSettings([
+                'booking_updates' => $request->boolean('booking_updates'),
+                'promotions'      => $request->boolean('promotions'),
+                'payment_alerts'  => $request->boolean('payment_alerts'),
+            ]);
+
+            return $this->success('Notification settings updated successfully.', $data , config('constant.httpCode.SUCCESS_OK'));
         } catch (ValidationException $e) {
             return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
         } catch (Exception $e) {

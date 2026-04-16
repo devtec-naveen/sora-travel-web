@@ -45,6 +45,10 @@ Route::middleware('check.active')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {        
         Route::put('/profile/update', [MyAccountController::class, 'updateProfile']);
+        Route::get('/user', [MyAccountController::class, 'getUser']);
+        Route::get('/notification-settings', [MyAccountController::class, 'getNotificationSettings']);
+        Route::put('/notification-settings', [MyAccountController::class, 'updateNotificationSettings']);
+
         Route::get('/mybooking', [MyBookingController::class, 'indexFlight']);
         Route::get('/mybooking/flight/{id}', [MyBookingController::class, 'viewFlight']);
         Route::post('/logout', [AuthController::class, 'logout']);

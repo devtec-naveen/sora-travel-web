@@ -4,6 +4,7 @@ namespace App\Livewire\Frontend\MyAccount;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use App\Services\Common\MyAccountService;
 use App\Traits\Toast;
 
 class PersonalInformation extends Component
@@ -18,6 +19,7 @@ class PersonalInformation extends Component
 
     public function mount(): void
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         $this->name        = $user->name         ?? '';
@@ -49,11 +51,11 @@ class PersonalInformation extends Component
         ];
     }
 
-    public function update(): void
+    public function update(MyAccountService $service): void
     {
         $this->validate();
 
-        Auth::user()->update([
+        $service->updatePersonalInfo([
             'name'         => $this->name,
             'phone_number' => $this->phone,
             'country_code' => $this->phoneCode,

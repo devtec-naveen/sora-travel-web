@@ -27,7 +27,7 @@ use App\Http\Middleware\CheckUserActive;
 Route::middleware([CheckUserActive::class])->group(function () {
 
     // Public
-    Route::get('/',[FrontendCmsController::class,'homePage'])->name('home');
+    Route::get('/', [FrontendCmsController::class, 'homePage'])->name('home');
     Route::post('/logout', [FrontendAuthController::class, 'logout'])->name('logout');
     Route::get('/flight-search', [AirportController::class, 'index'])->name('front.flightSearch');
     Route::get('/hotels-search',       [HotelController::class, 'index'])->name('front.hotelsSearch');
@@ -38,6 +38,7 @@ Route::middleware([CheckUserActive::class])->group(function () {
     Route::middleware(['user.auth'])->group(function () {
         Route::prefix('my-account')->group(function () {
             Route::get('/personal-information', fn() => view('myaccount.personal-information'))->name('my-account.personal-information');
+            Route::get('/notification-preferences', fn() => view('myaccount.notification-preferences'))->name('my-account.notification-preferences');
         });
         Route::get('/my-booking',             [BookingController::class, 'myBooking'])->name('my-booking');
         Route::get('/my-booking/flight/{id}', [BookingController::class, 'myFlightViewBooking'])->name('booking.flight.show');
@@ -131,14 +132,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             'show'   => 'destinationsView',
         ]);
 
-        Route::get('booking/flight',[BackendBookingController::class,'flightIndex'])->name('booking.flight');
-        Route::get('booking/flight/view/{id}',[BackendBookingController::class,'flightView'])->name('booking.flight.view');
-
-
-
-
-
-
+        Route::get('booking/flight', [BackendBookingController::class, 'flightIndex'])->name('booking.flight');
+        Route::get('booking/flight/view/{id}', [BackendBookingController::class, 'flightView'])->name('booking.flight.view');
     });
 });
 
