@@ -72,4 +72,9 @@ class MyAccountRepository
             ->where('id', $addressId)
             ->delete();
     }
+
+    public function deleteAccount(int $userId): bool
+    {
+        return (bool) User::where('id', $userId)->delete();
+    }
 }

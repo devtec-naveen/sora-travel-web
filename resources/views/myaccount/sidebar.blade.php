@@ -36,8 +36,9 @@
             <i data-tabler="map-pin" class="size-6 shrink-0"></i>
             <span>Saved Addresses</span>
         </a>
-        <a href="javascript:void(0)" onclick="delete_account_modal.showModal()"
-            class="flex items-center gap-2.5 px-2.5 py-3.5 rounded-xl text-slate-600 text-base font-normal hover:bg-slate-100 transition-colors">
+        <a href="{{ route('my-account.delete-account') }}"
+            class="sidebar-link flex items-center gap-2.5 px-2.5 py-3.5 rounded-xl text-base font-normal transition-colors
+            {{ request()->routeIs('my-account.delete-account') ? 'bg-red-500 text-white' : 'text-red-500 hover:bg-red-50' }}">
             <i data-tabler="trash" class="size-6 shrink-0"></i>
             <span>Delete Account</span>
         </a>

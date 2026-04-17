@@ -126,6 +126,35 @@ class MyAccountController extends Controller
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE ACCOUNT
+    | DELETE /api/account
+    | Body: { "password": "..." }
+    |--------------------------------------------------------------------------
+    */
+    public function deleteAccount(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $request->validate([
+                'password' => ['required', 'string'],
+            ], [
+                'password.required' => 'Password is required.',
+            ]);
+
+            $this->myAccountService->deleteAccount($request->input('password'));
+
+            return $this->success('Account deleted successfully.', [], config('constant.httpCode.SUCCESS_OK'));
+
+        } catch (\RuntimeException $e) {
+            return $this->error($e->getMessage(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+        } catch (ValidationException $e) {
+            return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+        } catch (Exception $e) {
+            return $this->error($e->getMessage(), config('constant.httpCode.INTERNAL_SERVER_ERROR'));
+        }
+    }
+
     public function getAddresses(): \Illuminate\Http\JsonResponse
     {
         try {

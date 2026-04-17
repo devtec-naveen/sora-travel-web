@@ -49,6 +49,7 @@ Route::middleware('check.active')->group(function () {
         Route::get('/user', [MyAccountController::class, 'getUser']);
         Route::get('/notification-settings', [MyAccountController::class, 'getNotificationSettings']);
         Route::put('/notification-settings', [MyAccountController::class, 'updateNotificationSettings']);
+        Route::delete('/account', [MyAccountController::class, 'deleteAccount']);
 
         Route::get('/mybooking', [MyBookingController::class, 'indexFlight']);
         Route::get('/mybooking/flight/{id}', [MyBookingController::class, 'viewFlight']);
