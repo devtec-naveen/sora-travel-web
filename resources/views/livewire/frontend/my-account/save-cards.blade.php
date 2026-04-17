@@ -84,8 +84,7 @@
                                     </button>
                                 @endif
                                 <button type="button" class="btn btn-red btn-sm whitespace-nowrap"
-                                    wire:click="deleteCard('{{ $pmId }}')" wire:loading.attr="disabled"
-                                    onclick="return confirm('Remove this card?') || event.stopImmediatePropagation()">
+                                    wire:click="confirmDeleteCard('{{ $pmId }}')" wire:loading.attr="disabled">
                                     Delete
                                 </button>
                             </div>
@@ -108,11 +107,18 @@
                     <p id="card-errors" class="text-red-500 text-sm mt-1.5 min-h-[20px]"></p>
                 </div>
                 <button type="button" id="saveCardBtn" class="btn btn-primary w-full">
-                    Save Card
+                    <span id="saveCardText">Save Card</span>
                 </button>
             </form>
         </div>
     </x-frontend.modal>
+    <x-frontend.confirm-delete-modal 
+        modalId="confirm_delete_modal" 
+        title="Delete Card"
+        message="Are you sure you want to delete this card?"
+        confirmAction="deleteCard"
+        closeAction="closeModal"
+     />
 </div>
 @push('scripts')
     @once

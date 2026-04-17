@@ -2,6 +2,7 @@
 
 namespace App\Services\Common;
 
+use App\Models\UserAddressModel;
 use App\Repositories\Common\MyAccountRepository;
 use Illuminate\Support\Facades\Auth;
 use App\Services\Common\FileService;
@@ -98,5 +99,25 @@ class MyAccountService
         } catch (Exception $e) {
             throw $e;
         }
+    }
+
+    public function getAddresses(): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->repository->getAddresses(Auth::id());
+    }
+
+    public function createAddress(array $data): void
+    {
+        $this->repository->createAddress(Auth::id(), $data);
+    }
+
+    public function updateAddress(int $addressId, array $data): bool
+    {
+        return $this->repository->updateAddress(Auth::id(), $addressId, $data);
+    }
+
+    public function deleteAddress(int $addressId): bool
+    {
+        return $this->repository->deleteAddress(Auth::id(), $addressId);
     }
 }

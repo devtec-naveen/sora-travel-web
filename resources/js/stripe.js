@@ -4,6 +4,7 @@
     let stripe = null;
     let elements = null;
     let cardElement = null;
+    let isProcessing = false;
 
     function ensureStripe() {
         if (stripe) return true;
@@ -27,12 +28,8 @@
 
     function destroyCard() {
         if (cardElement) {
-            try {
-                cardElement.unmount();
-            } catch (_) {}
-            try {
-                cardElement.destroy();
-            } catch (_) {}
+            try { cardElement.unmount(); } catch (_) {}
+            try { cardElement.destroy(); } catch (_) {}
             cardElement = null;
             console.log("[Stripe] Card element destroyed.");
         }
@@ -51,17 +48,10 @@
 
         if (cardEl.offsetWidth === 0 || cardEl.offsetHeight === 0) {
             if (retryCount < 20) {
-                console.log(
-                    "[Stripe] Waiting for dimensions... attempt " +
-                        (retryCount + 1),
-                );
-                setTimeout(function () {
-                    mountCard(retryCount + 1);
-                }, 100);
+                console.log("[Stripe] Waiting for dimensions... attempt " + (retryCount + 1));
+                setTimeout(function () { mountCard(retryCount + 1); }, 100);
             } else {
-                console.error(
-                    "[Stripe] #card-element never got visible dimensions. Check modal CSS.",
-                );
+                console.error("[Stripe] #card-element never got visible dimensions. Check modal CSS.");
             }
             return;
         }
@@ -80,9 +70,7 @@
                     fontFamily: "inherit",
                     "::placeholder": { color: "#94a3b8" },
                 },
-                invalid: {
-                    color: "#ef4444",
-                },
+                invalid: { color: "#ef4444" },
             },
         });
 
@@ -106,52 +94,59 @@
         });
     }
 
-    async function handleSaveCard() {
-        if (!stripe || !cardElement) {
-            console.error("[Stripe] Not initialised — open the modal first.");
-            return;
-        }
-
+    function setLoading(isLoading) {
         const btn = document.getElementById("saveCardBtn");
-        const errEl = document.getElementById("card-errors");
+        const text = document.getElementById("saveCardText");
 
-        if (!btn) return;
+        if (!btn || !text) return;
 
-        btn.disabled = true;
-        btn.textContent = "Processing…";
-
-        const { paymentMethod, error } = await stripe.createPaymentMethod({
-            type: "card",
-            card: cardElement,
-        });
-
-        btn.disabled = false;
-        btn.textContent = "Save Card";
-
-        if (error) {
-            if (errEl) errEl.textContent = error.message;
-            console.error("[Stripe] createPaymentMethod error:", error);
-            return;
-        }
-
-        if (errEl) errEl.textContent = "";
-
-        Livewire.dispatch("stripePaymentMethod", {
-            paymentMethodId: paymentMethod.id,
-        });
-
-        cardElement.clear();
+        btn.disabled = isLoading;
+        text.innerText = isLoading ? "Processing..." : "Save Card";
     }
 
-    document.addEventListener("click", function (e) {
-        const btn =
-            e.target.id === "saveCardBtn"
-                ? e.target
-                : e.target.closest("#saveCardBtn");
-        if (btn) {
-            e.preventDefault();
-            handleSaveCard();
+    async function handleSaveCard() {
+        if (isProcessing) return;
+        isProcessing = true;
+        setLoading(true);
+
+        try {
+            if (!stripe || !cardElement) {
+                isProcessing = false;
+                setLoading(false);
+                return;
+            }
+
+            const { paymentMethod, error } = await stripe.createPaymentMethod({
+                type: "card",
+                card: cardElement,
+            });
+
+            if (error) {
+                document.getElementById("card-errors").textContent = error.message;
+                isProcessing = false;
+                setLoading(false);
+                return;
+            }
+
+            Livewire.dispatch("stripePaymentMethod", {
+                paymentMethodId: paymentMethod.id,
+            });
+
+        } catch (e) {
+            console.error(e);
+            isProcessing = false;
+            setLoading(false);
         }
+    }
+
+    document.getElementById("saveCardBtn")?.addEventListener("click", function (e) {
+        e.preventDefault();
+        handleSaveCard();
+    });
+
+    Livewire.on("stripe-done", function () {
+        isProcessing = false;
+        setLoading(false);
     });
 
     document.addEventListener("livewire:init", function () {
@@ -170,11 +165,8 @@
                 const errEl = document.getElementById("card-errors");
                 if (errEl) errEl.textContent = "";
 
-                const btn = document.getElementById("saveCardBtn");
-                if (btn) {
-                    btn.disabled = false;
-                    btn.textContent = "Save Card";
-                }
+                isProcessing = false;
+                setLoading(false);
             }
         });
     });

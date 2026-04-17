@@ -30,9 +30,9 @@
             <i data-tabler="credit-card" class="size-6 shrink-0"></i>
             <span>Saved Cards</span>
         </a>
-        <a href="saved-address.php"
-            class="sidebar-link flex items-center gap-2.5 px-2.5 py-3.5 rounded-xl text-slate-600 text-base font-normal hover:bg-slate-100 transition-colors"
-            data-page="saved-address.php">
+        <a href="{{route('my-account.save-address')}}"
+            class="sidebar-link flex items-center gap-2.5 px-2.5 py-3.5 rounded-xl text-slate-600 text-base font-normal transition-colors {{ request()->routeIs('my-account.save-address') ? 'bg-primary-600 text-white' : 'text-slate-600 hover:bg-slate-100' }}"
+            data-page="{{route('my-account.save-address')}}">
             <i data-tabler="map-pin" class="size-6 shrink-0"></i>
             <span>Saved Addresses</span>
         </a>

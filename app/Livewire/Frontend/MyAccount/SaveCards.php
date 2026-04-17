@@ -18,6 +18,7 @@ class SaveCards extends Component
     public string $cardholder_name = '';
     public string $expiry_date = '';
     public string $cvv = '';
+    public string $paymentMethodId;
 
     public bool $isLoading = false;
 
@@ -52,11 +53,8 @@ class SaveCards extends Component
     {
         try {
             $stripeService->saveCard(Auth::user(), $paymentMethodId);
-
             $this->cards = $stripeService->listCards(Auth::user())?->toArray() ?? [];
-
             $this->dispatch('close-modal', id: 'add_card_modal');
-
             $this->Toast('success', 'Card saved successfully.');
         } catch (\Exception $e) {
             $this->Toast('error', $e->getMessage());
@@ -68,9 +66,9 @@ class SaveCards extends Component
         $this->dispatch('open-modal', id: $id);
     }
 
-    public function closeModal($id)
+    public function closeModal()
     {
-        $this->dispatch('close-modal', id: $id);
+        $this->dispatch('close-modal', id: "confirm_delete_modal");
     }
 
     public function resetForm(): void
@@ -93,10 +91,17 @@ class SaveCards extends Component
         $this->Toast('success', 'Default card updated.');
     }
 
-    public function deleteCard(string $paymentMethodId, StripeService $stripeService): void
+    public function confirmDeleteCard(string $paymentMethodId): void
     {
-        $stripeService->deleteCard(Auth::user(), $paymentMethodId);
+        $this->paymentMethodId = $paymentMethodId;
+        $this->dispatch('open-modal', id: 'confirm_delete_modal');
+    }
+
+    public function deleteCard(StripeService $stripeService): void
+    {
+        $stripeService->deleteCard(Auth::user(), $this->paymentMethodId);
         $this->cards = $stripeService->listCards(Auth::user())?->toArray() ?? [];
+        $this->dispatch('close-modal', id: "confirm_delete_modal");
         $this->Toast('success', 'Card removed successfully.');
     }
 
