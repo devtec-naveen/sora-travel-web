@@ -55,6 +55,14 @@ Route::middleware('check.active')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/payment/intent', [PaymentController::class, 'createPaymentIntent']);
         Route::post('/payments/confirm-and-book', [FlightController::class, 'confirmAndBook']);
+
+        Route::prefix('addresses')->group(function () {
+            Route::get('/list',       [MyAccountController::class, 'getAddresses']);
+            Route::post('/store',      [MyAccountController::class, 'storeAddress']);
+            Route::put('/{id}',   [MyAccountController::class, 'updateAddress']);
+            Route::delete('/{id}',[MyAccountController::class, 'deleteAddress']);
+        });
+
         Route::prefix('cards')->group(function () {
             Route::post('/store',             [CardController::class, 'store']);
             Route::get('/list',              [CardController::class, 'list']);

@@ -125,4 +125,94 @@ class MyAccountController extends Controller
             return $this->error($e->getMessage(), config('constant.httpCode.INTERNAL_SERVER_ERROR'));
         }
     }
+
+    public function getAddresses(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $addresses = $this->myAccountService->getAddresses();
+
+            return $this->success('Addresses fetched successfully.', $addresses, config('constant.httpCode.SUCCESS_OK'));
+        } catch (Exception $e) {
+            return $this->error($e->getMessage(), config('constant.httpCode.INTERNAL_SERVER_ERROR'));
+        }
+    }
+
+    public function storeAddress(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $request->validate([
+                'street_address' => ['required', 'string', 'max:255'],
+                'city'           => ['required', 'string', 'max:100'],
+                'postal_code'    => ['required', 'string', 'max:20'],
+                'county'         => ['required', 'string', 'max:100'],
+            ], [
+                'street_address.required' => 'Street address is required.',
+                'city.required'           => 'City is required.',
+                'postal_code.required'    => 'Postal code is required.',
+                'county.required'         => 'County / State is required.',
+            ]);
+
+            $this->myAccountService->createAddress($request->only([
+                'street_address',
+                'city',
+                'postal_code',
+                'county',
+            ]));
+
+            return $this->success('Address added successfully.', [], config('constant.httpCode.SUCCESS_CREATED'));
+        } catch (ValidationException $e) {
+            return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+        } catch (Exception $e) {
+            return $this->error($e->getMessage(), config('constant.httpCode.INTERNAL_SERVER_ERROR'));
+        }
+    }
+
+    public function updateAddress(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $request->validate([
+                'street_address' => ['required', 'string', 'max:255'],
+                'city'           => ['required', 'string', 'max:100'],
+                'postal_code'    => ['required', 'string', 'max:20'],
+                'county'         => ['required', 'string', 'max:100'],
+            ], [
+                'street_address.required' => 'Street address is required.',
+                'city.required'           => 'City is required.',
+                'postal_code.required'    => 'Postal code is required.',
+                'county.required'         => 'County / State is required.',
+            ]);
+
+            $updated = $this->myAccountService->updateAddress($id, $request->only([
+                'street_address',
+                'city',
+                'postal_code',
+                'county',
+            ]));
+
+            if (! $updated) {
+                return $this->error('Address not found.', config('constant.httpCode.NOT_FOUND'));
+            }
+
+            return $this->success('Address updated successfully.', [], config('constant.httpCode.SUCCESS_OK'));
+        } catch (ValidationException $e) {
+            return $this->error($e->errors(), config('constant.httpCode.UNPROCESSABLE_ENTITY'));
+        } catch (Exception $e) {
+            return $this->error($e->getMessage(), config('constant.httpCode.INTERNAL_SERVER_ERROR'));
+        }
+    }
+
+    public function deleteAddress(int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $deleted = $this->myAccountService->deleteAddress($id);
+
+            if (! $deleted) {
+                return $this->error('Address not found.', config('constant.httpCode.NOT_FOUND'));
+            }
+
+            return $this->success('Address deleted successfully.', [], config('constant.httpCode.SUCCESS_OK'));
+        } catch (Exception $e) {
+            return $this->error($e->getMessage(), config('constant.httpCode.INTERNAL_SERVER_ERROR'));
+        }
+    }
 }
