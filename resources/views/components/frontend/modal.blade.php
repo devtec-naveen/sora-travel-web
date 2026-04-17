@@ -60,12 +60,12 @@
     </dialog>
 @endif
 @if ($header)
-    <dialog id="{{ $id }}" class="modal">
+    <dialog id="{{ $id }}" class="modal" wire:ignore.self>
         <div class="modal-box max-w-[727px] mx-auto flex flex-col p-0 rounded-2xl overflow-hidden bg-white">
             <div class="flex justify-between items-center p-5 border-b border-slate-100">
                 <h3 class="font-semibold text-xl text-slate-950">{{$headerText ?? ''}}</h3>
                 <form method="dialog">
-                    <button wire:click="closeModalFligtDetails('flight_details_modal')" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <button wire:click="closeModal('{{ $id }}')" class="text-slate-400 hover:text-slate-600 transition-colors">
                         <i data-tabler="x" data-size="20"><svg xmlns="http://www.w3.org/2000/svg"
                                 class="icon icon-tabler icon-tabler-x" width="20" height="20" viewBox="0 0 24 24"
                                 stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round"

@@ -39,6 +39,7 @@ Route::middleware([CheckUserActive::class])->group(function () {
         Route::prefix('my-account')->group(function () {
             Route::get('/personal-information', fn() => view('myaccount.personal-information'))->name('my-account.personal-information');
             Route::get('/notification-preferences', fn() => view('myaccount.notification-preferences'))->name('my-account.notification-preferences');
+            Route::get('/save-cards', fn() => view('myaccount.save-cards'))->name('my-account.save-cards');
         });
         Route::get('/my-booking',             [BookingController::class, 'myBooking'])->name('my-booking');
         Route::get('/my-booking/flight/{id}', [BookingController::class, 'myFlightViewBooking'])->name('booking.flight.show');

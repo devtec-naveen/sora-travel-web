@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Services\Stripe;
+namespace App\Services\Common;
+
 use Stripe\Stripe;
 use Stripe\Customer;
 use Stripe\PaymentMethod;
-use App\Models\UserCard;
+use App\Models\User;
+use App\Models\UserCardModel;
 
 class StripeService
 {
@@ -13,7 +15,12 @@ class StripeService
         Stripe::setApiKey(config('services.stripe.secret'));
     }
 
-    public function getCustomer($user)
+    /*
+    |--------------------------------------------------------------------------
+    | GET OR CREATE CUSTOMER
+    |--------------------------------------------------------------------------
+    */
+    public function getCustomer(User $user): string
     {
         if ($user->stripe_customer_id) {
             return $user->stripe_customer_id;
@@ -31,29 +38,55 @@ class StripeService
         return $customer->id;
     }
 
-    // SAVE CARD
-    public function saveCard($user, $paymentMethodId)
+    /*
+    |--------------------------------------------------------------------------
+    | SAVE CARD
+    |--------------------------------------------------------------------------
+    */
+    public function saveCard(User $user, string $paymentMethodId): UserCardModel
     {
         $customerId = $this->getCustomer($user);
 
-        $paymentMethod = \Stripe\PaymentMethod::retrieve($paymentMethodId);
+        $paymentMethod = PaymentMethod::retrieve($paymentMethodId);
+
         $paymentMethod->attach([
             'customer' => $customerId
         ]);
 
-        // Save Database
-        // return UserCard::create([
-        //     'user_id' => $user->id,
-        //     'stripe_payment_method_id' => $paymentMethodId,
-        //     'brand' => $paymentMethod->card->brand,
-        //     'last_four' => $paymentMethod->card->last4,
-        //     'exp_month' => $paymentMethod->card->exp_month,
-        //     'exp_year' => $paymentMethod->card->exp_year,
-        // ]);
+        // Optional: set as default if first card
+        $isFirstCard = UserCardModel::where('user_id', $user->id)->count() === 0;
+
+        if ($isFirstCard) {
+            $this->setDefaultCard($user, $paymentMethodId);
+        }
+
+        return UserCardModel::create([
+            'user_id' => $user->id,
+            'stripe_payment_method_id' => $paymentMethodId,
+            'brand' => $paymentMethod->card->brand ?? null,
+            'last_four' => $paymentMethod->card->last4 ?? null,
+            'exp_month' => $paymentMethod->card->exp_month ?? null,
+            'exp_year' => $paymentMethod->card->exp_year ?? null,
+            'is_default' => $isFirstCard,
+        ]);
     }
 
-    // SET DEFAULT CARD
-    public function setDefaultCard($user, $paymentMethodId)
+    /*
+    |--------------------------------------------------------------------------
+    | LIST CARDS
+    |--------------------------------------------------------------------------
+    */
+    public function listCards(User $user)
+    {
+        return UserCardModel::where('user_id', $user->id)->get();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SET DEFAULT CARD
+    |--------------------------------------------------------------------------
+    */
+    public function setDefaultCard(User $user, string $paymentMethodId): bool
     {
         $customerId = $this->getCustomer($user);
 
@@ -63,9 +96,11 @@ class StripeService
             ]
         ]);
 
-        // Update local DB
-        // UserCard::where('user_id', $user->id)->update(['is_default' => false]);
-        // UserCard::where('stripe_payment_method_id', $paymentMethodId)->update(['is_default' => true]);
+        UserCardModel::where('user_id', $user->id)
+            ->update(['is_default' => false]);
+
+        UserCardModel::where('stripe_payment_method_id', $paymentMethodId)
+            ->update(['is_default' => true]);
 
         $user->update([
             'default_payment_method_id' => $paymentMethodId
@@ -74,19 +109,28 @@ class StripeService
         return true;
     }
 
-    // DELETE CARD
-    public function deleteCard($user, $paymentMethodId)
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE CARD
+    |--------------------------------------------------------------------------
+    */
+    public function deleteCard(User $user, string $paymentMethodId): bool
     {
-        $paymentMethod = \Stripe\PaymentMethod::retrieve($paymentMethodId);
+        $paymentMethod = PaymentMethod::retrieve($paymentMethodId);
         $paymentMethod->detach();
-        // UserCard::where('stripe_payment_method_id', $paymentMethodId)->delete();
+
+        $card = UserCardModel::where('user_id', $user->id)
+            ->where('stripe_payment_method_id', $paymentMethodId)
+            ->first();
+
+        if ($card && $card->is_default) {
+            $user->update([
+                'default_payment_method_id' => null
+            ]);
+        }
+
+        $card?->delete();
 
         return true;
-    }
-
-    // LIST CARDS
-    public function listCards($user)
-    {
-        // return UserCard::where('user_id', $user->id)->get();
     }
 }

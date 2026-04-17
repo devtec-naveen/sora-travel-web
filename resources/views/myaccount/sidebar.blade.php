@@ -24,9 +24,9 @@
             <i data-tabler="bell" class="size-6 shrink-0"></i>
             <span>Notification Preferences</span>
         </a>
-        <a href="save-cards.php"
-            class="sidebar-link flex items-center gap-2.5 px-2.5 py-3.5 rounded-xl text-slate-600 text-base font-normal hover:bg-slate-100 transition-colors"
-            data-page="save-cards.php">
+        <a href="{{route('my-account.save-cards')}}"
+            class="sidebar-link flex items-center gap-2.5 px-2.5 py-3.5 rounded-xl text-slate-600 text-base font-normal transition-colors {{ request()->routeIs('my-account.save-cards') ? 'bg-primary-600 text-white' : 'text-slate-600 hover:bg-slate-100' }}"
+            data-page="{{route('my-account.save-cards')}}">
             <i data-tabler="credit-card" class="size-6 shrink-0"></i>
             <span>Saved Cards</span>
         </a>

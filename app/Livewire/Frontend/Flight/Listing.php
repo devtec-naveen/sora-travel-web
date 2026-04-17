@@ -203,7 +203,7 @@ class Listing extends Component
         $this->redirect(route('airport.passengers'));
     }
 
-    public function closeModalFligtDetails(): void
+    public function closeModal(): void
     {
         $this->selectedFlight = [];
         $this->dispatch('close-modal', id: 'flight_details_modal');

@@ -14,7 +14,7 @@
     "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-Briy6Wb0.css",
+    "file": "assets/app-COUXj3Kk.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -45,6 +45,12 @@
     "file": "assets/modal-CF_AktRy.js",
     "name": "modal",
     "src": "resources/js/modal.js",
+    "isEntry": true
+  },
+  "resources/js/stripe.js": {
+    "file": "assets/stripe-CJ7vgfBW.js",
+    "name": "stripe",
+    "src": "resources/js/stripe.js",
     "isEntry": true
   }
 }

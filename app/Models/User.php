@@ -30,7 +30,9 @@ class User extends Authenticatable
         'status',
         'otp_expires_at',
         'passport_id',
-        'profile_image'
+        'profile_image',
+        'stripe_customer_id',
+        'default_payment_method_id',
     ];
 
     /**
@@ -54,5 +56,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function cards()
+    {
+        return $this->hasMany(UserCardModel::class);
     }
 }
