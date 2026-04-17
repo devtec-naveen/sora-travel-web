@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\HotelController;
 use App\Http\Controllers\Api\MyAccountController;
 use App\Http\Controllers\Api\MyBookingController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\CardController;
 
 Route::middleware('check.active')->group(function () {
 
@@ -54,5 +55,11 @@ Route::middleware('check.active')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/payment/intent', [PaymentController::class, 'createPaymentIntent']);
         Route::post('/payments/confirm-and-book', [FlightController::class, 'confirmAndBook']);
+        Route::prefix('cards')->group(function () {
+            Route::post('/store',             [CardController::class, 'store']);
+            Route::get('/list',              [CardController::class, 'list']);
+            Route::put('/{id}/default',  [CardController::class, 'setDefault']);
+            Route::delete('/{id}',       [CardController::class, 'destroy']);
+        });
     });
 });
