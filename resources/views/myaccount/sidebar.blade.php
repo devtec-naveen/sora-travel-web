@@ -42,7 +42,7 @@
             <i data-tabler="trash" class="size-6 shrink-0"></i>
             <span>Delete Account</span>
         </a>
-        <a href="javascript:void(0)" onclick="logout_modal.showModal()"
+        <a href="javascript:void(0)" onclick="showLogoutPopup()"
             class="flex items-center gap-2.5 px-2.5 py-3.5 rounded-xl text-slate-600 text-base font-normal hover:bg-slate-100 transition-colors">
             <i data-tabler="logout" class="size-6 shrink-0"></i>
             <span>Logout</span>
