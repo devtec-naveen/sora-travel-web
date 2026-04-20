@@ -360,5 +360,4 @@ class AuthService
     {
         return $this->authRepo->findByEmail($email);
     }
-
 }
