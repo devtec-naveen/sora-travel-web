@@ -251,7 +251,7 @@ class OrderService
                         'discount_amount'       => number_format($order->discount_amount, 2),
                         'total_amount'          => number_format($order->total_amount, 2),
                         'currency'              => strtoupper($order->currency),
-                        'booking_url'           => config('app.url') . '/my-bookings/' . $order->id,
+                        'booking_url'           => config('app.url') . '/my-booking/' . $order->id,
                         'flight_slices_html'    => $slicesHtml,
                         'flight_passengers_html'=> $passengersHtml,
                     ]
