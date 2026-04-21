@@ -288,7 +288,7 @@
                                                             @endif
                                                             <button class="btn btn-primary btn-sm whitespace-nowrap"
                                                                 wire:navigate
-                                                                href="{{ route('booking.flight.show', $order->id) }}">
+                                                                href="{{ route('booking.flight.show', encodeId($order->id)) }}">
                                                                 {{ $flags['isUpcoming'] ? 'View' : 'View Details' }}
                                                             </button>
                                                         </div>
@@ -429,7 +429,7 @@
                                                                 </button>
                                                             @endif
                                                             <button class="btn btn-primary btn-sm whitespace-nowrap"
-                                                                wire:navigate href="{{ $order->id }}">
+                                                                wire:navigate href="{{ encodeId($order->id) }}">
                                                                 {{ $flags['isUpcoming'] ? 'View' : 'View Details' }}
                                                             </button>
                                                         </div>
@@ -570,7 +570,7 @@
                                                                 </button>
                                                             @endif
                                                             <button class="btn btn-primary btn-sm whitespace-nowrap"
-                                                                wire:navigate href="{{ $order->id }}">
+                                                                wire:navigate href="{{ encodeId($order->id) }}">
                                                                 {{ $flags['isUpcoming'] ? 'View' : 'View Details' }}
                                                             </button>
                                                         </div>

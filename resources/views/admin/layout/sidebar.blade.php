@@ -73,6 +73,13 @@
                     <span class="sidemenu-label">Popular Destinations</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" wire:navigate href="{{ route('admin.destinationsList') }}">
+                    <span class="shape1"></span>
+                    <span class="shape2"></span><i class="ti-help sidemenu-icon"></i>
+                    <span class="sidemenu-label">Help Center</span>
+                </a>
+            </li>
             <li class="nav-item {{ Route::currentRouteName() == 'admin.globalSettingList' ? 'active' : '' }}">
                 <a class="nav-link" wire:navigate href="{{ route('admin.globalSettingList') }}">
                     <span class="shape1"></span>

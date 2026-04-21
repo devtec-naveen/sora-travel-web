@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\GlobalSettingModel;
+use Vinkla\Hashids\Facades\Hashids;
 use App\Models\User;
 
 if (!function_exists('getSetting')) {
@@ -39,5 +40,20 @@ if (!function_exists('getUserByEmail')) {
         }
 
         return User::select($columns)->where('email', $email)->first();
+    }
+}
+
+if (!function_exists('encodeId')) {
+    function encodeId($id)
+    {
+        return Hashids::encode($id);
+    }
+}
+
+if (!function_exists('decodeId')) {
+    function decodeId($hash)
+    {
+        $decoded = Hashids::decode($hash);
+        return $decoded[0] ?? null;
     }
 }

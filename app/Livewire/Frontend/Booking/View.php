@@ -23,7 +23,7 @@ class View extends Component
 
     public function mount(int|string $id): void
     {
-        $this->bookingId = $id;
+        $this->bookingId = decodeId($id);
     }
 
     public function loadData(): void
@@ -31,7 +31,7 @@ class View extends Component
         sleep(1);
         $result = $this->service->getOrderDetail($this->bookingId);
         if (!$result) {
-            $this->redirect(route('booking.index'));
+            $this->redirect(route('my-booking'));
             return;
         }
         $this->order     = $result;

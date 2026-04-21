@@ -15,6 +15,7 @@ use App\Http\Controllers\Backend\PopularDestinationController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\SpecialOffersController;
+use App\Http\Controllers\Frontend\TicketController;
 use App\Http\Middleware\BookingSessionMiddleware;
 use App\Http\Middleware\CheckUserActive;
 
@@ -33,10 +34,9 @@ Route::middleware([CheckUserActive::class])->group(function () {
     Route::get('/hotels-search',       [HotelController::class, 'index'])->name('front.hotelsSearch');
     Route::get('/hotels/suggestions',  [HotelController::class, 'suggest'])->name('hotels.suggestions');
     Route::get('/hotels/details/{id}', [HotelController::class, 'details'])->name('hotels.details');
-
     Route::get('/faq', [FrontendCmsController::class, 'faq'])->name('front.faq');
+    Route::get('/help-center',           [TicketController::class, 'index'])->name('front.helpCenter');
 
-    // Protected
     Route::middleware(['user.auth'])->group(function () {
         Route::prefix('my-account')->group(function () {
             Route::get('/personal-information', fn() => view('myaccount.personal-information'))->name('my-account.personal-information');
@@ -47,6 +47,7 @@ Route::middleware([CheckUserActive::class])->group(function () {
         });
         Route::get('/my-booking',             [BookingController::class, 'myBooking'])->name('my-booking');
         Route::get('/my-booking/flight/{id}', [BookingController::class, 'myFlightViewBooking'])->name('booking.flight.show');
+        Route::get('/help-center/{id}',      [TicketController::class, 'detail'])->name('front.helpCenter.detail');
     });
 
 

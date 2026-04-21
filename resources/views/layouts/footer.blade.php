@@ -68,9 +68,9 @@
                 <div class="flex flex-col gap-6">
                     <h4 class="text-white text-lg font-semibold">Support</h4>
                     <ul class="flex flex-col gap-3 text-slate-300 text-sm">
-                        <li><a href="#" class="hover:text-white transition">Help Center</a></li>
-                        <li><a href="#" class="hover:text-white transition">Terms & Conditions</a></li>
-                        <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="{{route('front.helpCenter')}}" class="hover:text-white transition">Help Center</a></li>
+                        <li><a href="{{url('terms-and-conditions')}}" class="hover:text-white transition">Terms & Conditions</a></li>
+                        <li><a href="{{url('privacy-policy')}}" class="hover:text-white transition">Privacy Policy</a></li>
                         <li><a href="#" class="hover:text-white transition">Cancellation Policy</a></li>
                         <li><a href="{{route('front.faq')}}" class="hover:text-white transition">FAQ</a></li>
                     </ul>

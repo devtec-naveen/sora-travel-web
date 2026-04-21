@@ -134,39 +134,28 @@ class MyAccountService
     public function deleteAccount(string $password): void
     {
         $user = Auth::user();
-
-        // Verify password
         if (! Hash::check($password, $user->password)) {
             throw new \RuntimeException('Incorrect password. Please try again.');
         }
 
-        // Detach all Stripe payment methods + delete Stripe customer
         if ($user->stripe_customer_id) {
             try {
                 Stripe::setApiKey(config('services.stripe.secret'));
-
                 $cards = UserCardModel::where('user_id', $user->id)->get();
-
                 foreach ($cards as $card) {
                     try {
                         $pm = StripePaymentMethod::retrieve($card->stripe_payment_method_id);
                         $pm->detach();
                     } catch (\Exception) {
-                        // Already detached — skip
                     }
                 }
 
                 StripeCustomer::retrieve($user->stripe_customer_id)->delete();
             } catch (\Exception) {
-                // Stripe cleanup failed — proceed with local deletion anyway
             }
         }
-
-        // Revoke all Sanctum tokens
+        /** @var \App\Models\User $user */
         $user->tokens()->delete();
-
-        // Delete user — cascade handles: user_cards, user_addresses,
-        // notification_settings, orders, personal_access_tokens
         $this->repository->deleteAccount($user->id);
     }
 }

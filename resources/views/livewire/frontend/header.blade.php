@@ -131,4 +131,10 @@
     <x-booking-timeout-popup />
 
     <x-logout-popup />
+
+    @auth
+        <x-frontend.modal id="raise_ticket_modal" :header="true" headerText="Raise A Ticket">
+            <livewire:frontend.help-center.create-ticket key="raise_ticket_modal" />
+        </x-frontend.modal>
+    @endauth
 </div>
