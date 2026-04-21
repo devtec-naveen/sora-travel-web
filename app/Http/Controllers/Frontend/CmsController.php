@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PagesModel;
 use Illuminate\Http\Request;
 use App\Services\Api\ContentService;
+use App\Services\Common\CmsService;
 class CmsController extends Controller
 {
     protected $service;
@@ -32,4 +33,11 @@ class CmsController extends Controller
 
         return view('page', compact('page'));
     }
+
+    public function faq()
+    {
+        $categories = app(CmsService::class)->getFaqsForFrontend();
+        return view('faq', compact('categories'));
+    }
+
 }

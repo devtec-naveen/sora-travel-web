@@ -34,6 +34,8 @@ Route::middleware([CheckUserActive::class])->group(function () {
     Route::get('/hotels/suggestions',  [HotelController::class, 'suggest'])->name('hotels.suggestions');
     Route::get('/hotels/details/{id}', [HotelController::class, 'details'])->name('hotels.details');
 
+    Route::get('/faq', [FrontendCmsController::class, 'faq'])->name('front.faq');
+
     // Protected
     Route::middleware(['user.auth'])->group(function () {
         Route::prefix('my-account')->group(function () {

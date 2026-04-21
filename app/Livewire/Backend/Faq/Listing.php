@@ -3,7 +3,7 @@
 namespace App\Livewire\Backend\Faq;
 
 use App\Livewire\Backend\DataTable;
-use App\Services\Backend\CmsService;
+use App\Services\Common\CmsService;
 use App\Services\Common\ChangeStatusService;
 use App\Services\Common\DeleteService;
 use App\Traits\Toast;

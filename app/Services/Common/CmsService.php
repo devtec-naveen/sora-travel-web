@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Backend;
+namespace App\Services\Common;
 
 use App\Models\FaqCategoryModel;
 use App\Models\FaqModel;
@@ -86,6 +86,11 @@ class CmsService
     public function updateFaq(int $id, array $data): bool
     {
         return $this->repo->updateFaq($id, $data);
+    }
+
+    public function getFaqsForFrontend()
+    {
+        return $this->repo->getFaqsGroupedByCategory();
     }
 
     //=============================== Pages ==============================

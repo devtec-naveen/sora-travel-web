@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Backend\Faq;
 use Livewire\Component;
-use App\Services\Backend\CmsService;
+use App\Services\Common\CmsService;
 
 class View extends Component
 {

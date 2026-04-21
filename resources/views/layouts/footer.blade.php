@@ -61,7 +61,7 @@
                         <li><a href="#" class="hover:text-white transition">Search Hotels</a></li>
                         <li><a href="#" class="hover:text-white transition">Car Rental</a></li>
                         <li><a href="#" class="hover:text-white transition">Dynamic Packages</a></li>
-                        <li><a href="#" class="hover:text-white transition">My Bookings</a></li>
+                        <li><a href="{{route('my-booking')}}" class="hover:text-white transition">My Bookings</a></li>
                     </ul>
                 </div>
                 <!-- Support -->
@@ -72,7 +72,7 @@
                         <li><a href="#" class="hover:text-white transition">Terms & Conditions</a></li>
                         <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
                         <li><a href="#" class="hover:text-white transition">Cancellation Policy</a></li>
-                        <li><a href="#" class="hover:text-white transition">FAQ</a></li>
+                        <li><a href="{{route('front.faq')}}" class="hover:text-white transition">FAQ</a></li>
                     </ul>
                 </div>
                 <div class="flex flex-col gap-6">

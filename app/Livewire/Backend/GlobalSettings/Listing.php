@@ -4,7 +4,7 @@ namespace App\Livewire\Backend\GlobalSettings;
 
 use App\Livewire\Backend\DataTable;
 use App\Traits\Toast;
-use App\Services\Backend\CmsService;
+use App\Services\Common\CmsService;
 
 class Listing extends DataTable
 {

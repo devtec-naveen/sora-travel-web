@@ -41,6 +41,7 @@ Route::middleware('check.active')->group(function () {
     });
 
     Route::get('/page/{slug}', [CmsController::class, 'show']);
+    Route::get('/faq', [CmsController::class, 'faq']);
 
     //================== Auth Sanctum ======================
 

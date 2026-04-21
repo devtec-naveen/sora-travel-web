@@ -3,7 +3,7 @@
 namespace App\Livewire\Backend\EmailTemplate;
 
 use Livewire\Component;
-use App\Services\Backend\CmsService;
+use App\Services\Common\CmsService;
 
 class View extends Component
 {

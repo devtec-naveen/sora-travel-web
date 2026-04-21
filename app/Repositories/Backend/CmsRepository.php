@@ -112,6 +112,17 @@ class CmsRepository
         return $faq->update($data);
     }
 
+    
+    public function getFaqsGroupedByCategory()
+    {
+        return FaqCategoryModel::where('status', 'active')
+            ->with(['faqs' => function ($q) {
+                $q->where('status', 'active')->orderBy('id', 'asc');
+            }])
+            ->orderBy('id', 'asc')
+            ->get();
+    }
+
     //=================================================== Pages ====================================
 
     public function pageList($filters = [])

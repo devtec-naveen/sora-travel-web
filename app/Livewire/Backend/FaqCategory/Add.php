@@ -3,7 +3,7 @@
 namespace App\Livewire\Backend\FaqCategory;
 
 use App\Livewire\Backend\DataTable;
-use App\Services\Backend\CmsService;
+use App\Services\Common\CmsService;
 use App\Traits\Toast;
 
 class Add extends DataTable

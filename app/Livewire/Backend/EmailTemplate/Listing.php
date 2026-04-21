@@ -3,7 +3,7 @@
 namespace App\Livewire\Backend\EmailTemplate;
 
 use App\Livewire\Backend\DataTable;
-use App\Services\Backend\CmsService;
+use App\Services\Common\CmsService;
 use App\Services\Common\ChangeStatusService;
 use App\Traits\Toast;
 

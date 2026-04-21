@@ -3,7 +3,7 @@
 namespace App\Livewire\Backend\Faq;
 
 use Livewire\Component;
-use App\Services\Backend\CmsService;
+use App\Services\Common\CmsService;
 use App\Traits\Toast;
 
 class Edit extends Component
