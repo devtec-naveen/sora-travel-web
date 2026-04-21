@@ -76,8 +76,8 @@ class Login extends Component
         }
 
         $this->resetForm();
-        $this->SessionToast('success', 'Login successfully!');
-        return redirect()->route('home');
+        $this->Toast('success', 'Login successfully!');
+        $this->dispatch('auth-success',redirect: false);
     }
 
     public function updated($field): void

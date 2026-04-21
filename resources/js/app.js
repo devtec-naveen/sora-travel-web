@@ -24,9 +24,15 @@ import "intl-tel-input/styles";
  */
 
 document.addEventListener("livewire:init", function () {
-    Livewire.on("auth-success", function () {
+    Livewire.on("auth-success", function (data = {}) {
         document.querySelectorAll("dialog[open]").forEach((d) => d.close());
-        window.location.reload();
+        if (data.redirect !== false) {
+            window.location.reload();
+        } else {
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
     });
 });
 
@@ -172,12 +178,14 @@ function initTablerIcons() {
  * Initialise main `.tabs-border` tabs and nested `.tabs` sub-tabs.
  */
 function initTabs() {
-    const mainTabsContainer = document.getElementById('mainTabsContainer');
+    const mainTabsContainer = document.getElementById("mainTabsContainer");
     if (!mainTabsContainer) return;
-    if (mainTabsContainer.dataset.tabsInit === 'true') return;
-    mainTabsContainer.dataset.tabsInit = 'true';
+    if (mainTabsContainer.dataset.tabsInit === "true") return;
+    mainTabsContainer.dataset.tabsInit = "true";
 
-    const activeMainTab = mainTabsContainer.querySelector(".tabs-border.active");
+    const activeMainTab = mainTabsContainer.querySelector(
+        ".tabs-border.active",
+    );
     if (activeMainTab) mainTabsContainer.prepend(activeMainTab);
 
     // document.querySelectorAll(".subTabs-content").forEach((subTabsContent) => {
@@ -190,7 +198,9 @@ function initTabs() {
     mainTabsContainer.querySelectorAll(".tabs-border").forEach((tab) => {
         tab.addEventListener("click", () => {
             const tabIndex = tab.dataset.tab;
-            mainTabsContainer.querySelectorAll(".tabs-border").forEach((t) => t.classList.remove("active"));
+            mainTabsContainer
+                .querySelectorAll(".tabs-border")
+                .forEach((t) => t.classList.remove("active"));
             tab.classList.add("active");
 
             document.querySelectorAll("[data-panel]").forEach((panel) => {
@@ -198,23 +208,34 @@ function initTabs() {
                 panel.classList.toggle("hidden", !isActive);
 
                 if (isActive) {
-                    const subTabsContainer = panel.querySelector(".flex.items-center.gap-2");
-                    const subTabsContent = panel.querySelector(".subTabs-content");
+                    const subTabsContainer = panel.querySelector(
+                        ".flex.items-center.gap-2",
+                    );
+                    const subTabsContent =
+                        panel.querySelector(".subTabs-content");
                     if (!subTabsContainer || !subTabsContent) return;
 
-                    const subTabs = subTabsContainer.querySelectorAll(".trip-tab");
-                    const subPanels = subTabsContent.querySelectorAll("[data-subtab]");
+                    const subTabs =
+                        subTabsContainer.querySelectorAll(".trip-tab");
+                    const subPanels =
+                        subTabsContent.querySelectorAll("[data-subtab]");
 
-                    const hasActive = [...subTabs].some(t => t.classList.contains("active"));
+                    const hasActive = [...subTabs].some((t) =>
+                        t.classList.contains("active"),
+                    );
                     if (!hasActive && subTabs.length) {
                         subTabs[0].classList.add("active");
                     }
 
-                    const activeSubTab = subTabsContainer.querySelector(".trip-tab.active");
+                    const activeSubTab =
+                        subTabsContainer.querySelector(".trip-tab.active");
                     if (activeSubTab && subPanels.length) {
                         const tripType = activeSubTab.dataset.trip;
                         subPanels.forEach((p) => {
-                            p.classList.toggle("hidden", p.dataset.subtab !== tripType);
+                            p.classList.toggle(
+                                "hidden",
+                                p.dataset.subtab !== tripType,
+                            );
                         });
                     }
                 }
@@ -223,7 +244,9 @@ function initTabs() {
     });
 
     document.querySelectorAll("[data-panel]").forEach((panel) => {
-        const subTabsContainer = panel.querySelector(".flex.items-center.gap-2");
+        const subTabsContainer = panel.querySelector(
+            ".flex.items-center.gap-2",
+        );
         const subTabsContent = panel.querySelector(".subTabs-content");
         if (!subTabsContainer || !subTabsContent) return;
 
@@ -245,7 +268,6 @@ function initTabs() {
 }
 
 document.addEventListener("DOMContentLoaded", initTabs);
-
 
 /* ═══════════════════════════════════════════════════════════════
    6. FILTER SIDEBAR  (Mobile)
@@ -1523,9 +1545,13 @@ function addMultiCity() {
     if (lastExistingRow) {
         const destField = lastExistingRow.querySelectorAll(".ap-field")[1];
         if (destField) {
-            prevDest.code    = destField.querySelector(".ap-hidden")?.value?.trim()      || "";
-            prevDest.city    = destField.querySelector(".ap-city-hidden")?.value?.trim() || "";
-            prevDest.display = destField.querySelector(".ap-display")?.textContent?.trim() || "";
+            prevDest.code =
+                destField.querySelector(".ap-hidden")?.value?.trim() || "";
+            prevDest.city =
+                destField.querySelector(".ap-city-hidden")?.value?.trim() || "";
+            prevDest.display =
+                destField.querySelector(".ap-display")?.textContent?.trim() ||
+                "";
         }
     }
 
@@ -1587,7 +1613,8 @@ function addMultiCity() {
             if (h) h.value = prevDest.code;
             if (c) c.value = prevDest.city;
             if (d) {
-                d.textContent = prevDest.display || `${prevDest.code} – ${prevDest.city}`;
+                d.textContent =
+                    prevDest.display || `${prevDest.code} – ${prevDest.city}`;
                 d.classList.remove("text-slate-400");
                 d.classList.add("text-slate-800");
             }
